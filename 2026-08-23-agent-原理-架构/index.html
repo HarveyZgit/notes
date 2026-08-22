@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>你不知道的 Agent：原理、架构与工程实践</title>
+<style>
+
+
+:root {
+  --paper: #F4EFE6;
+  --card: #FBF7F0;
+  --ink: #191918;
+  --muted: #6B6459;
+  --rule: #E4D9C8;
+  --accent: #C96442;
+  --accent-soft: #D97757;
+  --wash: rgba(201, 100, 66, 0.14);
+  --wash-strong: rgba(201, 100, 66, 0.22);
+  --serif: "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", "Noto Serif SC", Georgia, "Times New Roman", serif;
+  --sans: "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Noto Sans Mono CJK SC", monospace;
+  --rail: 248px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 32px; color-scheme: light; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.75;
+}
+
+.skip {
+  position: absolute;
+  left: 16px;
+  top: 12px;
+  z-index: 10;
+  padding: 8px 12px;
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  font-size: 13px;
+  transform: translateY(-160%);
+}
+.skip:focus,
+.skip:focus-visible { transform: none; }
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+h1, h2 { text-wrap: balance; }
+section[id], h1, h2 { scroll-margin-top: 32px; }
+
+/* Fixed left rail */
+.rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--rail);
+  height: 100vh;
+  overflow-y: auto;
+  padding: 28px 22px 36px;
+  background: #F5F0E8;
+  border-right: 1px solid var(--rule);
+  z-index: 4;
+}
+.rail-home {
+  display: inline-block;
+  margin: 0 0 16px;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+.rail-home:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.rail-title {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.35;
+  margin: 0 0 18px;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.rail summary {
+  display: none;
+  list-style: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.rail summary::-webkit-details-marker { display: none; }
+.rail nav ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: toc;
+}
+.rail nav li {
+  counter-increment: toc;
+  margin: 0;
+  border-top: 1px solid var(--rule);
+}
+.rail nav li:last-child { border-bottom: 1px solid var(--rule); }
+.rail nav a {
+  display: block;
+  position: relative;
+  padding: 9px 2px 9px 2.2em;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.rail nav a::before {
+  content: counter(toc, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 9px;
+  font-family: var(--serif);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--rule);
+  font-variant-numeric: tabular-nums;
+}
+.rail nav a:hover,
+.rail nav a.is-active {
+  color: var(--ink);
+}
+.rail nav a:hover::before,
+.rail nav a.is-active::before {
+  color: var(--accent);
+}
+.rail nav a.is-active { font-weight: 600; }
+
+/* Main deck */
+.deck {
+  width: min(760px, calc(100% - var(--rail) - 64px));
+  max-width: 760px;
+  padding: 56px 0 96px;
+  margin-right: auto;
+  margin-left: calc(var(--rail) + max(40px, (100% - var(--rail) - 760px) / 2));
+}
+header.hero { padding: 8px 0 8px; }
+h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(32px, 5vw, 46px);
+  line-height: 1.18;
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.subtitle {
+  font-family: var(--serif);
+  font-size: 22px;
+  color: var(--muted);
+  margin: 0 0 8px;
+  font-style: italic;
+}
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin: 22px 0 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.facts .fact {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+.facts dt {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.facts dd {
+  margin: 0;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.facts a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.facts a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.lead {
+  color: var(--ink);
+  margin: 28px 0 8px;
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 40px 42px 36px;
+  margin: 36px 0;
+  counter-increment: slide;
+}
+.deck { counter-reset: slide; }
+.card h2 {
+  font-family: var(--serif);
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 8px;
+  letter-spacing: -0.015em;
+}
+.card h2::after {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 1px;
+  background: var(--accent);
+  margin: 16px 0 22px;
+}
+.card h3 {
+  font-family: var(--serif);
+  font-size: 20px;
+  margin: 28px 0 10px;
+}
+p { margin: 0 0 14px; }
+p:last-child { margin-bottom: 0; }
+ul, ol { margin: 0 0 14px; padding-left: 22px; }
+li { margin: 0 0 6px; }
+
+blockquote,
+blockquote.hl-quote {
+  margin: 22px 0;
+  padding: 18px 22px 18px 24px;
+  background: rgba(201, 100, 66, 0.08);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  font-family: var(--serif);
+  font-size: 21px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+blockquote p { margin: 0; }
+
+figure { margin: 22px 0 10px; }
+figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
+  border: 1px solid var(--rule);
+  background: #EFE6D8;
+}
+figcaption {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 10px;
+  line-height: 1.55;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14.5px;
+  line-height: 1.55;
+  margin: 8px 0 4px;
+}
+th, td {
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: top;
+  padding: 10px 8px;
+}
+th {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  background: rgba(201, 100, 66, 0.06);
+  font-weight: 600;
+}
+th:first-child, td:first-child { padding-left: 10px; }
+
+.note {
+  font-size: 14px;
+  color: var(--ink);
+  background: rgba(201, 100, 66, 0.08);
+  border-radius: 0;
+  padding: 12px 14px;
+  margin: 16px 0 0;
+  border-left: 2px solid var(--accent);
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.92em;
+}
+
+mark.hl, .hl {
+  background: linear-gradient(transparent 58%, rgba(201, 100, 66, 0.28) 58%);
+  color: inherit;
+  padding: 0 .12em;
+}
+
+.takeaways { display: grid; gap: 14px; margin-top: 12px; }
+.take {
+  background: linear-gradient(180deg, rgba(201, 100, 66, 0.16), rgba(201, 100, 66, 0.08));
+  border: 1px solid rgba(201, 100, 66, 0.35);
+  border-left: 3px solid var(--accent);
+  border-radius: 0;
+  padding: 16px 18px;
+  color: var(--ink);
+}
+.take strong {
+  color: var(--accent);
+  font-family: var(--serif);
+  font-size: 1.08em;
+}
+
+footer {
+  margin-top: 48px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+@media (max-width: 980px) {
+  .rail {
+    position: relative;
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 16px 20px 14px;
+  }
+  .rail-title { display: none; }
+  .rail summary {
+    display: block;
+    padding: 6px 0;
+  }
+  .rail details:not([open]) nav { display: none; }
+  .rail details[open] nav { display: block; margin-top: 8px; }
+  .rail nav ol {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 12px;
+  }
+  .rail nav li:last-child { border-bottom: none; }
+  .deck {
+    width: calc(100% - 36px);
+    max-width: none;
+    margin: 0 auto;
+    padding: 32px 0 64px;
+  }
+  .card { padding: 26px 20px 22px; margin: 22px 0; }
+  .tldr { padding: 26px 20px 22px; }
+  body { font-size: 16px; }
+}
+
+.tldr {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  padding: 36px 42px 32px;
+  margin: 24px 0 32px;
+}
+.tldr h2 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 18px;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+.tldr ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: tldr;
+}
+.tldr li {
+  counter-increment: tldr;
+  display: block;
+  position: relative;
+  margin: 0;
+  padding: 16px 0 16px 2.6em;
+  border-top: 1px solid var(--rule);
+  line-height: 1.65;
+}
+.tldr li:last-child { padding-bottom: 0; }
+.tldr li::before {
+  content: counter(tldr, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 16px;
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.tldr li strong {
+  font-family: var(--serif);
+  color: var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+<aside class="rail">
+  <a class="rail-home" href="../">全部笔记</a>
+  <p class="rail-title">Harness 比更贵的模型更决定成功率</p>
+  <details class="toc-wrap" open>
+    <summary>目录</summary>
+    <nav aria-label="目录">
+<ol>
+        <li><a href="#highlights">核心观点</a></li>
+        <li><a href="#loop">循环、Workflow 与 Harness</a></li>
+        <li><a href="#ctx-tools">上下文与工具</a></li>
+        <li><a href="#memory-multi">记忆、自主度与多 Agent</a></li>
+        <li><a href="#eval-openclaw">评测、追踪与 OpenClaw</a></li>
+      </ol>
+    </nav>
+  </details>
+</aside>
+<main class="deck" id="main">
+<header class="hero">
+  <h1>你不知道的 Agent：原理、架构与工程实践</h1>
+  <p class="subtitle">Harness 比更贵的模型更决定成功率</p>
+  <dl class="facts">
+    <div class="fact"><dt>分类</dt><dd translate="no">AI</dd></div>
+    <div class="fact"><dt>来源</dt><dd translate="no">X · <a href="https://x.com/HiTw93">@HiTw93</a></dd></div>
+    <div class="fact"><dt>原文</dt><dd><time datetime="2026-03-19">2026-03-19</time></dd></div>
+    <div class="fact"><dt>整理</dt><dd><time datetime="2026-08-23">2026-08-23</time></dd></div>
+    <div class="fact"><dt>原文链接</dt><dd><a href="https://x.com/HiTw93/status/2034627967926825175" translate="no">原文</a></dd></div>
+  </dl>
+</header>
+
+<section class="tldr" id="highlights">
+  <h2>先看这五句</h2>
+  <ol>
+    <li><strong>更贵的模型带来的提升，常常没有想象中大。</strong>Harness 和验证质量对成功率的影响更大。</li>
+    <li><strong>循环本身不到 20 行，而且不该膨胀成状态机。</strong>新能力叠在外面：扩工具、调提示、状态外化。</li>
+    <li><strong>调试先查工具定义。</strong>多数选错工具，是描述不准，不是模型笨。</li>
+    <li><strong>评测系统出问题，比 Agent 出问题更难发现。</strong>分数掉了先修评测，再改 Agent。</li>
+    <li><strong>安全边界先于功能。</strong>谁能用、能在哪用、做了什么可追踪；Prompt Injection 按 source-sink 收口。</li>
+  </ol>
+</section>
+
+<figure>
+  <img src="images/cover.jpg" alt="你不知道的 Agent 封面" fetchpriority="high">
+  <figcaption>Tw93 把控制流、上下文、工具、记忆、多 Agent、评测和 OpenClaw 串成一篇工程长文。</figcaption>
+</figure>
+
+<p class="lead">这是一份阅读笔记，不是原文转载。接上一篇 Claude Code 之后，Tw93 把资料、开源实现和自己的代码过了一遍：控制流、上下文、工具、记忆、多 Agent、评测、追踪、安全，最后用 OpenClaw 落地。</p>
+
+<section class="card" id="loop">
+  <h2>循环、Workflow 与 Harness</h2>
+
+  <p>Agent Loop 抽象后不到 20 行：感知 → 决策 → 行动 → 反馈，直到模型返回纯文本。从最小实现扩到子 Agent、压缩、Skills，主循环基本没变。新能力只通过三种方式接入：扩工具和 handler、调系统提示、状态外化到文件或数据库。模型负责推理，外部系统负责状态和边界。</p>
+  <p>Anthropic 的区分：路径由代码写死的是 Workflow，下一步由 LLM 动态决定的是 Agent。很多挂着 Agent 名的产品其实更接近 Workflow，两者没有高下，关键是任务适不适合。</p>
+  <p>五种控制模式：提示链、路由、并行（分段或投票）、编排器-工作者、评估器-优化器。多数系统是组合，并不需要完整自主权。</p>
+  <p>Harness 至少四块：验收基线、执行边界、反馈信号、回退手段。这个判断在高可验证任务上最成立；开放研究、多轮协商里，模型上限仍然更关键。OpenAI 那组「3 人 5 个月百万行」的故事，作者读成工程决策：Agent 看不到的等于不存在；约束编码进 Linter/CI 而不是文档；端到端自主；最小化合并阻力。</p>
+  <p>用任务清晰度和验证自动化画四象限：右上角目标明确、结果可自动验证，最适合 Agent；目标清楚但验收靠人，吞吐量封顶在审查速度；有自动反馈但目标模糊，会高效地往错的方向跑。</p>
+
+</section>
+<section class="card" id="ctx-tools">
+  <h2>上下文与工具</h2>
+
+  <p>注意力是 O(n²)。无关内容占大头，决策质量就掉，这叫 Context Rot。分层：常驻层短硬可执行；Skills 描述常驻、正文按需；运行时注入动态信息；记忆不直接进系统提示；确定性逻辑交给 Hooks/代码，不要让模型反复读。</p>
+  <p>压缩三种：滑窗、LLM 摘要、工具结果替换。压缩最容易丢掉的是架构决策和失败路径，标识符必须原样保留。文件系统适合当上下文接口：工具写文件，Agent 用 grep 按需读。Cursor 把 MCP 描述同步到文件夹后，相关任务总 token 降了 46.9%。</p>
+  <p>Skill 描述要像路由条件：Use when / Don't use when，加反例。文中一组数字：没有反例准确率从 73% 掉到 53%，加上反例升到 85%。调试 Agent 应先检查工具定义。</p>
+  <p>工具设计三代：API 封装 → ACI（工具对目标，不是对 endpoint）→ Advanced Tool Use（Tool Search、代码编排中间结果、带真实示例）。5 个 MCP 就可能带来约 55K 的工具定义开销。框架内部事件不要进 LLM，过滤后再发。</p>
+
+</section>
+<section class="card" id="memory-multi">
+  <h2>记忆、自主度与多 Agent</h2>
+
+  <p>四种记忆：上下文窗口是工作记忆；Skills 是程序性记忆；JSONL 历史是情景记忆；MEMORY.md 是语义记忆。整合必须可回退：只移动指针，失败则归档原文，不要删。</p>
+  <p>长任务跨 session：Initializer 先把 feature-list.json、进度文件和初始 commit 写下盘，后面的 Coding Agent 每次读文件恢复、做一块、跑测试、更新 passes、提交后退出。进度放文件，不放上下文。同一时间只能有一个 in_progress。慢 I/O 进后台，下一轮再注入结果。</p>
+  <p>多 Agent 先解决隔离和协议，再谈并行。指挥者是同步互动，统筹者是异步委派、人只在两端出现。子 Agent 适合搜索和试错，主线程只要结论。幻觉会互相放大，要交叉验证。子 Agent 限制深度，最小提示只给 Tooling / Workspace / Runtime，不带 Skills 和 Memory。</p>
+
+</section>
+<section class="card" id="eval-openclaw">
+  <h2>评测、追踪与 OpenClaw</h2>
+
+  <p>Agent 评测看环境里发生了什么，不只看它说了什么。Pass@k 问「能不能做到」，Pass^k 问「改完有没有回归」。三类评分器：代码最确定，模型补语义，人工建基准。transcript 和 outcome 都要覆盖。20–50 个真实失败案例就能启动；两个专家判断不一致，说明验收还没写清。分数下降，先查环境噪声，再动 Agent。</p>
+  <p>Trace 是排查前提。两层可观测：人工抽样校准，LLM 自动评估覆盖。在线评测按规则采样：负反馈全量、高成本优先、变更后 48 小时加严。事件流一次发布、多路消费。</p>
+  <p>OpenClaw 五层：Gateway、Channel、Pi Agent、工具、上下文+记忆。MessageBus 把渠道和循环隔开。安全三件套：白名单、工作空间隔离、审计。Prompt Injection 按 source-sink：最小权限、敏感操作确认、外部内容标不可信、关键路径独立复核。实现顺序：单渠道跑通 → 安全边界 → 记忆整合 → Skills 先于新工具 → 第一个失败就建评测。</p>
+
+</section>
+
+<footer>
+  按原文整理，不是逐字转载。原文版权归 @HiTw93 及 X。
+</footer>
+</main>
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll(".rail nav a"));
+  var sections = Array.prototype.slice.call(document.querySelectorAll("section.card, section.tldr"));
+  if (!links.length || !sections.length || !("IntersectionObserver" in window)) return;
+  var map = {};
+  links.forEach(function (a) {
+    var id = (a.getAttribute("href") || "").replace("#", "");
+    if (id) map[id] = a;
+  });
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      var id = entry.target.id;
+      links.forEach(function (a) { a.classList.remove("is-active"); });
+      if (map[id]) map[id].classList.add("is-active");
+    });
+  }, { rootMargin: "-18% 0px -64% 0px", threshold: 0.01 });
+  sections.forEach(function (s) { io.observe(s); });
+})();
+</script>
+</body>
+</html>

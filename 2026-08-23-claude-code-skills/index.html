@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lessons from Building Claude Code: How We Use Skills</title>
+<style>
+
+
+:root {
+  --paper: #F4EFE6;
+  --card: #FBF7F0;
+  --ink: #191918;
+  --muted: #6B6459;
+  --rule: #E4D9C8;
+  --accent: #C96442;
+  --accent-soft: #D97757;
+  --wash: rgba(201, 100, 66, 0.14);
+  --wash-strong: rgba(201, 100, 66, 0.22);
+  --serif: "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", "Noto Serif SC", Georgia, "Times New Roman", serif;
+  --sans: "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Noto Sans Mono CJK SC", monospace;
+  --rail: 248px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 32px; color-scheme: light; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.75;
+}
+
+.skip {
+  position: absolute;
+  left: 16px;
+  top: 12px;
+  z-index: 10;
+  padding: 8px 12px;
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  font-size: 13px;
+  transform: translateY(-160%);
+}
+.skip:focus,
+.skip:focus-visible { transform: none; }
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+h1, h2 { text-wrap: balance; }
+section[id], h1, h2 { scroll-margin-top: 32px; }
+
+/* Fixed left rail */
+.rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--rail);
+  height: 100vh;
+  overflow-y: auto;
+  padding: 28px 22px 36px;
+  background: #F5F0E8;
+  border-right: 1px solid var(--rule);
+  z-index: 4;
+}
+.rail-home {
+  display: inline-block;
+  margin: 0 0 16px;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+.rail-home:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.rail-title {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.35;
+  margin: 0 0 18px;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.rail summary {
+  display: none;
+  list-style: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.rail summary::-webkit-details-marker { display: none; }
+.rail nav ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: toc;
+}
+.rail nav li {
+  counter-increment: toc;
+  margin: 0;
+  border-top: 1px solid var(--rule);
+}
+.rail nav li:last-child { border-bottom: 1px solid var(--rule); }
+.rail nav a {
+  display: block;
+  position: relative;
+  padding: 9px 2px 9px 2.2em;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.rail nav a::before {
+  content: counter(toc, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 9px;
+  font-family: var(--serif);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--rule);
+  font-variant-numeric: tabular-nums;
+}
+.rail nav a:hover,
+.rail nav a.is-active {
+  color: var(--ink);
+}
+.rail nav a:hover::before,
+.rail nav a.is-active::before {
+  color: var(--accent);
+}
+.rail nav a.is-active { font-weight: 600; }
+
+/* Main deck */
+.deck {
+  width: min(760px, calc(100% - var(--rail) - 64px));
+  max-width: 760px;
+  padding: 56px 0 96px;
+  margin-right: auto;
+  margin-left: calc(var(--rail) + max(40px, (100% - var(--rail) - 760px) / 2));
+}
+header.hero { padding: 8px 0 8px; }
+h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(32px, 5vw, 46px);
+  line-height: 1.18;
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.subtitle {
+  font-family: var(--serif);
+  font-size: 22px;
+  color: var(--muted);
+  margin: 0 0 8px;
+  font-style: italic;
+}
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin: 22px 0 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.facts .fact {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+.facts dt {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.facts dd {
+  margin: 0;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.facts a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.facts a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.lead {
+  color: var(--ink);
+  margin: 28px 0 8px;
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 40px 42px 36px;
+  margin: 36px 0;
+  counter-increment: slide;
+}
+.deck { counter-reset: slide; }
+.card h2 {
+  font-family: var(--serif);
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 8px;
+  letter-spacing: -0.015em;
+}
+.card h2::after {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 1px;
+  background: var(--accent);
+  margin: 16px 0 22px;
+}
+.card h3 {
+  font-family: var(--serif);
+  font-size: 20px;
+  margin: 28px 0 10px;
+}
+p { margin: 0 0 14px; }
+p:last-child { margin-bottom: 0; }
+ul, ol { margin: 0 0 14px; padding-left: 22px; }
+li { margin: 0 0 6px; }
+
+blockquote,
+blockquote.hl-quote {
+  margin: 22px 0;
+  padding: 18px 22px 18px 24px;
+  background: rgba(201, 100, 66, 0.08);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  font-family: var(--serif);
+  font-size: 21px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+blockquote p { margin: 0; }
+
+figure { margin: 22px 0 10px; }
+figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
+  border: 1px solid var(--rule);
+  background: #EFE6D8;
+}
+figcaption {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 10px;
+  line-height: 1.55;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14.5px;
+  line-height: 1.55;
+  margin: 8px 0 4px;
+}
+th, td {
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: top;
+  padding: 10px 8px;
+}
+th {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  background: rgba(201, 100, 66, 0.06);
+  font-weight: 600;
+}
+th:first-child, td:first-child { padding-left: 10px; }
+
+.note {
+  font-size: 14px;
+  color: var(--ink);
+  background: rgba(201, 100, 66, 0.08);
+  border-radius: 0;
+  padding: 12px 14px;
+  margin: 16px 0 0;
+  border-left: 2px solid var(--accent);
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.92em;
+}
+
+mark.hl, .hl {
+  background: linear-gradient(transparent 58%, rgba(201, 100, 66, 0.28) 58%);
+  color: inherit;
+  padding: 0 .12em;
+}
+
+.takeaways { display: grid; gap: 14px; margin-top: 12px; }
+.take {
+  background: linear-gradient(180deg, rgba(201, 100, 66, 0.16), rgba(201, 100, 66, 0.08));
+  border: 1px solid rgba(201, 100, 66, 0.35);
+  border-left: 3px solid var(--accent);
+  border-radius: 0;
+  padding: 16px 18px;
+  color: var(--ink);
+}
+.take strong {
+  color: var(--accent);
+  font-family: var(--serif);
+  font-size: 1.08em;
+}
+
+footer {
+  margin-top: 48px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+@media (max-width: 980px) {
+  .rail {
+    position: relative;
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 16px 20px 14px;
+  }
+  .rail-title { display: none; }
+  .rail summary {
+    display: block;
+    padding: 6px 0;
+  }
+  .rail details:not([open]) nav { display: none; }
+  .rail details[open] nav { display: block; margin-top: 8px; }
+  .rail nav ol {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 12px;
+  }
+  .rail nav li:last-child { border-bottom: none; }
+  .deck {
+    width: calc(100% - 36px);
+    max-width: none;
+    margin: 0 auto;
+    padding: 32px 0 64px;
+  }
+  .card { padding: 26px 20px 22px; margin: 22px 0; }
+  .tldr { padding: 26px 20px 22px; }
+  body { font-size: 16px; }
+}
+
+.tldr {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  padding: 36px 42px 32px;
+  margin: 24px 0 32px;
+}
+.tldr h2 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 18px;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+.tldr ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: tldr;
+}
+.tldr li {
+  counter-increment: tldr;
+  display: block;
+  position: relative;
+  margin: 0;
+  padding: 16px 0 16px 2.6em;
+  border-top: 1px solid var(--rule);
+  line-height: 1.65;
+}
+.tldr li:last-child { padding-bottom: 0; }
+.tldr li::before {
+  content: counter(tldr, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 16px;
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.tldr li strong {
+  font-family: var(--serif);
+  color: var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+<aside class="rail">
+  <a class="rail-home" href="../">全部笔记</a>
+  <p class="rail-title" translate="no">Anthropic 内部几百个 Skills 的用法</p>
+  <details class="toc-wrap" open>
+    <summary>目录</summary>
+    <nav aria-label="目录">
+<ol>
+        <li><a href="#highlights">核心观点</a></li>
+        <li><a href="#types">九类 Skills</a></li>
+        <li><a href="#write">怎么写</a></li>
+        <li><a href="#share">分发与度量</a></li>
+      </ol>
+    </nav>
+  </details>
+</aside>
+<main class="deck" id="main">
+<header class="hero">
+  <h1 translate="no">Lessons from Building Claude Code: How We Use Skills</h1>
+  <p class="subtitle">Anthropic 内部几百个 Skills 的用法</p>
+  <dl class="facts">
+    <div class="fact"><dt>分类</dt><dd translate="no">AI</dd></div>
+    <div class="fact"><dt>来源</dt><dd translate="no">X · <a href="https://x.com/trq212">@trq212</a></dd></div>
+    <div class="fact"><dt>原文</dt><dd><time datetime="2026-03-17">2026-03-17</time></dd></div>
+    <div class="fact"><dt>整理</dt><dd><time datetime="2026-08-23">2026-08-23</time></dd></div>
+    <div class="fact"><dt>原文链接</dt><dd><a href="https://x.com/trq212/status/2033949937936085378" translate="no">原文</a></dd></div>
+  </dl>
+</header>
+
+<section class="tldr" id="highlights">
+  <h2>先看这五句</h2>
+  <ol>
+    <li><strong>Skills 不是「就是 markdown」。</strong>它们是文件夹：脚本、资源、数据、动态 hooks，模型可以探索和操作。</li>
+    <li><strong>好 Skill 干净地落进一类。</strong>库参考、产品验证、取数、流程自动化、脚手架、质量审查、CI、runbook、基础设施，九类够用来查缺。</li>
+    <li><strong>Gotchas 是最高信噪比。</strong>不要陈述模型已经知道的事；把失败点持续写回去。</li>
+    <li><strong>description 是给模型的路由条件。</strong>它回答「何时触发」，不是内容摘要。</li>
+    <li><strong>小团队检入仓库，规模化走内部 marketplace。</strong>先沙盒试用，有牵引再合入；坏的、重复的 Skill 很容易长出来。</li>
+  </ol>
+</section>
+
+<figure>
+  <img src="images/cover.jpg" alt="How We Use Skills 封面" fetchpriority="high">
+  <figcaption>Thariq 写 Anthropic 内部怎么用 Skills。封面强调的是文件夹，不是一篇 markdown。</figcaption>
+</figure>
+
+<p class="lead">这是一份阅读笔记，不是原文转载。Thariq 总结 Anthropic 内部几百个活跃 Skills：什么类型值得做、怎么写才不绑死模型、何时分享。文章也挂在 Claude Blog。</p>
+
+<section class="card" id="types">
+  <h2>九类 Skills</h2>
+
+  <p>常见误解是 Skills「就是 markdown」。更有意思的部分是文件夹：脚本、资源、数据，以及可以注册的动态 hooks。编目之后，内部 Skills 会聚成几类；最好的落进一类，含糊的往往骑在几类之间。</p>
+  <table>
+    <thead><tr><th>类型</th><th>在干什么</th><th>例子</th></tr></thead>
+    <tbody>
+      <tr><td>库与 API</td><td>内部库或模型常踩坑的 SDK，带片段和 gotchas</td><td>billing-lib、internal-platform-cli</td></tr>
+      <tr><td>产品验证</td><td>怎么证明代码真的在工作，常配 Playwright / tmux</td><td>signup-flow-driver、checkout-verifier</td></tr>
+      <tr><td>取数分析</td><td>凭证、dashboard id、该 join 哪张表</td><td>funnel-query、grafana</td></tr>
+      <tr><td>流程自动化</td><td>重复工作收成一条命令，可把上次结果存日志</td><td>standup-post、weekly-recap</td></tr>
+      <tr><td>脚手架</td><td>带自然语言要求、纯代码生成器盖不住的模板</td><td>new-migration、create-app</td></tr>
+      <tr><td>质量审查</td><td>确定性脚本 + 对抗审查，可挂 hooks / Action</td><td>adversarial-review、code-style</td></tr>
+      <tr><td>CI/CD</td><td>盯 PR、灰度、回滚、cherry-pick</td><td>babysit-pr、deploy-service</td></tr>
+      <tr><td>Runbook</td><td>从症状走到多工具调查，产出结构化报告</td><td>oncall-runner、log-correlator</td></tr>
+      <tr><td>基础设施</td><td>例行运维，破坏性动作要护栏</td><td>orphans 清理、cost-investigation</td></tr>
+    </tbody>
+  </table>
+  <p>验证类值得单独强调：让工程师花一周把验证 Skills 做扎实，往往比再调模型划算。可以录像看它测了什么，也可以在每一步做可编程断言。</p>
+
+</section>
+<section class="card" id="write">
+  <h2>怎么写</h2>
+
+  <ul>
+    <li><strong>别陈述显而易见的事。</strong>知识型 Skill 要推模型离开默认口味。frontend-design 就是为了躲开 Inter 字体和紫色渐变。</li>
+    <li><strong>Gotchas 专节。</strong>从真实失败长出来，并持续回写。</li>
+    <li><strong>文件系统即渐进披露。</strong>告诉它目录里有什么，签名进 <code>references/api.md</code>，模板进 <code>assets/</code>。</li>
+    <li><strong>避免铁路调度。</strong>Skill 会被反复复用，指令太死就没法适应当下。</li>
+    <li><strong>想清楚 setup。</strong>standup 频道这类配置放 <code>config.json</code>，没有就问；结构化选择题走 AskUserQuestion。</li>
+    <li><strong>description 是路由。</strong>启动时模型扫的是「每个 Skill 何时该触发」的清单。</li>
+    <li><strong>记忆要放稳。</strong>升级 Skill 可能清掉目录里的数据，稳定目录用 <code>${CLAUDE_PLUGIN_DATA}</code>。</li>
+    <li><strong>给脚本，让模型去组合。</strong>取数库先备好，模型把回合花在「下一步做什么」，而不是重写样板。</li>
+    <li><strong>按需 hooks。</strong>例如 <code>/careful</code> 才拦 <code>rm -rf</code> / <code>DROP TABLE</code>，不必永远开着。</li>
+  </ul>
+
+</section>
+<section class="card" id="share">
+  <h2>分发与度量</h2>
+
+  <p>小团队、仓库不多：检入 <code>./.claude/skills</code>。规模上去后，每个检入的 Skill 都在吃上下文，这时内部 plugin marketplace 让团队自选安装。Anthropic 没有中央评审组：先放到沙盒仓库试，有牵引再 PR 进 marketplace。坏的、重复的 Skill 很容易出现，发布前要有策展。</p>
+  <p>组合还没有原生依赖管理，按名字引用即可，模型在已安装时会去调。度量用 PreToolUse hook 记使用量，找热门和「该触发却没触发」的。</p>
+  <p class="note">大多数内部 Skill 从几行加一条 gotcha 开始，因为不断补失败点才变好。先做起来，再迭代。</p>
+
+</section>
+
+<footer>
+  按原文整理，不是逐字转载。原文版权归 @trq212 及 X。
+</footer>
+</main>
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll(".rail nav a"));
+  var sections = Array.prototype.slice.call(document.querySelectorAll("section.card, section.tldr"));
+  if (!links.length || !sections.length || !("IntersectionObserver" in window)) return;
+  var map = {};
+  links.forEach(function (a) {
+    var id = (a.getAttribute("href") || "").replace("#", "");
+    if (id) map[id] = a;
+  });
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      var id = entry.target.id;
+      links.forEach(function (a) { a.classList.remove("is-active"); });
+      if (map[id]) map[id].classList.add("is-active");
+    });
+  }, { rootMargin: "-18% 0px -64% 0px", threshold: 0.01 });
+  sections.forEach(function (s) { io.observe(s); });
+})();
+</script>
+</body>
+</html>

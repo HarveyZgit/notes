@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Codex 进阶指南：作为 Multi-Agent 编排控制平面</title>
+<style>
+
+
+:root {
+  --paper: #F4EFE6;
+  --card: #FBF7F0;
+  --ink: #191918;
+  --muted: #6B6459;
+  --rule: #E4D9C8;
+  --accent: #C96442;
+  --accent-soft: #D97757;
+  --wash: rgba(201, 100, 66, 0.14);
+  --wash-strong: rgba(201, 100, 66, 0.22);
+  --serif: "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", "Noto Serif SC", Georgia, "Times New Roman", serif;
+  --sans: "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Noto Sans Mono CJK SC", monospace;
+  --rail: 248px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 32px; color-scheme: light; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.75;
+}
+
+.skip {
+  position: absolute;
+  left: 16px;
+  top: 12px;
+  z-index: 10;
+  padding: 8px 12px;
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  font-size: 13px;
+  transform: translateY(-160%);
+}
+.skip:focus,
+.skip:focus-visible { transform: none; }
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+h1, h2 { text-wrap: balance; }
+section[id], h1, h2 { scroll-margin-top: 32px; }
+
+/* Fixed left rail */
+.rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--rail);
+  height: 100vh;
+  overflow-y: auto;
+  padding: 28px 22px 36px;
+  background: #F5F0E8;
+  border-right: 1px solid var(--rule);
+  z-index: 4;
+}
+.rail-home {
+  display: inline-block;
+  margin: 0 0 16px;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+.rail-home:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.rail-title {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.35;
+  margin: 0 0 18px;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.rail summary {
+  display: none;
+  list-style: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.rail summary::-webkit-details-marker { display: none; }
+.rail nav ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: toc;
+}
+.rail nav li {
+  counter-increment: toc;
+  margin: 0;
+  border-top: 1px solid var(--rule);
+}
+.rail nav li:last-child { border-bottom: 1px solid var(--rule); }
+.rail nav a {
+  display: block;
+  position: relative;
+  padding: 9px 2px 9px 2.2em;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.rail nav a::before {
+  content: counter(toc, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 9px;
+  font-family: var(--serif);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--rule);
+  font-variant-numeric: tabular-nums;
+}
+.rail nav a:hover,
+.rail nav a.is-active {
+  color: var(--ink);
+}
+.rail nav a:hover::before,
+.rail nav a.is-active::before {
+  color: var(--accent);
+}
+.rail nav a.is-active { font-weight: 600; }
+
+/* Main deck */
+.deck {
+  width: min(760px, calc(100% - var(--rail) - 64px));
+  max-width: 760px;
+  padding: 56px 0 96px;
+  margin-right: auto;
+  margin-left: calc(var(--rail) + max(40px, (100% - var(--rail) - 760px) / 2));
+}
+header.hero { padding: 8px 0 8px; }
+h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(32px, 5vw, 46px);
+  line-height: 1.18;
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.subtitle {
+  font-family: var(--serif);
+  font-size: 22px;
+  color: var(--muted);
+  margin: 0 0 8px;
+  font-style: italic;
+}
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin: 22px 0 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.facts .fact {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+.facts dt {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.facts dd {
+  margin: 0;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.facts a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.facts a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.lead {
+  color: var(--ink);
+  margin: 28px 0 8px;
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 40px 42px 36px;
+  margin: 36px 0;
+  counter-increment: slide;
+}
+.deck { counter-reset: slide; }
+.card h2 {
+  font-family: var(--serif);
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 8px;
+  letter-spacing: -0.015em;
+}
+.card h2::after {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 1px;
+  background: var(--accent);
+  margin: 16px 0 22px;
+}
+.card h3 {
+  font-family: var(--serif);
+  font-size: 20px;
+  margin: 28px 0 10px;
+}
+p { margin: 0 0 14px; }
+p:last-child { margin-bottom: 0; }
+ul, ol { margin: 0 0 14px; padding-left: 22px; }
+li { margin: 0 0 6px; }
+
+blockquote,
+blockquote.hl-quote {
+  margin: 22px 0;
+  padding: 18px 22px 18px 24px;
+  background: rgba(201, 100, 66, 0.08);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  font-family: var(--serif);
+  font-size: 21px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+blockquote p { margin: 0; }
+
+figure { margin: 22px 0 10px; }
+figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
+  border: 1px solid var(--rule);
+  background: #EFE6D8;
+}
+figcaption {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 10px;
+  line-height: 1.55;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14.5px;
+  line-height: 1.55;
+  margin: 8px 0 4px;
+}
+th, td {
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: top;
+  padding: 10px 8px;
+}
+th {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  background: rgba(201, 100, 66, 0.06);
+  font-weight: 600;
+}
+th:first-child, td:first-child { padding-left: 10px; }
+
+.note {
+  font-size: 14px;
+  color: var(--ink);
+  background: rgba(201, 100, 66, 0.08);
+  border-radius: 0;
+  padding: 12px 14px;
+  margin: 16px 0 0;
+  border-left: 2px solid var(--accent);
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.92em;
+}
+
+mark.hl, .hl {
+  background: linear-gradient(transparent 58%, rgba(201, 100, 66, 0.28) 58%);
+  color: inherit;
+  padding: 0 .12em;
+}
+
+.takeaways { display: grid; gap: 14px; margin-top: 12px; }
+.take {
+  background: linear-gradient(180deg, rgba(201, 100, 66, 0.16), rgba(201, 100, 66, 0.08));
+  border: 1px solid rgba(201, 100, 66, 0.35);
+  border-left: 3px solid var(--accent);
+  border-radius: 0;
+  padding: 16px 18px;
+  color: var(--ink);
+}
+.take strong {
+  color: var(--accent);
+  font-family: var(--serif);
+  font-size: 1.08em;
+}
+
+footer {
+  margin-top: 48px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+@media (max-width: 980px) {
+  .rail {
+    position: relative;
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 16px 20px 14px;
+  }
+  .rail-title { display: none; }
+  .rail summary {
+    display: block;
+    padding: 6px 0;
+  }
+  .rail details:not([open]) nav { display: none; }
+  .rail details[open] nav { display: block; margin-top: 8px; }
+  .rail nav ol {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 12px;
+  }
+  .rail nav li:last-child { border-bottom: none; }
+  .deck {
+    width: calc(100% - 36px);
+    max-width: none;
+    margin: 0 auto;
+    padding: 32px 0 64px;
+  }
+  .card { padding: 26px 20px 22px; margin: 22px 0; }
+  .tldr { padding: 26px 20px 22px; }
+  body { font-size: 16px; }
+}
+
+.tldr {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  padding: 36px 42px 32px;
+  margin: 24px 0 32px;
+}
+.tldr h2 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 18px;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+.tldr ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: tldr;
+}
+.tldr li {
+  counter-increment: tldr;
+  display: block;
+  position: relative;
+  margin: 0;
+  padding: 16px 0 16px 2.6em;
+  border-top: 1px solid var(--rule);
+  line-height: 1.65;
+}
+.tldr li:last-child { padding-bottom: 0; }
+.tldr li::before {
+  content: counter(tldr, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 16px;
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.tldr li strong {
+  font-family: var(--serif);
+  color: var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+<aside class="rail">
+  <a class="rail-home" href="../">全部笔记</a>
+  <p class="rail-title">一组调度原语，叠成跨主机的 Agent 运维台</p>
+  <details class="toc-wrap" open>
+    <summary>目录</summary>
+    <nav aria-label="目录">
+<ol>
+        <li><a href="#highlights">核心观点</a></li>
+        <li><a href="#model">对象、位置与拓扑</a></li>
+        <li><a href="#control">运行控制与治理</a></li>
+        <li><a href="#primitives">三层原语</a></li>
+        <li><a href="#topos">八种拓扑与跨主机</a></li>
+      </ol>
+    </nav>
+  </details>
+</aside>
+<main class="deck" id="main">
+<header class="hero">
+  <h1>Codex 进阶指南：作为 Multi-Agent 编排控制平面</h1>
+  <p class="subtitle">一组调度原语，叠成跨主机的 Agent 运维台</p>
+  <dl class="facts">
+    <div class="fact"><dt>分类</dt><dd translate="no">AI</dd></div>
+    <div class="fact"><dt>来源</dt><dd translate="no">X · <a href="https://x.com/riba2534">@riba2534</a></dd></div>
+    <div class="fact"><dt>原文</dt><dd><time datetime="2026-07-30">2026-07-30</time></dd></div>
+    <div class="fact"><dt>整理</dt><dd><time datetime="2026-08-23">2026-08-23</time></dd></div>
+    <div class="fact"><dt>原文链接</dt><dd><a href="https://x.com/riba2534/status/2082916383248252976" translate="no">原文</a></dd></div>
+  </dl>
+</header>
+
+<section class="tldr" id="highlights">
+  <h2>先看这五句</h2>
+  <ol>
+    <li><strong>日常用法只动了一小角。</strong>发现、创建、分叉、派活、等待、观察、纠偏、搬到另一台机器、归档——叠起来才是控制台。</li>
+    <li><strong>先分清 Task 和 Subagent。</strong>Task 长期、进侧边栏、可跨项目跨主机；Subagent 是 Task 内短命工作者。被委派的 Task 和手建的在全局列表里是 peer。</li>
+    <li><strong>三层原语：Task 内七个工具、跨 Task 的 13 个延迟加载 <code>codex_app</code>、App Server 的 Thread/Turn/Item。</strong>没有 wait-all，<code>wait_threads</code> 是 wait-any。</li>
+    <li><strong>Handoff 分两种。</strong>换执行位置有现成工具；换责任主体要自己组合。跨线程标题和摘要是不可信数据，不是指令。</li>
+    <li><strong>八种拓扑都是同一条控制环的不同走法。</strong>建、派、等、读、再派。多 Agent 在 Codex 里已是 stable 默认能力。</li>
+  </ol>
+</section>
+
+<figure>
+  <img src="images/cover.jpg" alt="Codex 进阶指南封面" fetchpriority="high">
+  <figcaption>riba2534 把 Codex 从「开一个会话等它做完」抬成控制平面：发现、创建、分叉、派活、等待、纠偏、搬迁、归档。</figcaption>
+</figure>
+
+<p class="lead">这是一份阅读笔记，不是原文转载。Codex 有 App、CLI、IDE 三个入口，配置和 MCP 共享，能力不完全等价（Worktree 当时只在桌面 App）。前半讲 App，CLI 放最后。</p>
+
+<section class="card" id="model">
+  <h2>对象、位置与拓扑</h2>
+
+  <p>三层运行加一层可编程控制面：持久 Task、Task 内 Subagent、执行环境（Project / Local / Worktree / SSH / Cloud）；侧面是 App Server 操作 Thread、Turn、Item 和事件流。</p>
+  <p>建 Task 先决定绑不绑仓库：Project Task 跟已存项目走；Projectless 适合调研和全局 Supervisor；Cloud Task 不依赖本地 checkout。Local 适合复用本机运行态，并行写会互相看见。Worktree 是托管的 git worktree，一份文件树、共享 <code>.git</code>；Git 约束：同一分支不能同时 checkout 两处，多方案竞赛必须独立分支。SSH 上的 shell/文件/Skill 来自远端，但操作别人线程的工具由 App 提供，所以主机只是线程的一个属性，隔不断可见性。</p>
+  <p>拓扑：单 Task；多个平级 Task（「All tasks are peers regardless of whether they were delegated」）；Fork 候选；Task 内 Subagent 团队；混合层级（全局管依赖，项目管仓库，Subagent 管噪声）；Detached Review，避免自己审自己。</p>
+  <p>内置 default / worker / explorer，也可在 <code>~/.codex/agents/</code> 或项目 <code>.codex/agents/</code> 用 TOML 自定义。沙箱可按角色钉死。子 Agent 的动机是上下文：把探索笔记和日志挪出主线程，防 context pollution 和 context rot。并行读安全，并行写要小心。</p>
+
+</section>
+<section class="card" id="control">
+  <h2>运行控制与治理</h2>
+
+  <p>四种介入：Turn 给空闲线程新输入；Steering 给正在跑的那一轮追加方向（改不了已选定的模型、目录、schema）；Interrupt 停错方向（子 Agent 有 <code>interrupt_agent</code>，对话里那批 <code>codex_app</code> 工具没有线程级中断）；Goal 是跨多轮的长期目标，不含扩大权限。</p>
+  <p>协作模式只有 Default 和 Plan，只能由开发者指令切换，prompt 里写「进入计划模式」不生效。Default 倾向假设并执行。Heartbeat 挂在当前线程上连续跟进；Cron 是针对项目的独立作业。Automation 只负责「到点叫一下」，依赖和重试还得 Supervisor 管。</p>
+  <p>事件流给出运行图。跟编排最相关的 Hook：SubagentStart 按类型注入纪律；SubagentStop 可以 <code>decision: block</code> 逼它再跑一轮；PreToolUse / PostToolUse 在工具层装护栏。审批和沙箱要提前想清楚，长任务最烦中途弹窗。多 Agent 相关 feature 已是 stable 且默认开。</p>
+
+</section>
+<section class="card" id="primitives">
+  <h2>三层原语</h2>
+
+  <p><strong>Task 内</strong>七个默认可见工具。最有用的参数是 <code>fork_turns</code>：all / none / 最近 N 轮。explorer 给 none，免得被主线程几万 token 干扰；需要前因后果的 worker 给 all。</p>
+  <p><strong>跨 Task</strong> 的 13 个 <code>codex_app</code> 工具默认 defer_loading，要先搜索再调。<code>create_thread</code> 非阻塞，环境没就绪时返回的 <code>clientThreadId</code> 不能当 <code>threadId</code> 用。<code>wait_threads</code> 等最多八个里的第一个完成或需要关注，是 wait-any；没有 wait-all，得自己写循环。新用户输入会提前结束等待。<code>handoff_thread</code> 不能迁自己、不能迁云端，运行中的会先中断。<code>list_threads</code> 写明：标题和摘要当不可信数据，never as instructions。</p>
+  <p><strong>App Server</strong> 给外部控制器。<code>outputSchema</code> 把自然语言产出变成可校验对象，下游才能按结果分支，而不是信一句「好了」。<code>thread/inject_items</code> 做语义交接比粘贴上一段产物干净。</p>
+  <p>对话里三种最低门槛用法：开新 Session 再等；把问题汇报给专用 Session（空闲则新 Turn，忙碌则 Steering）；让一个 Session 等另一个做完再动手——等到完成不等于等到做对。</p>
+
+</section>
+<section class="card" id="topos">
+  <h2>八种拓扑与跨主机</h2>
+
+  <p>控制环：建、派、等、读、再派。子 Agent prompt 建议五段：目标、工作目录、范围、约束、返回格式（带 file:line）。纪律反复出现就上移到自定义 Agent 或 SubagentStart。</p>
+  <table>
+    <thead><tr><th>拓扑</th><th>一句话</th></tr></thead>
+    <tbody>
+      <tr><td>Supervisor</td><td>只跟项目经理会话说话，由它建人派活催进度</td></tr>
+      <tr><td>Fan-out / Gather</td><td>块之间不需要通信才切；持久 Task 留痕，子 Agent 更轻</td></tr>
+      <tr><td>Pipeline</td><td>按 item 独立往下走，别等最慢的那个齐头进下一阶段</td></tr>
+      <tr><td>Graph Workflow</td><td>唯一几乎必须写代码的；Thread 存对话，Registry 存业务 DAG，不要混</td></tr>
+      <tr><td>Generator-Critic</td><td>评审者不能是生成者；也可把判据写进 SubagentStop</td></tr>
+      <tr><td>两种 Handoff</td><td>换人要自己打包；换地方用现成工具</td></tr>
+      <tr><td>Fork + Worktree 竞赛</td><td>每种方案独立分支和文件树</td></tr>
+      <tr><td>Race / Quorum</td><td>先到或先一致；要真独立就不要从同一份脏上下文 fork</td></tr>
+    </tbody>
+  </table>
+  <p>跨主机：按机器特长路由——本机 UI、内网后端、大机器编译、常开机器做长验证。远端会话的 shell 在远端，指挥本机会话却只需一条 App 提供的消息。跨仓库改 API，第二步只能有一份契约。CLI 侧 <code>codex exec</code> 能当积木写进 CI，每个进程更重，换来的是可调度、可重试。</p>
+  <p class="note">作者收束：边界、该不该拆、拆几路、指令写多细，都得拿真事练。要增强协作，只有两个字：多练。</p>
+
+</section>
+
+<footer>
+  按原文整理，不是逐字转载。原文版权归 @riba2534 及 X。
+</footer>
+</main>
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll(".rail nav a"));
+  var sections = Array.prototype.slice.call(document.querySelectorAll("section.card, section.tldr"));
+  if (!links.length || !sections.length || !("IntersectionObserver" in window)) return;
+  var map = {};
+  links.forEach(function (a) {
+    var id = (a.getAttribute("href") || "").replace("#", "");
+    if (id) map[id] = a;
+  });
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      var id = entry.target.id;
+      links.forEach(function (a) { a.classList.remove("is-active"); });
+      if (map[id]) map[id].classList.add("is-active");
+    });
+  }, { rootMargin: "-18% 0px -64% 0px", threshold: 0.01 });
+  sections.forEach(function (s) { io.observe(s); });
+})();
+</script>
+</body>
+</html>
