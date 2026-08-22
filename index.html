@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>YouTube 总结整理</title>
+<style>
+:root {
+  --paper: #F4EFE6;
+  --card: #FBF7F0;
+  --ink: #191918;
+  --muted: #6B6459;
+  --rule: #E4D9C8;
+  --accent: #C96442;
+  --serif: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
+  --sans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.7;
+}
+.wrap { width: min(720px, calc(100% - 40px)); margin: 0 auto; padding: 72px 0 96px; }
+.kicker {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+h1 {
+  font-family: var(--serif);
+  font-size: clamp(32px, 5vw, 44px);
+  line-height: 1.2;
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
+}
+.lead { color: var(--muted); margin: 0 0 36px; }
+.card {
+  display: block;
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-top: 3px solid var(--accent);
+  padding: 28px 30px 24px;
+  margin: 0 0 18px;
+  color: inherit;
+  text-decoration: none;
+}
+.card h2 {
+  font-family: var(--serif);
+  font-size: 24px;
+  margin: 0 0 8px;
+}
+.card p { margin: 0; color: var(--muted); font-size: 15px; }
+.card:hover { border-color: var(--accent); }
+footer { margin-top: 40px; color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="kicker">YouTube notes</p>
+  <h1>总结整理</h1>
+  <p class="lead">公开阅读笔记。每篇开头有核心观点，左侧有目录。</p>
+  <a class="card" href="liu-jia/">
+    <h2>刘嘉：应试教育在 AI 面前全军覆没</h2>
+    <p>清华教授对谈。逻辑原点、学习与涌现、死亡意识、Transformer 三个瓶颈、AI 时代怎么教小孩。</p>
+  </a>
+  <a class="card" href="claude-code/">
+    <h2>How Anthropic uses Claude Code</h2>
+    <p>Daisy Hollman，NDC Copenhagen。Context 是盒子，hooks 才能扩，2026 的瓶颈是人的注意力。</p>
+  </a>
+  <footer>托管在 GitHub Pages · 仓库 HarveyZgit/yt-notes</footer>
+</div>
+</body>
+</html>
