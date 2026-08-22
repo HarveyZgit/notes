@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>YouTube 总结整理</title>
+<title>总结整理</title>
 <style>
 :root {
   --paper: #F4EFE6;
@@ -41,6 +41,37 @@ h1 {
   letter-spacing: -0.02em;
 }
 .lead { color: var(--muted); margin: 0 0 36px; }
+
+.filters { margin: 0 0 36px; }
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 10px;
+  margin: 0 0 10px;
+}
+.filter-label {
+  font-size: 12px;
+  color: var(--muted);
+  min-width: 2.5em;
+}
+.chip {
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 1;
+  padding: 5px 11px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.chip.is-on {
+  background: var(--accent);
+  color: var(--paper);
+}
+
 .card {
   display: block;
   background: var(--card);
@@ -56,25 +87,102 @@ h1 {
   font-size: 24px;
   margin: 0 0 8px;
 }
-.card p { margin: 0; color: var(--muted); font-size: 15px; }
+.card .blurb { margin: 0 0 14px; color: var(--muted); font-size: 15px; }
+.card .meta,
+.card .dates {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.card .dates { margin-top: 2px; }
 .card:hover { border-color: var(--accent); }
+.card.is-hidden { display: none; }
+
+.empty {
+  display: none;
+  color: var(--muted);
+  font-size: 15px;
+  margin: 8px 0 0;
+}
+.empty.is-shown { display: block; }
+
 footer { margin-top: 40px; color: var(--muted); font-size: 13px; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <p class="kicker">YouTube notes</p>
+  <p class="kicker">NOTES</p>
   <h1>总结整理</h1>
-  <p class="lead">公开阅读笔记。每篇开头有核心观点，左侧有目录。</p>
-  <a class="card" href="liu-jia/">
-    <h2>刘嘉：应试教育在 AI 面前全军覆没</h2>
-    <p>清华教授对谈。逻辑原点、学习与涌现、死亡意识、Transformer 三个瓶颈、AI 时代怎么教小孩。</p>
-  </a>
-  <a class="card" href="claude-code/">
-    <h2>How Anthropic uses Claude Code</h2>
-    <p>Daisy Hollman，NDC Copenhagen。Context 是盒子，hooks 才能扩，2026 的瓶颈是人的注意力。</p>
-  </a>
-  <footer>托管在 GitHub Pages · 仓库 HarveyZgit/yt-notes</footer>
+  <p class="lead">公开阅读笔记，按分类与来源标记。</p>
+
+  <div class="filters">
+    <div class="filter-row" data-group="category">
+      <span class="filter-label">分类</span>
+      <button type="button" class="chip is-on" data-value="" aria-pressed="true">全部</button>
+      <button type="button" class="chip" data-value="AI" aria-pressed="false">AI</button>
+      <button type="button" class="chip" data-value="认知" aria-pressed="false">认知</button>
+      <button type="button" class="chip" data-value="科技" aria-pressed="false">科技</button>
+    </div>
+    <div class="filter-row" data-group="source">
+      <span class="filter-label">来源</span>
+      <button type="button" class="chip is-on" data-value="" aria-pressed="true">全部</button>
+      <button type="button" class="chip" data-value="YouTube" aria-pressed="false">YouTube</button>
+      <button type="button" class="chip" data-value="X" aria-pressed="false">X</button>
+      <button type="button" class="chip" data-value="官方" aria-pressed="false">官方</button>
+    </div>
+  </div>
+
+  <div class="list">
+    <a class="card" href="liu-jia/" data-category="认知" data-source="YouTube">
+      <h2>刘嘉：应试教育在 AI 面前全军覆没</h2>
+      <p class="blurb">清华教授对谈。逻辑原点、学习与涌现、死亡意识、Transformer 三个瓶颈、AI 时代怎么教小孩。</p>
+      <p class="meta">分类 认知 · 来源 YouTube</p>
+      <p class="dates">原文 2026-03-28 · 整理 2026-08-21</p>
+    </a>
+    <a class="card" href="claude-code/" data-category="AI" data-source="YouTube">
+      <h2>How Anthropic uses Claude Code</h2>
+      <p class="blurb">Daisy Hollman，NDC Copenhagen。Context 是盒子，hooks 才能扩，2026 的瓶颈是人的注意力。</p>
+      <p class="meta">分类 AI · 来源 YouTube</p>
+      <p class="dates">原文 2026-08-11 · 整理 2026-08-21</p>
+    </a>
+    <p class="empty" id="empty">这一组还没有笔记</p>
+  </div>
+
+  <footer>托管在 GitHub Pages · 仓库 HarveyZgit/notes</footer>
 </div>
+<script>
+(function () {
+  var state = { category: "", source: "" };
+  var cards = Array.prototype.slice.call(document.querySelectorAll(".card"));
+  var empty = document.getElementById("empty");
+
+  function apply() {
+    var shown = 0;
+    cards.forEach(function (card) {
+      var okCat = !state.category || card.getAttribute("data-category") === state.category;
+      var okSrc = !state.source || card.getAttribute("data-source") === state.source;
+      var on = okCat && okSrc;
+      card.classList.toggle("is-hidden", !on);
+      if (on) shown += 1;
+    });
+    empty.classList.toggle("is-shown", shown === 0);
+  }
+
+  Array.prototype.slice.call(document.querySelectorAll(".filter-row")).forEach(function (row) {
+    var group = row.getAttribute("data-group");
+    row.addEventListener("click", function (e) {
+      var btn = e.target.closest(".chip");
+      if (!btn || !row.contains(btn)) return;
+      state[group] = btn.getAttribute("data-value") || "";
+      Array.prototype.slice.call(row.querySelectorAll(".chip")).forEach(function (c) {
+        var on = c === btn;
+        c.classList.toggle("is-on", on);
+        c.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+      apply();
+    });
+  });
+})();
+</script>
 </body>
 </html>

@@ -53,6 +53,15 @@ body {
   color: var(--accent);
   font-weight: 600;
 }
+.rail-home {
+  display: inline-block;
+  margin: 0 0 14px;
+  font-size: 12px;
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.rail-home:hover { border-bottom-color: var(--accent); }
 .rail-title {
   font-family: var(--serif);
   font-size: 15px;
@@ -167,6 +176,12 @@ h1 {
   border-bottom: 1px solid rgba(201, 100, 66, 0.45);
 }
 .meta a:hover { border-bottom-color: var(--accent); }
+.facts {
+  color: var(--muted);
+  font-size: 14px;
+  margin: 0 0 4px;
+  line-height: 1.6;
+}
 .lead {
   color: var(--ink);
   margin: 28px 0 8px;
@@ -404,6 +419,7 @@ footer {
 </head>
 <body>
 <aside class="rail">
+  <a class="rail-home" href="../">全部笔记</a>
   <p class="rail-kicker">NDC · NOTES</p>
   <p class="rail-title">How Anthropic uses Claude Code</p>
   <p class="rail-sub">Agentic Software Engineering</p>
@@ -435,6 +451,9 @@ footer {
     <span>Daisy Hollman · Anthropic</span>
     <a href="https://www.youtube.com/watch?v=shZgedW15vg">YouTube 原片</a>
   </p>
+  <p class="facts">分类 AI · 来源 YouTube</p>
+  <p class="facts">原文 2026-08-11 · 整理 2026-08-21</p>
+
 </header>
 
 <section class="tldr" id="highlights">

@@ -54,6 +54,15 @@ body {
   color: var(--accent);
   font-weight: 600;
 }
+.rail-home {
+  display: inline-block;
+  margin: 0 0 14px;
+  font-size: 12px;
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.rail-home:hover { border-bottom-color: var(--accent); }
 .rail-title {
   font-family: var(--serif);
   font-size: 15px;
@@ -168,6 +177,12 @@ h1 {
   border-bottom: 1px solid rgba(201, 100, 66, 0.45);
 }
 .meta a:hover { border-bottom-color: var(--accent); }
+.facts {
+  color: var(--muted);
+  font-size: 14px;
+  margin: 0 0 4px;
+  line-height: 1.6;
+}
 .lead {
   color: var(--ink);
   margin: 28px 0 8px;
@@ -406,6 +421,7 @@ footer {
 </head>
 <body>
 <aside class="rail">
+  <a class="rail-home" href="../">全部笔记</a>
   <p class="rail-kicker">降临派 · NOTES</p>
   <p class="rail-title">应试教育在 AI 面前全军覆没</p>
   <p class="rail-sub">刘嘉 · 清华 · 脑科学与 AI</p>
@@ -438,6 +454,9 @@ footer {
     <span>刘嘉 · 清华大学基础科学讲席教授</span>
     <a href="https://www.youtube.com/watch?v=-Et3GJRSI_0">YouTube 原片</a>
   </p>
+  <p class="facts">分类 认知 · 来源 YouTube</p>
+  <p class="facts">原文 2026-03-28 · 整理 2026-08-21</p>
+
 </header>
 
 <section class="tldr" id="highlights">
