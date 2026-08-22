@@ -22,7 +22,7 @@
   --rail: 248px;
 }
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; scroll-padding-top: 32px; }
+html { scroll-behavior: smooth; scroll-padding-top: 32px; color-scheme: light; }
 body {
   margin: 0;
   background: var(--paper);
@@ -32,7 +32,28 @@ body {
   line-height: 1.75;
 }
 
-/* —— Fixed left rail —— */
+.skip {
+  position: absolute;
+  left: 16px;
+  top: 12px;
+  z-index: 10;
+  padding: 8px 12px;
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  font-size: 13px;
+  transform: translateY(-160%);
+}
+.skip:focus,
+.skip:focus-visible { transform: none; }
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+h1, h2 { text-wrap: balance; }
+section[id], h1, h2 { scroll-margin-top: 32px; }
+
+/* Fixed left rail */
 .rail {
   position: fixed;
   top: 0;
@@ -45,44 +66,32 @@ body {
   border-right: 1px solid var(--rule);
   z-index: 4;
 }
-.rail-kicker {
-  margin: 0 0 6px;
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--accent);
-  font-weight: 600;
-}
 .rail-home {
   display: inline-block;
-  margin: 0 0 14px;
+  margin: 0 0 16px;
   font-size: 12px;
-  color: var(--accent);
+  color: var(--muted);
   text-decoration: none;
-  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+  border-bottom: 1px solid transparent;
 }
-.rail-home:hover { border-bottom-color: var(--accent); }
+.rail-home:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
 .rail-title {
   font-family: var(--serif);
   font-size: 15px;
   line-height: 1.35;
-  margin: 0 0 4px;
+  margin: 0 0 18px;
   color: var(--ink);
-}
-.rail-sub {
-  margin: 0 0 20px;
-  font-size: 12px;
-  color: var(--muted);
-  line-height: 1.45;
+  text-wrap: balance;
 }
 .rail summary {
   display: none;
   list-style: none;
   cursor: pointer;
   font-size: 13px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--accent);
+  color: var(--muted);
   font-weight: 600;
 }
 .rail summary::-webkit-details-marker { display: none; }
@@ -103,7 +112,7 @@ body {
   grid-template-columns: 1.6em 1fr;
   gap: 8px;
   padding: 9px 2px;
-  color: var(--ink);
+  color: var(--muted);
   text-decoration: none;
   font-size: 13px;
   line-height: 1.4;
@@ -113,39 +122,29 @@ body {
   font-family: var(--serif);
   font-size: 11px;
   letter-spacing: 0.04em;
-  color: var(--muted);
+  color: var(--rule);
   padding-top: 1px;
+  font-variant-numeric: tabular-nums;
 }
 .rail nav a:hover,
 .rail nav a.is-active {
-  color: var(--accent);
+  color: var(--ink);
 }
 .rail nav a:hover::before,
 .rail nav a.is-active::before {
   color: var(--accent);
 }
-.rail nav a.is-active {
-  font-weight: 600;
-}
+.rail nav a.is-active { font-weight: 600; }
 
-/* —— Main deck —— */
+/* Main deck */
 .deck {
-  margin-left: var(--rail);
   width: min(760px, calc(100% - var(--rail) - 64px));
   max-width: 760px;
   padding: 56px 0 96px;
   margin-right: auto;
   margin-left: calc(var(--rail) + max(40px, (100% - var(--rail) - 760px) / 2));
 }
-header.hero { padding: 8px 0 12px; }
-.kicker {
-  font-size: 12px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--accent);
-  font-weight: 600;
-  margin: 0 0 16px;
-}
+header.hero { padding: 8px 0 8px; }
 h1 {
   font-family: var(--serif);
   font-weight: 700;
@@ -159,28 +158,46 @@ h1 {
   font-family: var(--serif);
   font-size: 22px;
   color: var(--muted);
-  margin: 0 0 20px;
+  margin: 0 0 8px;
   font-style: italic;
 }
-.meta {
+.facts {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 18px;
+  gap: 10px 20px;
+  margin: 22px 0 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
   color: var(--muted);
-  font-size: 14px;
-  margin: 0 0 8px;
+  font-size: 13px;
+  line-height: 1.45;
 }
-.meta a {
+.facts .fact {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+.facts dt {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.facts dd {
+  margin: 0;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.facts a {
   color: var(--accent);
   text-decoration: none;
   border-bottom: 1px solid rgba(201, 100, 66, 0.45);
 }
-.meta a:hover { border-bottom-color: var(--accent); }
-.facts {
-  color: var(--muted);
-  font-size: 14px;
-  margin: 0 0 4px;
-  line-height: 1.6;
+.facts a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
 }
 .lead {
   color: var(--ink);
@@ -290,7 +307,6 @@ code {
   font-size: 0.92em;
 }
 
-/* Highlights — terracotta wash underline, not neon */
 mark.hl, .hl {
   background: linear-gradient(transparent 58%, rgba(201, 100, 66, 0.28) 58%);
   color: inherit;
@@ -330,7 +346,7 @@ footer {
     border-bottom: 1px solid var(--rule);
     padding: 16px 20px 14px;
   }
-  .rail-title, .rail-sub { display: none; }
+  .rail-title { display: none; }
   .rail summary {
     display: block;
     padding: 6px 0;
@@ -354,22 +370,13 @@ footer {
   body { font-size: 16px; }
 }
 
-/* —— Slide-like TLDR / Highlights —— */
 .tldr {
   background: var(--card);
   border: 1px solid var(--rule);
-  border-top: 3px solid var(--accent);
-  border-radius: 2px;
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
   padding: 36px 42px 32px;
   margin: 24px 0 32px;
-}
-.tldr-kicker {
-  margin: 0 0 8px;
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--accent);
-  font-weight: 600;
 }
 .tldr h2 {
   font-family: var(--serif);
@@ -395,9 +402,7 @@ footer {
   border-top: 1px solid var(--rule);
   line-height: 1.65;
 }
-.tldr li:last-child {
-  padding-bottom: 0;
-}
+.tldr li:last-child { padding-bottom: 0; }
 .tldr li::before {
   content: counter(tldr, decimal-leading-zero);
   position: absolute;
@@ -408,25 +413,28 @@ footer {
   font-weight: 600;
   letter-spacing: 0.04em;
   color: var(--accent);
+  font-variant-numeric: tabular-nums;
 }
 .tldr li strong {
   font-family: var(--serif);
   color: var(--ink);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
 
 </style>
 </head>
 <body>
+<a class="skip" href="#main">跳到正文</a>
 <aside class="rail">
   <a class="rail-home" href="../">全部笔记</a>
-  <p class="rail-kicker">NDC · NOTES</p>
-  <p class="rail-title">How Anthropic uses Claude Code</p>
-  <p class="rail-sub">Agentic Software Engineering</p>
+  <p class="rail-title" translate="no">How Anthropic uses Claude Code</p>
   <details class="toc-wrap" open>
     <summary>目录</summary>
     <nav aria-label="目录">
-      <ol>
+<ol>
         <li><a href="#highlights">核心观点</a></li>
         <li><a href="#bio">讲者与立场</a></li>
         <li><a href="#agent">从聊天机器人到智能体</a></li>
@@ -442,22 +450,21 @@ footer {
     </nav>
   </details>
 </aside>
-<main class="deck">
+<main class="deck" id="main">
 <header class="hero">
-  <p class="kicker">NDC Copenhagen · 约 60 分钟</p>
-  <h1>How Anthropic uses Claude Code</h1>
+  <h1 translate="no">How Anthropic uses Claude Code</h1>
   <p class="subtitle">Agentic Software Engineering at Scale</p>
-  <p class="meta">
-    <span>Daisy Hollman · Anthropic</span>
-    <a href="https://www.youtube.com/watch?v=shZgedW15vg">YouTube 原片</a>
-  </p>
-  <p class="facts">分类 AI · 来源 YouTube</p>
-  <p class="facts">原文 2026-08-11 · 整理 2026-08-21</p>
-
+  <dl class="facts">
+    <div class="fact"><dt>分类</dt><dd translate="no">AI</dd></div>
+    <div class="fact"><dt>来源</dt><dd translate="no">YouTube</dd></div>
+    <div class="fact"><dt>原文</dt><dd><time datetime="2026-08-11">2026-08-11</time></dd></div>
+    <div class="fact"><dt>整理</dt><dd><time datetime="2026-08-21">2026-08-21</time></dd></div>
+    <div class="fact"><dt>讲者</dt><dd><span translate="no">Daisy Hollman</span></dd></div>
+    <div class="fact"><dt>原片</dt><dd><a href="https://www.youtube.com/watch?v=shZgedW15vg" translate="no">YouTube</a></dd></div>
+  </dl>
 </header>
 
 <section class="tldr" id="highlights">
-  <p class="tldr-kicker">Highlights</p>
   <h2>先看这五句</h2>
   <ol>
     <li><strong>够不着，就帮不上。</strong>开箱只有仓库和 shell。Slack、CI、仪表盘、文档、别的会话，你用来做事的通路，都该给它。</li>
@@ -469,7 +476,7 @@ footer {
 </section>
 
 <figure>
-  <img src="images/01-opening.jpg" alt="开场幻灯：How Anthropic uses Claude Code">
+  <img src="images/01-opening.jpg" alt="开场幻灯：How Anthropic uses Claude Code" width="1280" height="720" fetchpriority="high">
   <figcaption>开场。Daisy Hollman 在 NDC Copenhagen 讲 Claude Code 如何支撑大规模智能体软件工程。</figcaption>
 </figure>
 
@@ -485,7 +492,7 @@ footer {
 <section class="card" id="agent">
   <h2>从聊天机器人到智能体</h2>
   <figure>
-    <img src="images/03-chatbot-vs-agent.jpg" alt="聊天机器人与智能体的对比幻灯">
+    <img src="images/03-chatbot-vs-agent.jpg" alt="聊天机器人与智能体的对比幻灯" width="1280" height="720" loading="lazy">
     <figcaption>聊天机器人是人与模型轮流说话。工具调用能串起来之后，人们开始把它叫做智能体。</figcaption>
   </figure>
   <p>早期大模型交互就是人说话、模型说话、再轮到人。2024 年出现工具调用：模型可以让计算机去做一件事。一开始是一次调用、看结果、再决定要不要回给人。后来能根据第一次结果发起第二次、第三次。自主性够了，大家才需要一个新名字，于是叫它智能体。Daisy 不喜欢在定义上空转，这条演化链就够用。</p>
@@ -496,7 +503,7 @@ footer {
   <h2>工具很原始</h2>
   <p>工具调用朴素得惊人。模型写出一段 JSON，harness 去执行，结果再塞回上下文。Bash 就是报一个命令，harness 跑完，把输出放进 tool result。智能体就是：看结果、再调用、继续转圈。</p>
   <figure>
-    <img src="images/06-edit-tool.jpg" alt="Edit 工具的 schema 幻灯">
+    <img src="images/06-edit-tool.jpg" alt="Edit 工具的 schema 幻灯" width="1280" height="720" loading="lazy">
     <figcaption>Edit 是主力工具。参数只有 file_path、old_string、new_string。旧串必须逐字节对上；多处命中要事先声明，否则失败。</figcaption>
   </figure>
   <p>没有光标，没有选区，没有引用。就是查找替换。Daisy 的全部幻灯都是 Claude Code 做的。嵌套 JSON 那一页一次写成，零处 token 出错。她说这不像人类能逐字符做到的事。Edit 出错大约从 2025 年 2 月或 4 月起就很少见了，这种能力容易训练。</p>
@@ -506,12 +513,12 @@ footer {
 <section class="card" id="growth">
   <h2>能力在增长</h2>
   <figure>
-    <img src="images/08-meter-chart.jpg" alt="METR 任务时域翻倍图">
+    <img src="images/08-meter-chart.jpg" alt="METR 任务时域翻倍图" width="1280" height="720" loading="lazy">
     <figcaption>METR 图，常被叫做智能体的摩尔定律：50% 成功率下的任务时域<mark class="hl">大约每四个月翻一倍</mark>。</figcaption>
   </figure>
   <p>工具能变复杂，能撑住的任务时域就变长。METR 那张图停在今年年初，因为「什么算 16 小时任务」的误差已经大到图表几乎不好用。讲的时候已经晚了两个模型版本：Opus 4.7 和 4.8。趋势本身从 2022 年到 2026 年相当稳。终会平台，但若在七八十年代押摩尔定律马上停，你会站在很不同的位置。至少值得按「再续一两年」来想工作方式。</p>
   <figure>
-    <img src="images/09-mozilla.jpg" alt="Mozilla Foundation 安全缺陷修复图">
+    <img src="images/09-mozilla.jpg" alt="Mozilla Foundation 安全缺陷修复图" width="1280" height="720" loading="lazy">
     <figcaption>Mozilla Foundation，四月：当月用上最新模型后，修掉的安全缺陷<mark class="hl">超过此前十五个月之和</mark>。不是「以前没有 AI」，而是相对过去十五个月的 AI 工具。</figcaption>
   </figure>
   <p>有人说智能体做不了有用的事，她就指这类图。没人把调试当娱乐。后面整场都立在一个假想上：如果有一天智能体写代码比你更好，工程该长什么样。她从前会讲 C++ 元编程的边角，也曾以写代码为傲。过去一年半让她相信，那已经不是重点。不接受这个假想也完全成立；接受的人，就一起想 harness 和上下文工程如何撑住单体仓库级项目。</p>
@@ -520,7 +527,7 @@ footer {
 <section class="card" id="customize">
   <h2>为什么要定制</h2>
   <figure>
-    <img src="images/10-why-customize.jpg" alt="Why customize 分区幻灯">
+    <img src="images/10-why-customize.jpg" alt="Why customize 分区幻灯" width="1280" height="720" loading="lazy">
     <figcaption>开箱到真能用，隔着三道缝：Access、Knowledge、Tooling。</figcaption>
   </figure>
   <blockquote class="hl-quote">
@@ -528,7 +535,7 @@ footer {
   </blockquote>
   <p>开箱只能看见一个仓库加一个 shell，默认还不准离开启动目录。安全上说得通，但没有职业工程师会整天只看这一个文件夹。这也能解释 0 到 1 原型为什么显得特别成功：人做也更简单，受困的上下文对智能体伤害更大。高质量、大规模的软件工程很少能待在这个盒子里。</p>
   <figure>
-    <img src="images/11-where-work-lives.jpg" alt="工作实际住在哪里的幻灯">
+    <img src="images/11-where-work-lives.jpg" alt="工作实际住在哪里的幻灯" width="1280" height="720" loading="lazy">
     <figcaption>决策很少写在源码里。团队聊天、CI、生产仪表盘、内部设计文档，才是工作真正住的地方。</figcaption>
   </figure>
   <p>源码是编程。软件工程远不止编程。目标不是替换自己，是把自己乘起来。一个值得做的实验：试着一整天不离开终端。做不到的部分，Claude 也没法替你做。Slack 回不了，它就看不到那条线程。CI 失败还要你复制进提示词，那一步就仍在你身上。</p>
@@ -540,14 +547,14 @@ footer {
 <section class="card" id="box">
   <h2>上下文窗口是一个盒子</h2>
   <figure>
-    <img src="images/14-context-box.jpg" alt="上下文窗口是盒子的分区幻灯">
+    <img src="images/14-context-box.jpg" alt="上下文窗口是盒子的分区幻灯" width="1280" height="720" loading="lazy">
     <figcaption>幻灯标题：The context window is a box ... and you are a package manager。</figcaption>
   </figure>
   <p>过去一年能力从花哨补全冲到长时域自主干活，窗口大小几乎没动。第一批 100 万 token 窗口出现在 2024 年末；2025 年 2 月前沿仍约 100 万；现在还是大约 100 万。任务变长，往盒子里放什么就要更精。整仓塞进去这条路很早就不通。</p>
   <p>一切都在抢同一块地：system prompt、工具定义、CLAUDE.md、skills、读过的文件、工具结果。前面堆得越多，后面能干活的地方越少。每项定制都在跟「做事的空间」竞争。有人反感「上下文工程师」这个头衔。Daisy 认为它就是软件工程：教初级把活干好，只不过初级现在是智能体。其实资深一直在干这件事，只是现在每一层都要会。</p>
   <p>她的类比是：像在一块极小的嵌入式板上跑现代包管理。普通电脑上菱形依赖可以并排引进两个版本。上下文里不行，必须判断哪一条更相关，其余留下。原则是<mark class="hl">不使用的就不付钱</mark>。零开销，否则很快见底。</p>
   <figure>
-    <img src="images/17-kv-cache.jpg" alt="KV cache slide">
+    <img src="images/17-kv-cache.jpg" alt="KV cache slide" width="1280" height="720" loading="lazy">
     <figcaption>KV cache：前缀完全相同，下一次预测便宜得多。改了前缀，一次预测可能贵约十倍。</figcaption>
   </figure>
   <p>这层约束谈得少，却决定成本。现代模型的下一 token 预测，前缀一致才便宜。空间紧、有的相关有的不相关，直觉会拿 LRU：换入、换出，像 CPU 缓存。问题是：前面必须一字不差，这次预测才能复用。前缀一变，代价可以到约十倍；每个工具调用都这么干，账单会炸。早期 Cursor rules 一类按相关性换进换出，很快发现极贵。这不是简单的 LRU 问题。</p>
@@ -559,13 +566,13 @@ footer {
   <h3>MCP</h3>
   <p>MCP 把更多工具 schema 加进 system prompt。JSON 协议，传输无关，客户端很轻。对外集成、任意客户端或聊天机器人都要能用、鉴权在服务端，它是对的工具。公司内部开发环境里，如果你已经有 CLI，写一个技能讲清怎么用，往往更好。</p>
   <figure>
-    <img src="images/20-tool-search.jpg" alt="Tool search slide">
+    <img src="images/20-tool-search.jpg" alt="Tool search slide" width="1280" height="720" loading="lazy">
     <figcaption>Tool search：先加载名字，再搜索 schema。描述性名字很重要。叫 query 的工具很少在对的时候被找到。</figcaption>
   </figure>
   <p><mark class="hl">20 个 MCP 服务器</mark>、每个 15 个工具，窗口基本会被工具描述填满。它不能裸扩。正在做的 tool search 先加载名字，再给模型一把搜工具的工具。百万级工具仍会吃光窗口，但比名字加描述加 schema 好一些。名字写得越能让人想起去搜，越容易在对的时候被找到。</p>
   <h3>Skills</h3>
   <figure>
-    <img src="images/21-skills.jpg" alt="Skills slide">
+    <img src="images/21-skills.jpg" alt="Skills slide" width="1280" height="720" loading="lazy">
     <figcaption>Skills 就是带 markdown 的文件夹。懒加载的 system prompt：描述常驻，正文按用付费。</figcaption>
   </figure>
   <p>形态极简：一个文件夹，没有特殊协议。skill.md 的 front matter 里有 description，模型靠它决定要不要展开全文。同目录的其它资源它也知道怎么取。正文符合「<mark class="hl">不使用就不付钱</mark>」。描述却永远进 system prompt。10 万条技能，光描述就会吃掉窗口。对超大体量仍不够。目前没有层级，正在做。有人问要不要 skill search：也在做，但比 tool search 难，因为模型必须知道自己不知道。工具搜更易，模型更容易察觉自己做不到某事。</p>
@@ -574,7 +581,7 @@ footer {
   <h3>Hooks</h3>
   <p>这是她最喜欢的抽象，因为 hooks 真的能扩。好抽象是：在判明相关之前，什么都不放进窗口。</p>
   <figure>
-    <img src="images/23-hooks-scale.jpg" alt="Hooks are just shell scripts slide">
+    <img src="images/23-hooks-scale.jpg" alt="Hooks are just shell scripts slide" width="1280" height="720" loading="lazy">
     <figcaption>幻灯原文：Hooks are just shell scripts。PostToolUse 匹配 Edit 或 Write 之后跑脚本。</figcaption>
   </figure>
   <p>工具使用、用户提交提示、模型停下、上下文压缩，都可以触发。脚本按协议吃输入、吐输出，决定注不注入。Rust 项目上挂着一堆 JavaScript lint 技能，描述费照付，还得手关。Hooks 则是脚本一看不是 JS 就立刻退出，只花 CPU。CPU 比上下文宽裕。也可以把智能体塞进 hook，但要省着，token 烧得很快。模式是：调用、判断相关、不相关就快退。红线提示就住在这里。</p>
@@ -626,7 +633,7 @@ footer {
   <p>从这里再加速，只剩并行。一个人若能稳定管 20 个会话，产出可以接近管 5 个时的四倍。2026 的许多工作，是给开发者留下足够的认知空间，好在会话之间快速切换。</p>
   <p>起步是 git worktree，避免会话互相踩文件。<code>/rename</code> 和 <code>/color</code> 该成为习惯：给窗口贴标签、上颜色。切过去时颜色先唤起记忆。对非色盲的人，颜色回忆往往比一段散文更快。</p>
   <figure>
-    <img src="images/27-worktree-setup.jpg" alt="worktree daily setup slide">
+    <img src="images/27-worktree-setup.jpg" alt="worktree daily setup slide" width="1280" height="720" loading="lazy">
     <figcaption>她的日常：<mark class="hl">16 个长期 worktree</mark>，从 A 到 F，后来觉得 16 个不够，一直开到 Z。固定名字、固定记忆、自己的草稿文件，并跟踪上游 main。</figcaption>
   </figure>
   <p>每个 worktree 停在一处，有一个长期负责维护它的智能体。对做过技术负责人的人，这很像一天里不断有人来汇报：持久身份降低负荷。它们像彼此独立的开发者，连跟踪上游也不会互相踩。</p>
@@ -639,14 +646,14 @@ footer {
   <h2>2026：把信息从模型送到人</h2>
   <p>2025 年的主题是把信息送进模型，弥补它还在婴儿期时的错误。2026 年她认为会反过来：把信息从模型送到人。模型变强之后，提示词质量越来越不是瓶颈。瓶颈是你切换上下文的速度，以及你多快能看清模型在干什么。</p>
   <figure>
-    <img src="images/31-attention-box.jpg" alt="attention is the smallest box slide">
+    <img src="images/31-attention-box.jpg" alt="attention is the smallest box slide" width="1280" height="720" loading="lazy">
     <figcaption>Claude 的措辞：Your attention is the smallest box in the system。</figcaption>
   </figure>
   <blockquote class="hl-quote">
     <p><mark class="hl">你的注意力，是整套系统里最小的那个盒子</mark>。</p>
   </blockquote>
   <figure>
-    <img src="images/32-fleet-view.jpg" alt="fleet view dashboard slide">
+    <img src="images/32-fleet-view.jpg" alt="fleet view dashboard slide" width="1280" height="720" loading="lazy">
     <figcaption>Claude agents，也叫 fleet view：一个仪表盘看所有会话，轻量分类器写短摘要，直接跳进某个会话。</figcaption>
   </figure>
   <p>做这个界面的同事，有一周大约交了 <mark class="hl">1000 个 PR</mark>。分类器用很短的话说明模型刚做了什么、现在要什么。不必再开二十个标签页。</p>
@@ -656,7 +663,7 @@ footer {
 <section class="card" id="takeaways">
   <h2>三条带走</h2>
   <figure>
-    <img src="images/34-three-takeaways.jpg" alt="three takeaways recap slide">
+    <img src="images/34-three-takeaways.jpg" alt="three takeaways recap slide" width="1280" height="720" loading="lazy">
     <figcaption>口头收束和回顾页是同一组：给它访问权，看好盒子，选能扩的抽象。</figcaption>
   </figure>
   <div class="takeaways">
@@ -674,7 +681,7 @@ footer {
 
 (function () {
   var links = Array.prototype.slice.call(document.querySelectorAll(".rail nav a"));
-  var sections = Array.prototype.slice.call(document.querySelectorAll("section.card"));
+  var sections = Array.prototype.slice.call(document.querySelectorAll("section.card, section.tldr"));
   if (!links.length || !sections.length || !("IntersectionObserver" in window)) return;
   var map = {};
   links.forEach(function (a) {
