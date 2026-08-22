@@ -126,6 +126,40 @@ h1 {
   font-weight: 600;
 }
 
+.search-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 14px;
+  flex: 1 1 100%;
+  min-width: 0;
+}
+.search-field {
+  flex: 1 1 16rem;
+  min-width: 0;
+}
+#q {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.4;
+  padding: 6px 0;
+  border-radius: 0;
+  transition: border-color 160ms ease;
+}
+#q::placeholder { color: var(--muted); }
+#q:focus {
+  outline: none;
+  border-bottom-color: var(--accent);
+}
+#q::-webkit-search-cancel-button { cursor: pointer; }
+
 .catalog { margin: 0; }
 .entry {
   display: grid;
@@ -202,6 +236,7 @@ footer {
   margin-top: 48px;
   color: var(--muted);
   font-size: 13px;
+  line-height: 1.7;
 }
 
 @media (max-width: 680px) {
@@ -221,7 +256,8 @@ footer {
   .entry:hover .spine-date,
   .spine-date,
   .title,
-  .blurb { transition: none; }
+  .blurb,
+  #q { transition: none; }
 }
 </style>
 </head>
@@ -253,43 +289,52 @@ footer {
         <button type="button" class="chip" data-value="官方" aria-pressed="false">官方</button>
       </div>
     </div>
+    <div class="search-wrap">
+      <label class="filter-label" for="q">搜索</label>
+      <div class="search-field">
+        <input type="search" id="q" name="q" placeholder="搜索标题或摘要" autocomplete="off" spellcheck="false" aria-controls="catalog">
+      </div>
+    </div>
   </div>
 
   <main id="catalog" class="catalog">
-    <a class="entry" href="liu-jia/" data-category="认知" data-source="YouTube">
+    <a class="entry" href="2026-08-21-claude-code-agentic/" data-category="AI" data-source="YouTube">
       <div class="spine">
-        <span class="spine-label">原文</span>
-        <time class="spine-date" datetime="2026-03-28">2026-03-28</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title">刘嘉：应试教育在 AI 面前全军覆没</h2>
-        <p class="blurb">清华教授对谈。逻辑原点、学习与涌现、死亡意识、<span translate="no">Transformer</span> 三个瓶颈、AI 时代怎么教小孩。</p>
-        <p class="meta">
-          <span>分类 认知</span>
-          <span>来源 <span translate="no">YouTube</span></span>
-          <span>整理 <time datetime="2026-08-21">2026-08-21</time></span>
-        </p>
-      </div>
-    </a>
-    <a class="entry" href="claude-code/" data-category="AI" data-source="YouTube">
-      <div class="spine">
-        <span class="spine-label">原文</span>
-        <time class="spine-date" datetime="2026-08-11">2026-08-11</time>
+        <span class="spine-label">整理</span>
+        <time class="spine-date" datetime="2026-08-21">2026-08-21</time>
       </div>
       <div class="entry-body">
         <h2 class="title" translate="no">How Anthropic uses Claude Code</h2>
         <p class="blurb">Daisy Hollman，<span translate="no">NDC Copenhagen</span>。<span translate="no">Context</span> 是盒子，hooks 才能扩，2026 的瓶颈是人的注意力。</p>
         <p class="meta">
+          <span>原文 <time datetime="2026-08-11">2026-08-11</time></span>
           <span>分类 <span translate="no">AI</span></span>
           <span>来源 <span translate="no">YouTube</span></span>
-          <span>整理 <time datetime="2026-08-21">2026-08-21</time></span>
         </p>
       </div>
     </a>
-    <p class="empty" id="empty" aria-live="polite">这一组还没有笔记</p>
+    <a class="entry" href="2026-08-21-应试教育-AI-重新学习/" data-category="认知" data-source="YouTube">
+      <div class="spine">
+        <span class="spine-label">整理</span>
+        <time class="spine-date" datetime="2026-08-21">2026-08-21</time>
+      </div>
+      <div class="entry-body">
+        <h2 class="title">刘嘉：应试教育在 AI 面前全军覆没</h2>
+        <p class="blurb">清华教授对谈。逻辑原点、学习与涌现、死亡意识、<span translate="no">Transformer</span> 三个瓶颈、AI 时代怎么教小孩。</p>
+        <p class="meta">
+          <span>原文 <time datetime="2026-03-28">2026-03-28</time></span>
+          <span>分类 认知</span>
+          <span>来源 <span translate="no">YouTube</span></span>
+        </p>
+      </div>
+    </a>
+    <p class="empty" id="empty" aria-live="polite">没有匹配的笔记</p>
   </main>
 
-  <footer>托管在 GitHub Pages · 仓库 HarveyZgit/notes</footer>
+  <footer>
+    托管在 GitHub Pages · 仓库 HarveyZgit/notes<br>
+    原文版权归原作者及原平台。本站是个人阅读笔记，不是原文转载。
+  </footer>
 </div>
 <script>
 (function () {
@@ -297,16 +342,30 @@ footer {
     cat: ["", "AI", "认知", "科技"],
     src: ["", "YouTube", "X", "官方"]
   };
-  var state = { cat: "", src: "" };
+  var state = { cat: "", src: "", q: "" };
   var entries = Array.prototype.slice.call(document.querySelectorAll(".entry"));
   var empty = document.getElementById("empty");
+  var search = document.getElementById("q");
+  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var searchTimer = 0;
+
+  function hay(row) {
+    var title = ((row.querySelector(".title") || {}).textContent || "");
+    var blurb = ((row.querySelector(".blurb") || {}).textContent || "");
+    var cat = row.getAttribute("data-category") || "";
+    var src = row.getAttribute("data-source") || "";
+    var meta = ((row.querySelector(".meta") || {}).textContent || "");
+    return (title + " " + blurb + " " + cat + " " + src + " " + meta).toLowerCase();
+  }
 
   function apply() {
+    var q = (state.q || "").trim().toLowerCase();
     var shown = 0;
     entries.forEach(function (row) {
       var okCat = !state.cat || row.getAttribute("data-category") === state.cat;
       var okSrc = !state.src || row.getAttribute("data-source") === state.src;
-      var on = okCat && okSrc;
+      var okQ = !q || hay(row).indexOf(q) >= 0;
+      var on = okCat && okSrc && okQ;
       row.classList.toggle("is-hidden", !on);
       if (on) shown += 1;
     });
@@ -322,12 +381,14 @@ footer {
         chip.setAttribute("aria-pressed", on ? "true" : "false");
       });
     });
+    if (search && search.value !== state.q) search.value = state.q;
   }
 
   function writeUrl() {
     var q = new URLSearchParams();
     if (state.cat) q.set("cat", state.cat);
     if (state.src) q.set("src", state.src);
+    if (state.q) q.set("q", state.q);
     var qs = q.toString();
     var next = location.pathname + (qs ? "?" + qs : "") + location.hash;
     var now = location.pathname + location.search + location.hash;
@@ -340,6 +401,7 @@ footer {
     var src = q.get("src") || "";
     state.cat = allowed.cat.indexOf(cat) >= 0 ? cat : "";
     state.src = allowed.src.indexOf(src) >= 0 ? src : "";
+    state.q = q.get("q") || "";
   }
 
   function sync(write) {
@@ -360,6 +422,21 @@ footer {
       sync(true);
     });
   });
+
+  if (search) {
+    search.addEventListener("input", function () {
+      state.q = search.value || "";
+      if (reduceMotion) {
+        sync(true);
+        return;
+      }
+      if (searchTimer) window.clearTimeout(searchTimer);
+      searchTimer = window.setTimeout(function () {
+        searchTimer = 0;
+        sync(true);
+      }, 80);
+    });
+  }
 
   window.addEventListener("popstate", function () {
     readUrl();

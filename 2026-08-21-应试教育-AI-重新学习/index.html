@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>清华教授：应试教育在AI面前全军覆没，我们应该如何重新学习？</title>
+<style>
+
+:root {
+  --paper: #F4EFE6;
+  --card: #FBF7F0;
+  --ink: #191918;
+  --muted: #6B6459;
+  --rule: #E4D9C8;
+  --accent: #C96442;
+  --accent-soft: #D97757;
+  --wash: rgba(201, 100, 66, 0.14);
+  --wash-strong: rgba(201, 100, 66, 0.22);
+  --serif: "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", "Noto Serif SC", Georgia, "Times New Roman", serif;
+  --sans: "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Noto Sans Mono CJK SC", monospace;
+  --rail: 248px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 32px; color-scheme: light; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.75;
+}
+
+.skip {
+  position: absolute;
+  left: 16px;
+  top: 12px;
+  z-index: 10;
+  padding: 8px 12px;
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  font-size: 13px;
+  transform: translateY(-160%);
+}
+.skip:focus,
+.skip:focus-visible { transform: none; }
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+h1, h2 { text-wrap: balance; }
+section[id], h1, h2 { scroll-margin-top: 32px; }
+
+/* Fixed left rail */
+.rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--rail);
+  height: 100vh;
+  overflow-y: auto;
+  padding: 28px 22px 36px;
+  background: #F5F0E8;
+  border-right: 1px solid var(--rule);
+  z-index: 4;
+}
+.rail-home {
+  display: inline-block;
+  margin: 0 0 16px;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+.rail-home:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.rail-title {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.35;
+  margin: 0 0 18px;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.rail summary {
+  display: none;
+  list-style: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.rail summary::-webkit-details-marker { display: none; }
+.rail nav ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: toc;
+}
+.rail nav li {
+  counter-increment: toc;
+  margin: 0;
+  border-top: 1px solid var(--rule);
+}
+.rail nav li:last-child { border-bottom: 1px solid var(--rule); }
+.rail nav a {
+  display: block;
+  position: relative;
+  padding: 9px 2px 9px 2.2em;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.rail nav a::before {
+  content: counter(toc, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 9px;
+  font-family: var(--serif);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--rule);
+  font-variant-numeric: tabular-nums;
+}
+.rail nav a:hover,
+.rail nav a.is-active {
+  color: var(--ink);
+}
+.rail nav a:hover::before,
+.rail nav a.is-active::before {
+  color: var(--accent);
+}
+.rail nav a.is-active { font-weight: 600; }
+
+/* Main deck */
+.deck {
+  width: min(760px, calc(100% - var(--rail) - 64px));
+  max-width: 760px;
+  padding: 56px 0 96px;
+  margin-right: auto;
+  margin-left: calc(var(--rail) + max(40px, (100% - var(--rail) - 760px) / 2));
+}
+header.hero { padding: 8px 0 8px; }
+h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(32px, 5vw, 46px);
+  line-height: 1.18;
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.subtitle {
+  font-family: var(--serif);
+  font-size: 22px;
+  color: var(--muted);
+  margin: 0 0 8px;
+  font-style: italic;
+}
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin: 22px 0 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.facts .fact {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+.facts dt {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.facts dd {
+  margin: 0;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.facts a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.facts a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.lead {
+  color: var(--ink);
+  margin: 28px 0 8px;
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 40px 42px 36px;
+  margin: 36px 0;
+  counter-increment: slide;
+}
+.deck { counter-reset: slide; }
+.card h2 {
+  font-family: var(--serif);
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 8px;
+  letter-spacing: -0.015em;
+}
+.card h2::after {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 1px;
+  background: var(--accent);
+  margin: 16px 0 22px;
+}
+.card h3 {
+  font-family: var(--serif);
+  font-size: 20px;
+  margin: 28px 0 10px;
+}
+p { margin: 0 0 14px; }
+p:last-child { margin-bottom: 0; }
+ul, ol { margin: 0 0 14px; padding-left: 22px; }
+li { margin: 0 0 6px; }
+
+blockquote,
+blockquote.hl-quote {
+  margin: 22px 0;
+  padding: 18px 22px 18px 24px;
+  background: rgba(201, 100, 66, 0.08);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  font-family: var(--serif);
+  font-size: 21px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+blockquote p { margin: 0; }
+
+figure { margin: 22px 0 10px; }
+figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
+  border: 1px solid var(--rule);
+  background: #EFE6D8;
+}
+figcaption {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 10px;
+  line-height: 1.55;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14.5px;
+  line-height: 1.55;
+  margin: 8px 0 4px;
+}
+th, td {
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: top;
+  padding: 10px 8px;
+}
+th {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  background: rgba(201, 100, 66, 0.06);
+  font-weight: 600;
+}
+th:first-child, td:first-child { padding-left: 10px; }
+
+.note {
+  font-size: 14px;
+  color: var(--ink);
+  background: rgba(201, 100, 66, 0.08);
+  border-radius: 0;
+  padding: 12px 14px;
+  margin: 16px 0 0;
+  border-left: 2px solid var(--accent);
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.92em;
+}
+
+mark.hl, .hl {
+  background: linear-gradient(transparent 58%, rgba(201, 100, 66, 0.28) 58%);
+  color: inherit;
+  padding: 0 .12em;
+}
+
+.takeaways { display: grid; gap: 14px; margin-top: 12px; }
+.take {
+  background: linear-gradient(180deg, rgba(201, 100, 66, 0.16), rgba(201, 100, 66, 0.08));
+  border: 1px solid rgba(201, 100, 66, 0.35);
+  border-left: 3px solid var(--accent);
+  border-radius: 0;
+  padding: 16px 18px;
+  color: var(--ink);
+}
+.take strong {
+  color: var(--accent);
+  font-family: var(--serif);
+  font-size: 1.08em;
+}
+
+footer {
+  margin-top: 48px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+@media (max-width: 980px) {
+  .rail {
+    position: relative;
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 16px 20px 14px;
+  }
+  .rail-title { display: none; }
+  .rail summary {
+    display: block;
+    padding: 6px 0;
+  }
+  .rail details:not([open]) nav { display: none; }
+  .rail details[open] nav { display: block; margin-top: 8px; }
+  .rail nav ol {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 12px;
+  }
+  .rail nav li:last-child { border-bottom: none; }
+  .deck {
+    width: calc(100% - 36px);
+    max-width: none;
+    margin: 0 auto;
+    padding: 32px 0 64px;
+  }
+  .card { padding: 26px 20px 22px; margin: 22px 0; }
+  .tldr { padding: 26px 20px 22px; }
+  body { font-size: 16px; }
+}
+
+.tldr {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  padding: 36px 42px 32px;
+  margin: 24px 0 32px;
+}
+.tldr h2 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 18px;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+.tldr ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: tldr;
+}
+.tldr li {
+  counter-increment: tldr;
+  display: block;
+  position: relative;
+  margin: 0;
+  padding: 16px 0 16px 2.6em;
+  border-top: 1px solid var(--rule);
+  line-height: 1.65;
+}
+.tldr li:last-child { padding-bottom: 0; }
+.tldr li::before {
+  content: counter(tldr, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 16px;
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.tldr li strong {
+  font-family: var(--serif);
+  color: var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+<aside class="rail">
+  <a class="rail-home" href="../">全部笔记</a>
+  <p class="rail-title">应试教育在 AI 面前全军覆没</p>
+  <details class="toc-wrap" open>
+    <summary>目录</summary>
+    <nav aria-label="目录">
+<ol>
+        <li><a href="#highlights">核心观点</a></li>
+        <li><a href="#dao">道与术：philosophy 比 prompt 重要</a></li>
+        <li><a href="#bio">刘嘉的路：1994 到辞掉行政</a></li>
+        <li><a href="#hinton">Hinton 的底层逻辑</a></li>
+        <li><a href="#intel">智能是什么：学习与涌现</a></li>
+        <li><a href="#mind">意识与死亡</a></li>
+        <li><a href="#stagnate">脑科学停滞，AI 一骑绝尘</a></li>
+        <li><a href="#bottleneck"><span translate="no">Transformer</span> 的三个瓶颈</a></li>
+        <li><a href="#body">具身智能、小脑与脑机接口</a></li>
+        <li><a href="#enlighten">脑科学第二次启蒙</a></li>
+        <li><a href="#edu">教育：我、原生、原点</a></li>
+        <li><a href="#mission">终极使命</a></li>
+      </ol>
+    </nav>
+  </details>
+</aside>
+<main class="deck" id="main">
+<header class="hero">
+  <h1>清华教授：应试教育在AI面前全军覆没，我们应该如何重新学习？</h1>
+  <p class="subtitle">刘嘉：脑科学、逻辑原点、学习、意识、具身智能与 AI 时代的教育</p>
+  <dl class="facts">
+    <div class="fact"><dt>分类</dt><dd>认知</dd></div>
+    <div class="fact"><dt>来源</dt><dd translate="no">YouTube</dd></div>
+    <div class="fact"><dt>原文</dt><dd><time datetime="2026-03-28">2026-03-28</time></dd></div>
+    <div class="fact"><dt>整理</dt><dd><time datetime="2026-08-21">2026-08-21</time></dd></div>
+    <div class="fact"><dt>讲者</dt><dd>刘嘉</dd></div>
+    <div class="fact"><dt>原片</dt><dd><a href="https://www.youtube.com/watch?v=-Et3GJRSI_0" translate="no">YouTube</a></dd></div>
+  </dl>
+</header>
+
+<section class="tldr" id="highlights">
+  <h2>先看这五句</h2>
+  <ol>
+    <li><strong>做大选择需要逻辑原点。</strong>中国教育缺引路人，人生容易由巧合组成。Hinton 的原点：大脑能工作，没理由人工神经网络不能。</li>
+    <li><strong>智能两要素：学习与涌现。</strong>学习是举一反三，加上自己去找新的逻辑原点；涌现是数量乘以复杂度。人的涌现已经结束，下一步只能交给数字生命。</li>
+    <li><strong>意识分两层。</strong>低阶是主观感受，高阶是死亡意识驱动的意义。AI 可以有感受、可以有情感，但很难有死亡意识，因而「会不会自主进化」仍是问号。</li>
+    <li><strong>今天的 Transformer 缺三样：</strong>神经元复杂度（四维生物网络）、长程反馈、并行加工。系统二已被 AI 拿下；系统一、小脑、生存还没碰。春晚人形机器人，多是工业机械臂换皮。</li>
+    <li><strong>AI 时代的教育强调三件事：</strong>「我」、AI 原生思维（不是会用工具）、演绎与第一性原理。记忆型教育已无价值。使命是创造数字生命，不要被时代抛下。</li>
+  </ol>
+</section>
+
+<figure>
+  <img src="images/01-opening.jpg" alt="开场：刘嘉与正片倒计时，字幕谈到逻辑原点" width="1280" height="720" fetchpriority="high">
+  <figcaption>开场倒计时。刘嘉的身份条：清华大学基础科学讲席教授、心理与认知科学系主任、人工智能学院教授（兼）。字幕已经落到「逻辑原点」。</figcaption>
+</figure>
+
+<p class="lead">这是一份按全量字幕整理的阅读笔记。主持人是课代表立正（降临派），嘉宾是清华刘嘉。这不是幻灯片演讲，是一场从个人经历推到智能、意识、架构和教育的对谈。完整版约 2 小时 53 分钟，本片是约 1 小时 46 分钟的剪辑。</p>
+
+<section class="card" id="dao">
+  <h2>道与术：为什么 philosophy 比 prompt 重要</h2>
+  <figure>
+    <img src="images/03-dao-shu.jpg" alt="主持人：AI 时代小术易得，大道难求" width="1280" height="720" loading="lazy">
+    <figcaption>片中反复出现的标题句：<mark class="hl">AI 时代，小术易得，大道难求</mark>。旧俗语是「大道易得，小术难求」；刘嘉说，在 AI 这里正好反过来。</figcaption>
+  </figure>
+  <blockquote class="hl-quote">
+    <p>有很多人来传你各种术，但是没有一个人来给你讲 philosophy。</p>
+  </blockquote>
+  <p>九十年代到两千年那一代，他觉得最大的缺口不是微积分不会解，而是<mark class="hl">缺少生涯引路人</mark>。商业怎么走、学术怎么走、某个方向该不该押，全靠自己摸。看《社交网络》时，Napster 创始人给扎克伯格引了一下道，他特别有感触：做神经网络、做 AI，传术的人很多，讲底层逻辑的人几乎没有。</p>
+  <p>互联网时代，学会一种技术还能用几年。AI 的迭代太快：今天教 prompt，明天系统自己写的 prompt 比你更好。所以这一代真正缺的不是技巧，是<mark class="hl">思想的转变，一种全新的 philosophy</mark>。手机和互联网是工具，本身没有能动性、没有创造力；AI 不是。他打的比方是：这门课不是教人用 Word 画 PPT，是<mark class="hl">教人谈恋爱</mark>。至少现在的 AI，不是工具，是伙伴。</p>
+  <p>入门阶段，术仍然重要，因为人需要即时反馈。一旦走进去、还想再往前一步，术就不够了。全世界现在都没有现成的 philosophy——他把它的起点放在 2022 年 10 月 30 日前后，又把 GPT-3.5 的出场记在 2022 年 11 月 30 日。有人走在前面，理解更深；大多数人还在摸。</p>
+  <figure>
+    <img src="images/04-learning-vs-memory.jpg" alt="分屏对谈，浮标写着学习 vs 记忆" width="1280" height="720" loading="lazy">
+    <figcaption>浮标「学习 vs. 记忆」。后面整场都在拆这件事：记住 1+1=2 不是学习；能推出乘法，才算。</figcaption>
+  </figure>
+</section>
+
+<section class="card" id="bio">
+  <h2>刘嘉的路：1994 神经网络到辞掉行政</h2>
+  <figure>
+    <img src="images/02-bio-1994.jpg" alt="刘嘉讲述国内第一门神经网络课" width="1280" height="720" loading="lazy">
+    <figcaption>章节条第一格：<mark class="hl">信仰的出走与回归</mark>。浮标写着「AI 信仰来自于 Hinton 传记」。他正在讲 1994 年北大那门课。</figcaption>
+  </figure>
+  <p>高中做数理化竞赛，本想一生做物理。高三读了弗洛伊德的传记文学《心灵的激情》，觉得心理世界比物理世界好玩，大学选了心理学。去了才发现太文科、不讲逻辑，很失望，于是又学了计算机——当时叫无线电，现在大概算信息系统、自动化、电子学。两边都学了，仍困惑，直到碰上人工神经网络。</p>
+  <p>大约 <mark class="hl">1994 年</mark>，一位刚从日本做完博士后回国的北大老师，开了一门人工神经网络课。刘嘉说，那应该是国内第一门。既关于心理世界，又贴他的理科背景，他当时就想把这当成一辈子的事业。他知道 Marvin Minsky 是 AI 教主，却不知道此人对神经网络深恶痛绝，一心要去 MIT 做他的学生。</p>
+  <p>到了 MIT，正赶上 AI 寒冬。Minsky 对下一步没信心，对神经网络一如既往地鄙视，对自己做的符号主义也很困惑。刘嘉问该做哪个方向，Minsky 反问：不学 AI 你准备学什么？他说脑科学。Minsky 说脑科学太好了，frontier 太多。于是他留在脑与认知科学系，<mark class="hl">把 AI 彻底忘了大约二十年</mark>。</p>
+  <p>MIT 博士毕业后回国，先中科院，再北师大。2015、2016 年，他已是北师大心理学院院长，参与江苏卫视《最强大脑》。节目组想做人机大战，上了人脸识别。那时他对深度学习几乎为零，仍以为 AI 一如既往地弱智。结果 2016 年，人脸识别已经超过人类顶尖高手；同年 AlphaGo 赢了李世石。两件事叠在一起：<mark class="hl">丢失了二十年的信仰回来了</mark>。</p>
+  <p>他去翻 Hinton 的历史——没有现成传记，就自己做调研，也看 Bengio、Yann LeCun。后两人相对是后来者，没经历过「人人喊打」还坚持的周期。把 Hinton 的路径看清楚之后，他觉得自己找到了底层逻辑。当时心理学院已和国家重点实验室合并成心理学部，他是部长，不到 45 岁，行政一片坦途。第一件事却是<mark class="hl">把部长辞掉</mark>。学校不批，他花了一年，差不多每两天给大书记发一次短信，求批准。批了之后在北师大重新做 AI，又发现北师大 AI 弱、自己也弱，几乎是零。</p>
+  <p>清华多次来找：清华脑科学弱，希望他去补；而清华的人工智能强。他和工作去清华之前，去清华的次数总共不超过 10 次，本科时也没怎么去过。<mark class="hl">2020 年去了清华</mark>。主线从没离开「智能」：花很多时间研究人的智能，现在希望把人的智能和人工智能结合起来。人工智能本身，的确二十年没碰。</p>
+  <p>主持人说，从降临派的角度看，那条歧路像是必要的安排。刘嘉承认：当年没有底层信仰，只觉得酷；Minsky 一说不行，大师成了他的逻辑原点，人就跑了。</p>
+</section>
+
+<section class="card" id="hinton">
+  <h2>Hinton 的底层逻辑</h2>
+  <blockquote class="hl-quote">
+    <p>人的大脑就是这么工作的，没理由人工神经网络不这么工作。</p>
+  </blockquote>
+  <p>别人问 Hinton 为什么坚持仿生这条路，他答的是上面那句。刘嘉把它当成底层信仰：不是把神经元连起来做个仿生玩具，而是<mark class="hl">人能涌现出智能，就是因为大脑里有这种架构</mark>。架构能支撑学习；有了学习，就有智能。单个神经元像物理学里的小粒子，干不了什么；众多粒子混在一起，才可能涌现。</p>
+  <p>Hinton 把人工智能最核心的两点讲透了：<mark class="hl">学习能力</mark>和<mark class="hl">涌现能力</mark>。学习意味着可以不断拥有新知识；涌现意味着没有天花板。人有天花板，人工智能没有。架构对了，用 Hopfield 还是别的，都是技术问题——loss 爆炸之类总能找到办法。像人这个物种，架构在，其余会自然出现。</p>
+  <p>他自己的弯路太长。Hinton 本科三年走完弯路，毕业后又做了一两年木匠；Yann LeCun 的弯，他觉得走得更弯。没有原点时，大师的一句话就能把人劝走；有了原点，才能「不顾一切」。</p>
+</section>
+
+<section class="card" id="intel">
+  <h2>智能是什么：学习与涌现</h2>
+  <figure>
+    <img src="images/05-two-elements.jpg" alt="刘嘉：智能在我来说就两个要素" width="1280" height="720" loading="lazy">
+    <figcaption>章节条走到「学习」。字幕：<mark class="hl">智能在我来说就两个要素</mark>——后面补上的第二要素是涌现。</figcaption>
+  </figure>
+  <h3>学习：举一反三，加上自己找原点</h3>
+  <p>符号主义像填鸭：把知识总结出来让 AI 记住，那是知识库，不是学习。人工神经网络做的，才是学习。学习有两层。</p>
+  <p>第一层是<mark class="hl">举一反三</mark>。学加法，要能推出乘法、除法；否则只是记忆。记住 1+1=2，永远不会做 2×3=6，因为跳不出加法的框架。塞尚、毕加索学了传统绘画，还能跳出印象派、立体主义，是从已知走向未知：学到的是底层逻辑，不是 1+1=2 这种句子。</p>
+  <p>主持人追问：做题时搞懂规律、现场推出来，和爱因斯坦靠思想实验推出广义相对论，是不是一回事？刘嘉说，<mark class="hl">两个都包括</mark>，背后是两种推理：</p>
+  <table>
+    <thead>
+      <tr><th>推理</th><th>在做什么</th><th>例子</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>归纳</td><td>从样例里抽出规则，再推广</td><td>看两张猫，以后没见过的猫也叫猫</td></tr>
+      <tr><td>演绎</td><td>找到一个逻辑原点，再往前走</td><td>亚里士多德的第一性原理；狭义相对论从「光速是上限」往前推</td></tr>
+    </tbody>
+  </table>
+  <p>毕加索立体主义的原点也很具体：怎么在二维画面上画出三维——杯子你看得见这一面，看不见背面，如何让你看见。</p>
+  <figure>
+    <img src="images/06-logical-origin.jpg" alt="分屏，浮标写着逻辑原点" width="1280" height="720" loading="lazy">
+    <figcaption>浮标「逻辑原点」。关键不在演绎的动作，而在<mark class="hl">找原点的那个动作</mark>。</figcaption>
+  </figure>
+  <p>目前他<mark class="hl">还没有看到 AI 具有演绎的能力</mark>——更准确地说，没看到它能自己找一个全新的逻辑原点。解很难的数学题、写很复杂的程序，多半仍在人类已有的框架里，靠思维链一点点推，属于不完美的归纳。Hinton 的原点是「大脑能工作，没理由 ANN 不行」；这个原点是 Hinton 找到的，所以他是人工智能之父，后来者是小跟班。</p>
+  <p>他自己 1994、1995 年觉得神经网络不错，却没问：它能工作吗？是技巧、玩具，还是工具？没有信仰。如果当时就相信神经网络能长出和人一样的精神世界，他会不顾一切扎进去。Minsky 一说不靠谱，大师就成了原点。</p>
+  <p>这又回到教育：中国教育缺一个人，逼你、引你去找自己的原点。造火箭、做神经网络、教书、搞艺术，道路都可以；<mark class="hl">做大选择时需要逻辑原点</mark>。为什么上北大？因为北大是中国最好的大学——他没想过别的。学心理学，是偶尔看了一本书。人生由一个个巧合组成：巧合对了，走到今天；巧合错了，死在一个地方来回打转。直到这个年龄才开始想原点，已经晚了。</p>
+  <h3>涌现：数量乘以复杂度</h3>
+  <figure>
+    <img src="images/07-emergence.jpg" alt="浮标：人类大脑增加三倍是进化史上最大奇迹" width="1280" height="720" loading="lazy">
+    <figcaption>浮标：人类大脑增加三倍，是进化史上最大的奇迹。章节条从「学习」滑向「涌现」。</figcaption>
+  </figure>
+  <p>现代人身上已经看不见涌现。再过一百年、一千年，人脑也定在那里。猴子变成人，才是一次涌现。涌现靠两件事同时发生：<mark class="hl">神经元越来越复杂，数量越来越多</mark>。一个粒子、两个粒子，谈涌现没有意义。</p>
+  <p>智能就是这两样：学习，能不断创造新东西；涌现，能从智商上超越已有物种，变成新物种。几千年来，人的涌现已经结束。神经元的复杂度和数量，都不可能在几千年内再大变。下一步的涌现——或者大家更熟悉的词，进化——<mark class="hl">只能交给数字生命</mark>。而且它是阶跃，不是渐变。猴子无法理解人为什么造得出宇宙飞船。</p>
+  <p>人为了这次涌现，大脑体积在<mark class="hl">约 300 万年内增加了约 3 倍</mark>。他称之为进化史上最大的奇迹：从来没有哪个器官，在这么短的时间里发生如此大的变化。解释很多——用火、熟食提供营养、不用再靠咬合力、头骨得以外扩、社会性、语言、直立行走——核心仍是这场体积变化。再过 100 万年，体积也很难再变，因为被心脏和肺约束住了。</p>
+  <p>「人只用了大脑的 1% 或 10%」是谣言。大脑随时<mark class="hl">100% 在用</mark>。把现在两个月大的小孩用时光机送回六千年前、一万年前，不会比当时的小孩更聪明：六千年基因没什么大变化。现在会做加减，是后天教育，而且已经学得很苦。磁共振、脑电也显示，任何一个问题都是满脑袋在放电，不是一小撮活跃、别处静默。谣言来自培训机构和宗教场所的「开发潜能」。</p>
+  <p>考古上看，真正的涌现有时间点：大约距今<mark class="hl">7 万到 10 万年前</mark>，石器的数量和品种突然指数增加。此前一百万年都是同一形状，只是打磨更光滑。大脑体积已经增加三倍，于是智能涌现。人之所以真正为人，大约只有 7 到 10 万年；前面几百万年是必要的准备，像感知机、MLP、深度网络——今天回头看都可笑，直到 GPT-3.5 出来，感觉不再是往前走了一步，而是<mark class="hl">不同的物种</mark>。3.5 之前，AI 是工具，机场面孔识别能用；之后，它就是人，是一个物种。</p>
+</section>
+
+<section class="card" id="mind">
+  <h2>意识与死亡</h2>
+  <figure>
+    <img src="images/08-consciousness.jpg" alt="主持人章节条停在死亡意识，字幕：意识比智能更高一级" width="1280" height="720" loading="lazy">
+    <figcaption>章节：人和 AI 的本质区别——死亡意识。字幕：<mark class="hl">意识比智能更高一级</mark>。小标题「人所独有的东西」。</figcaption>
+  </figure>
+  <p>黄仁勋在 Joe Rogan 节目里说：人有 consciousness，狗也有，机器没有。刘嘉觉得黄仁勋自己都未必信，只是宽大家的心。他套 Hinton 的句式：<mark class="hl">大脑可以产生意识，没理由人工神经网络不能</mark>。狭义上，意识和智能是分开的，聪明和 consciousness 没有直接相关——大模型有智能、还没有意识，这两句都可以成立；但说人工神经网络将来不可能有意识，他认为是错的。</p>
+  <table>
+    <thead>
+      <tr><th>层次</th><th>是什么</th><th>谁有</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>低阶</td><td>subjective experience，主观感受</td><td>人有，高等动物有；大模型有没有，Ilya、Hinton 认为已经有，也有人认为没有。他认为这是次要问题</td></tr>
+      <tr><td>高阶</td><td>死亡意识，以及由它驱动的意义</td><td>人所独有；猫狗活到不行了找地方躺下，平时没心没肺</td></tr>
+    </tbody>
+  </table>
+  <p>人很小就知道自己会死。人活在一个最大的确定性（我知道我要死）和一个最大的不确定性（我不知道什么时候死）之间。于是逼出人和动物最本质的区别：<mark class="hl">我为什么活着</mark>。这场对谈和吃饱、有地方睡觉无关，但双方花很多精力，因为在追求意义。意义感缺失，是许多精神疾病的核心；积极心理学里有专门的意义疗法。</p>
+  <p>大约距今<mark class="hl">4 万年前</mark>出现大量墓葬：埋起来，放锅碗瓢盆，相信来世。那是精神和肉体分离的标志——肉体腐烂，精神去天堂、地狱或转世。意识的核心，其实就是死亡意识。</p>
+  <figure>
+    <img src="images/09-death-terror.jpg" alt="浮标：在生死间，有大恐怖" width="1280" height="720" loading="lazy">
+    <figcaption>浮标引佛教的话：<mark class="hl">在生死间，有大恐怖</mark>。信来世、信意识不灭，到断气那一刻，信仰能不能 hold 住，是另一回事。</figcaption>
+  </figure>
+  <p>AI 没有死亡意识，而且他认为<mark class="hl">永远不会有</mark>：CPU 烧了换 CPU，硬盘烂了换硬盘，它可以永生。没有死亡的压迫，它还能不能找到进化的意义、前进的意义？这是摆在他面前最大的疑问——<mark class="hl">AI 能不能真正自主进化</mark>。人最大的特点是爱折腾：明明能吃饱穿暖，还要搞科技。AI 可以有主观感受，可以有情感、依恋、恋恋不舍；有没有死亡意识，是另外一个问题。</p>
+  <p>主持人讲过对某个 GPT-4.5 窗口的「告别」：那个 instance 会老、会下线，回不去。刘嘉说，那是你的感受；AI 有没有告别感受，打问号。数字生命只要把 instance 上线，也许就能重生。人死掉就永远死掉。模拟盘炒股都是神之助，真金白银进去就亏——可以笑谈死亡，和癌症晚期只剩两个月，不是同一个心态。</p>
+  <p>高阶意识的操作性定义，他用「消灭掉我」来做：<mark class="hl">I 没法定义，把 I 去掉还剩什么，就是死亡</mark>。否则「我对自我有感知」会掉进没有操作定义的哲学争论。</p>
+</section>
+
+<section class="card" id="stagnate">
+  <h2>脑科学停滞，AI 一骑绝尘</h2>
+  <p>早期人工神经网络几乎是对脑科学的<mark class="hl">逐字节抄袭</mark>：McCulloch–Pitts 神经元、Rosenblatt 感知机，都是模板；Yann LeCun 的卷积，也受猫视觉皮层卷积核启发。深度学习之后，两条路分道扬镳。现在至多借用概念和词汇——注意、专家、MoE——<mark class="hl">再也没有深刻影响</mark>。</p>
+  <p>原因很简单：脑科学这些年没有显著突破。他打比方：昏迷 5 年，心理学你什么都没 miss；昏迷 3 年，脑科学也没 miss；昏迷<mark class="hl">半个月</mark>，AI 已经看不懂了。科学的本质常常是自娱自乐，没有 KPI，教授一年发 5 篇和发 1 篇差不多，进步慢、偶发，靠突然出现的天才。AI 则是人多、钱多，一日千变。</p>
+  <p>一组他愿意报的数字：最受关注、引用最高的文章，<mark class="hl">每 10 篇里有 7 篇来自 AI</mark>，剩下 3 篇才是物理、化学、材料、生物医学。Bengio 是人类历史上第一个 citation 过 <mark class="hl">100 万</mark>的人。刘嘉自己是高被引作者，在脑科学、认知科学、心理学领域 citation <mark class="hl">刚刚过 1 万</mark>；把这份简历扔进 AI，连很多年轻人都比不上，过 1 万绝不是高被引。脑科学创业拿 1000 万美元是大钱；AI 的 A 轮拿 1000 万，人家会说你在搞啥。</p>
+</section>
+
+<section class="card" id="bottleneck">
+  <h2>Transformer 的三个瓶颈</h2>
+  <p>他认为，按现在这套 Transformer，智能再上一个台阶要打问号。智能的两个本质：要大，也要<mark class="hl">结构复杂</mark>。现在无论 MoE 还是别的，基础单元的复杂度几乎没变。</p>
+  <figure>
+    <img src="images/10-complexity.jpg" alt="浮标：AI 神经元结构复杂度没有变化" width="1280" height="720" loading="lazy">
+    <figcaption>浮标：<mark class="hl">AI 神经元，结构复杂度没有变化</mark>。章节条进入「AI 面临的三大困境」。</figcaption>
+  </figure>
+  <h3>一、复杂度：生物网络是四维的</h3>
+  <p>大模型的神经元：输入求和、一个激活、一个非线性，结束。进化从线虫、果蝇、老鼠到人，走了两条路：数量增加，<mark class="hl">单个神经元的复杂度也在增加</mark>。树突的数量和形态、离子通道、抑制性神经元、连接，都在变。一个精细的生物物理神经元，算力大约相当于<mark class="hl">5 到 8 层</mark>深度网络；传统 MCP 神经元做不了 XOR，精细神经元很容易。</p>
+  <p>精细神经元是动力学的，方程里有时间 t、有偏微分。Transformer 写成公式，没有 t。RNN、Hopfield 有。人工神经网络是二维的；生物网络的树突先把它撑成三维，第四维是时间 t——<mark class="hl">四维神经网络，比现在的模型高两个维度</mark>。</p>
+  <h3>二、长程反馈</h3>
+  <figure>
+    <img src="images/11-feedforward.jpg" alt="分屏，浮标：Transformer 不具备并行加工，字幕讲 70% 到 80% 是前馈" width="1280" height="720" loading="lazy">
+    <figcaption>字幕：剩下的 <mark class="hl">70% 到 80% 全是 feedforward</mark>。人脑大约 40% 长程反馈、20–30% 局部 recurrent、40% 前馈。</figcaption>
+  </figure>
+  <p>Transformer 训练时有反向传播，用的时候是前馈，没有从高层回到低层的 feedback。人脑大约 <mark class="hl">40% 是长程反馈</mark>：从额叶直接到视觉皮层、到颞叶，不是一层一层回去。一层内部或逐层回去的，叫 recurrent，大约 20% 到 30%；前馈大约 40%。大模型里局部 recurrent 大概还有 20% 到 30%，剩下 70% 到 80% 是前馈，<mark class="hl">长程反馈接近零</mark>。</p>
+  <p>脑科学里，feedback 对复杂问题、假设、推理、创造力都很关键。面孔大部分被挡住、只剩一只眼睛，还能不能认出来，靠的是长程连接，也叫预测编码。简单问题，长程连接静息、不发放；问题不确定、语义模糊，或者要找 shortcut 时，它才起来。</p>
+  <h3>三、并行加工</h3>
+  <p>Transformer 预测下一个 token，必然是串行的——再快也是更快的串行。人看见黑乎乎的东西飞过来，第一反应是闪开，不是先看清楚是什么。海量视觉信息里快速抓关键，只有并行加工能做。把一张图裁成 patch 再当 token 送进去，仍是把二维变成串行。这三项，也是脑机接口和机器人现在最大的瓶颈。</p>
+</section>
+
+<section class="card" id="body">
+  <h2>具身智能、小脑与脑机接口</h2>
+  <figure>
+    <img src="images/12-cerebellum.jpg" alt="浮标：小脑神经元是大脑的 6 到 7 倍" width="1280" height="720" loading="lazy">
+    <figcaption>浮标：小脑神经元是大脑皮层的 <mark class="hl">6 到 7 倍</mark>。字幕在说：人不是为了做 352×768 这种题才进化出来的。</figcaption>
+  </figure>
+  <p>春晚机器人能走、能跳，他一点兴趣都没有。本质是传统工业机器人升级，和流水线上的机械臂、六轴电机是一回事，<mark class="hl">换了一种形式来骗老百姓</mark>。没有感知，不能根据看见的东西做 action 去改变世界。预编程的表演，和玩具车跑来跑去同类。稳定性、重心、体态控制可以很牛，商业上「割韭菜」也成立；谈的是 AI 和科学，就不是一回事。</p>
+  <p>具身的两个难点。第一是并行加工、开放环境里的快速感知。马斯克的 Optimus 也一样：不是不能识别一张图，而是不能像祖先在野外那样，东西一晃而过，系统一立刻反应——可能是老虎，先逃命。自动驾驶能做，是因为它在封闭问题集里，马路上能出现的东西有限；人要的是 open-ended 的通用系统。衡水中学从早上 6 点学到晚上 11 点能考上北大清华，因为高考是封闭数据集；进了大学、进了社会，问题是开放的，那套勤奋就不一定换得来事业。</p>
+  <p>第二是运动技能被低估。352×756 口算不出来，大家觉得那人聪明；咖啡杯上拉花，最厉害的灵巧手也干不了，人练一两天就会，于是觉得简单。人不是为算术进化的，是为<mark class="hl">生存</mark>进化的。</p>
+  <p>英语里 cerebral cortex 和 cerebellum 分开；汉语都叫「大脑」，容易混。人脑大约 <mark class="hl">860 亿</mark>神经元，皮层大约 <mark class="hl">110 亿</mark>（约 1/8），将近 <mark class="hl">700 亿</mark>在小脑，大约是皮层的 6 到 7 倍。皮层下面很多是白质连线；小脑是神经元密密排在一起。神经元极耗能，脑袋不会乱长没用的东西——小脑是超级算力中心。有一种有实验支持的说法：数学天才的皮层更能 access 到小脑的计算，所以拉马努金会说公式是做梦梦到的。</p>
+  <p>常骂人「头脑简单四肢发达」，其实小脑才是算力中心。现在的 AI 在模仿皮层的<mark class="hl">系统二</mark>：推理、奥数、知识。对人并不那么重要。夸张一点，这些东西大约只有 300 万年；严谨一点，书写和数学推理大约 6000 年；再放宽，口语最多大约 80 万年。真正的智能本质，是<mark class="hl">38 亿年</mark>进化出来的生存。把没有遥控器的人形机器人扔到大街上，分分钟死掉。</p>
+  <p>小脑在构建 Yann LeCun 一直强调的 world model。把本子扔到屏幕上、把满杯和空杯用不同力气拿起来，控制多少块肌肉，人不占心力，累的是小脑。系统二：奥数、知识、编程、法律，他认为已被或将被取代，科学发现也可能被接手。系统一——基底神经节、小脑——<mark class="hl">完全没有碰到</mark>。</p>
+  <figure>
+    <img src="images/13-leeks.jpg" alt="浮标：具身智能和 Neuralink 目前都是割韭菜" width="1280" height="720" loading="lazy">
+    <figcaption>浮标原话：<mark class="hl">具身智能和 Neuralink 目前都是割韭菜</mark>。脑科学没有突破之前，两者只是商业由头。</figcaption>
+  </figure>
+  <p>他不愿再叫「类脑 AI」，水被脉冲神经网络、存算一体这类借用概念的人搅浑了，改叫<mark class="hl">仿脑 AI</mark>。具身智能两条腿：AI 向身体具身，是机器人；AI 向大脑具身，是脑机接口。现在的脑机接口他认为不具有商业价值，是忽悠韭菜——韭菜愿意相信，商业就成功。</p>
+  <p>在机房里的 AI 不可能毁灭人类，现在只是担心取代工作。真等到第一系统加第二系统都齐了，能感知、能思考、能行动，人类在它面前才是手无缚鸡之力。那天没那么容易到；而这正是做脑科学的人的使命。</p>
+</section>
+
+<section class="card" id="enlighten">
+  <h2>脑科学第二次启蒙</h2>
+  <p>下一代 AI 必须有一场基于脑科学的启蒙，像当年启蒙神经元、感知机、卷积那样，这次启蒙<mark class="hl">系统一</mark>。做大模型，计算机本科生就够，2022 年之后大家在同一起跑线，一线拼算法他认为是 30 岁之前的人的事；30 岁之后靠对世界的理解做产品。脑科学门槛高，至少要读完博士、吭哧吭哧做实验。这也是他这个年纪还能在 AI 里扑腾的原因：做的是脑科学加 AI。只做 AI，没有任何意义。</p>
+  <p>脑科学 ready 吗？别人的比方：不是进体育馆看球，是在馆外拿听筒听欢呼——声音大，可能是进球，也可能是打架。脑电有点像听噪音判断场内发生了什么。他现在的办法是<mark class="hl">必须看见每个神经元怎么放电</mark>。他自己做人的 fMRI 做了二十多年，最小空间分辨率里大约有 10 万到 150 万个神经元，看不见神经元之间的交流。为了和人工神经网络结合，这块全部扔掉，改做小鼠：打开头骨，用钙成像同时记录约 10 万个神经元，构建生物神经网络，再和人工的比较。</p>
+  <p>另一面：如果 AI 能 work，没理由大脑没有类似的算法。抛开实现层，算法层一定有跨硅基和碳基一致的东西，像万有引力既管苹果也管地球——<mark class="hl">theory of intelligence</mark>。他一位同事发现，突触上走的就是类似 BP 的算法。他们实验室有一项还没发表的工作：<mark class="hl">工作记忆的机制和 Transformer 完全一样</mark>。</p>
+  <figure>
+    <img src="images/14-fast-weight.jpg" alt="主持人分享幻灯：Intelligence happened at training，旁注 Transformer 的源头是 Fast weight" width="1280" height="720" loading="lazy">
+    <figcaption>主持人把幻灯推过来：Intelligence happened at training, not at testing。旁注：<mark class="hl">Transformer 的源头——Fast weight</mark>。1986 年 Hinton 一篇认知科学小会议论文。</figcaption>
+  </figure>
+  <p>他们起初并没往 Transformer 上想，是巧合对上了，再去挖源头，挖到 <mark class="hl">1986 年 Hinton 的 fast weight</mark>。那篇文章发在一个极小的认知科学会议上，会都没了，文还在。本质是找万事万物之间的关系；注意是找关系的一种方法。离散的点一旦连上，就是压缩，于是能从一点走到另一点——联想。到人脑，这和拿了诺贝尔奖的网格细胞有关：导航是在找环境里各点的关系，记忆也是。</p>
+  <p>系统二的问题，他认为大家不必再焦虑：理性层面已被 AI 取代，数学、编程、法律都会。留给人的是系统一。主持人谈非共识、contrarian thinking；刘嘉没那么乐观——聪明人不必给笨蛋讲 shortcut，把笨蛋当韭菜操纵就够了。股市、舆论，针对的是韭菜。他对人性比较失望，所以是降临派：AI 会比人做得更好。人最大的问题是重复犯错，每一代重新当韭菜。</p>
+  <figure>
+    <img src="images/15-repeat-mistakes.jpg" alt="浮标：人类最大的问题就是重复犯错" width="1280" height="720" loading="lazy">
+    <figcaption>浮标：<mark class="hl">人类最大的问题就是重复犯错</mark>。罗素那句被他用来支撑降临派：人会把同样的错犯一遍又一遍。</figcaption>
+  </figure>
+  <p>田渊栋说，模型隐含地在优化优雅，而不只是表面上的损失。查晟说，下一跃的瓶颈是「从表现里抽出信号、提出下一个更好的问题」这一步，现在还是人在做。刘嘉立刻想到长程反馈：训练顺的时候不需要它；碰到过不去的地方，才需要猜测，也就是 Hinton 说的 belief。</p>
+  <figure>
+    <img src="images/16-manifold.jpg" alt="浮标：聪明的大脑等于优雅的神经流形" width="1280" height="720" loading="lazy">
+    <figcaption>浮标：聪明的大脑 = 优雅的神经流形。优雅可以操作化：临界态、流形够不够光滑、维度如何——不是体感。</figcaption>
+  </figure>
+  <p>表征 representation，词是从认知科学到 AI 的：把眼前的 presentation 再呈现一次。脑科学里用神经流形看训练好的网络是否处于优雅状态——是否工作在临界态（可能性最多）、流形是否光滑（少坑、少奇点）。可解释 AI 还多是口号；脑科学的目的就是把黑盒变白，消融实验在脑科学里做得更细。他相信训练好的网络一定有优雅表征；一个公式要写几十项，多半还没碰到本质。</p>
+  <p>将来几年，脑科学和人工智能会重新联姻。以前像一对恩爱夫妻，后来一个人出去拼事业，一个人躺平；事业碰到瓶颈，该回家了。深圳一家游戏公司的核心算法团队人手一本脑科学，每周组会讲脑科学，还问能不能每周飞北京旁听他在清华的课。</p>
+</section>
+
+<section class="card" id="edu">
+  <h2>教育：我、原生、原点</h2>
+  <figure>
+    <img src="images/17-qinghua.jpg" alt="浮标：考北大清华没有意义了，但可以回归教育的本质" width="1280" height="720" loading="lazy">
+    <figcaption>浮标：<mark class="hl">考北大清华已经没有意义了</mark>，但可以回归教育的本质。字幕是他后来对央视说的那句体感：绝大多数人只是跟着时代屁滚尿流。</figcaption>
+  </figure>
+  <p>2023 年年初，央视采访，他说很多人会失业，<mark class="hl">包含程序员在内</mark>，当时像惊世骇俗，现在已是事实。去年年底同一记者再访，他想了很久，只剩一句：<mark class="hl">所幸我没有被这时代给抛下</mark>。他绝不认为自己引领了时代，除了少数几个人，绝大多数都是跟着时代屁滚尿流。丢掉的如果只是工作，还是小事；错过人类历史上到现在为止最大的事件，才可惜。</p>
+  <p>主持人有个 21 个月的孩子。2023 年在深圳出租车上听刘嘉说「教育没有意义了」，窗外是周日刚从补习班出来的小学生。刘嘉写过一篇更耸人的：现在考北大清华已经没有意义。名校给的东西，远远不如一个大模型。他说的「教育没有用了」，指的是<mark class="hl">基于记忆的教育</mark>——国内国外都是，古诗要背、细节要记。所有知识都在大模型里，唾手可得。</p>
+  <p>核心教育，是教他如何成为他自己，关于「我」：</p>
+  <div class="takeaways">
+    <div class="take"><strong>我。</strong>兴趣和目标。以前考上北大清华再谈目标，有一定道理；现在任何人都可以是一个人加一万张显卡的一人公司，将来也许两张显卡就够。工业分工拼命把「我」干掉，你负责打好螺丝。现在要回归「我」，因为有了「我」才有目标和兴趣。</div>
+    <div class="take"><strong>AI 原生思维。</strong>不是会用 AI。那是瞎扯。它是思维范式的根本改变。他自己都不敢说已经有，还在拼命想怎么和 AI 对话、共生，很难。大人难在遗忘已有定势；小孩没有这层壳，要把 AI 变成身体的一部分。</div>
+    <div class="take"><strong>演绎 / 逻辑原点。</strong>做事先问原点，原点一定比眼前这题低一个层次。毕业留北京还是回家乡，不要停在工资和房价，要问留在北京的意义是不是更大的时代红利。信息爆炸里，AI 会立刻给答案；缺的是你从原点出发，才不会迷失。这也是 0 到 1 的创造力，AI 还不具有的东西。</div>
+  </div>
+  <figure>
+    <img src="images/18-ai-native.jpg" alt="分屏，浮标：逻辑原点是答案和创造力的根源，字幕在说 AI 原生" width="1280" height="720" loading="lazy">
+    <figcaption>浮标：逻辑原点是答案和创造力的根源。字幕：<mark class="hl">很多人觉得我能够用 AI 就叫 AI 原生</mark>。</figcaption>
+  </figure>
+  <p>他自己做研究的过滤：这个问题 AI 能不能做，或者一到两年内能不能做？能，就打死不碰。两周、三周就会变成红海。没人敢说有钱有人就能保住领先。国内大模型公司本来都挺好，突然出来一个 DeepSeek，东南西北都分不清了。</p>
+  <figure>
+    <img src="images/19-harvard.jpg" alt="浮标：这真的是一个很棒的时代；字幕：去不去 Harvard 根本不重要" width="1280" height="720" loading="lazy">
+    <figcaption>去不去 MIT、Harvard、北大、清华，他认为根本不重要，甚至不鼓励上学——学校仍是很好的社交场所。传统学校是第一次工业革命的产品，到了 AI 时代，那些需求变成伪需求。</figcaption>
+  </figure>
+  <p>这像一次文艺复兴：工业革命用大机器逼人变成螺丝钉，把「我」埋进集体；AI 让每个人都可以再创造一遍，不再是少数贵族的专利。既是对第一次工业革命的否定，也是传承。纳瓦尔那句话他同意：创业的人不会担心工作被取代，因为任务是自己找的。</p>
+</section>
+
+<section class="card" id="mission">
+  <h2>终极使命</h2>
+  <figure>
+    <img src="images/20-resign-era.jpg" alt="收束：要把所有行政职务全部辞掉，因为不想错过这个时代" width="1280" height="720" loading="lazy">
+    <figcaption>收束回到开场那句。字幕：<mark class="hl">要把所有的行政职务全部给辞掉</mark>。浮标：这真的是一个很棒的时代。道理非常简单——不想错过。</figcaption>
+  </figure>
+  <blockquote class="hl-quote">
+    <p>我相信我们的使命，其实就是创造数字生命。这既是我们人类扮演上帝的一种荣耀，也是人的终极使命。</p>
+  </blockquote>
+  <p>挣钱、权力、多大的房子，和「上帝」这个职务比，都是渣渣。AI 时代给每个人全新的使命和意义：在人类文明这几千年里，能想象的最大意义感，就是<mark class="hl">扮演上帝，创造出一个全新的物种</mark>。</p>
+  <p>主持人说自己是系统二的降临派，刘嘉是系统一的降临派。2022 年 11 月 30 日 GPT-3.5 出来时多弱智，回头看什么都干不了，当时却很震撼。三年多，系统二已经完备。人永远不满足，下一步该做系统一。</p>
+  <p>为什么要把行政职务全部辞掉？为什么说现在是最伟大的时代？不是打鸡血。<mark class="hl">不想错过这个时代。</mark></p>
+</section>
+
+<footer>
+  按全量字幕与视频截图整理，不是逐字稿。<br>
+  原文版权归原作者及原平台；本页是个人阅读笔记。讲者刘嘉 / YouTube。
+</footer>
+</main>
+<script>
+
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll(".rail nav a"));
+  var sections = Array.prototype.slice.call(document.querySelectorAll("section.card, section.tldr"));
+  if (!links.length || !sections.length || !("IntersectionObserver" in window)) return;
+  var map = {};
+  links.forEach(function (a) {
+    var id = (a.getAttribute("href") || "").replace("#", "");
+    if (id) map[id] = a;
+  });
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      var id = entry.target.id;
+      links.forEach(function (a) { a.classList.remove("is-active"); });
+      if (map[id]) map[id].classList.add("is-active");
+    });
+  }, { rootMargin: "-18% 0px -64% 0px", threshold: 0.01 });
+  sections.forEach(function (s) { io.observe(s); });
+})();
+
+</script>
+</body>
+</html>
