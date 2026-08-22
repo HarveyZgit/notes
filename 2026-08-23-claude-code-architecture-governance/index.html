@@ -3,7 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>你不知道的大模型训练：原理、路径与新实践</title>
+<title>你不知道的 Claude Code：架构、治理与工程实践</title>
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="icon" href="../logo.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <style>
 
 
@@ -433,74 +436,94 @@ footer {
 <a class="skip" href="#main">跳到正文</a>
 <aside class="rail">
   <a class="rail-home" href="../">全部笔记</a>
-  <p class="rail-title">2026 年的差距，越来越在预训练后面</p>
+  <p class="rail-title">六层一起看，只拧一层就会失衡</p>
   <details class="toc-wrap" open>
     <summary>目录</summary>
     <nav aria-label="目录">
 <ol>
         <li><a href="#highlights">核心观点</a></li>
-        <li><a href="#pre">预训练、数据与系统</a></li>
-        <li><a href="#post">后训练与奖励</a></li>
-        <li><a href="#agent-train">Agent 训练与发布</a></li>
+        <li><a href="#layers">六层与底层循环</a></li>
+        <li><a href="#context">上下文工程</a></li>
+        <li><a href="#skills-tools">Skills、工具与 Hooks</a></li>
+        <li><a href="#cache-verify">缓存、验证与 CLAUDE.md</a></li>
       </ol>
     </nav>
   </details>
 </aside>
 <main class="deck" id="main">
 <header class="hero">
-  <h1>你不知道的大模型训练：原理、路径与新实践</h1>
-  <p class="subtitle">2026 年的差距，越来越在预训练后面</p>
+  <h1>你不知道的 Claude Code：架构、治理与工程实践</h1>
+  <p class="subtitle">六层一起看，只拧一层就会失衡</p>
   <dl class="facts">
     <div class="fact"><dt>分类</dt><dd translate="no">AI</dd></div>
     <div class="fact"><dt>来源</dt><dd translate="no">X · <a href="https://x.com/HiTw93">@HiTw93</a></dd></div>
-    <div class="fact"><dt>原文</dt><dd><time datetime="2026-04-03">2026-04-03</time></dd></div>
+    <div class="fact"><dt>原文</dt><dd><time datetime="2026-03-12">2026-03-12</time></dd></div>
     <div class="fact"><dt>整理</dt><dd><time datetime="2026-08-23">2026-08-23</time></dd></div>
-    <div class="fact"><dt>原文链接</dt><dd><a href="https://x.com/HiTw93/status/2040047268221608281" translate="no">原文</a></dd></div>
+    <div class="fact"><dt>原文链接</dt><dd><a href="https://x.com/HiTw93/status/2032091246588518683" translate="no">原文</a></dd></div>
   </dl>
 </header>
 
 <section class="tldr" id="highlights">
   <h2>先看这五句</h2>
   <ol>
-    <li><strong>用户感受到的提升，多半不是再多训一点语料。</strong>InstructGPT 的 1.3B 对齐模型能在偏好评测里赢过 175B 的 GPT-3。</li>
-    <li><strong>预训练是底座，数据配方和系统约束在开训前就锁死。</strong>词表、窗口、单卡可运行，都不是发布时再补的功能。</li>
-    <li><strong>后训练是多阶段流水线。</strong>DeepSeek-R1：冷启动 SFT → 可验证 RL（GRPO）→ 拒绝采样再 SFT → 有益性/安全。</li>
-    <li><strong>Eval、grader、reward 在定义目标。</strong>只看最终答案会走捷径；可见 CoT 不能当成完整真相。</li>
-    <li><strong>到了 Agent，优化对象扩到环境和 harness。</strong>同一个底模只改 harness，benchmark 上可以拉开数倍。</li>
+    <li><strong>这不是 Prompt 问题。</strong>上下文越来越乱、工具越多越差、规则越写越不遵守，多半是系统设计如此：核心是循环代理，不是一次性回答。</li>
+    <li><strong>上下文卡住的通常不是容量，是太吵。</strong>五个 MCP 就能吃掉约 12.5% 的 200K；工具输出和压缩还会把决策理由一并扔掉。</li>
+    <li><strong>原语各管一层。</strong>新动作用 Tool/MCP，工作方法用 Skill，隔离用 Subagent，强制约束用 Hook，跨项目分发用 Plugin。</li>
+    <li><strong>没有 Verifier 就没有工程上的 Agent。</strong>说不清「怎样才算做对」，就不该交给它自主完成。</li>
+    <li><strong>CLAUDE.md 是协作契约，不是知识库。</strong>短、硬、可执行；大资料进 Skills，路径差异进 rules。</li>
   </ol>
 </section>
 
 <figure>
-  <img src="images/cover.jpg" alt="你不知道的大模型训练封面" fetchpriority="high">
-  <figcaption>Tw93 第三篇：把训练写成一条流水线，重点放在后训练、评测、奖励和 harness。</figcaption>
+  <img src="images/cover.jpg" alt="你不知道的 Claude Code 封面：架构、治理与工程实践" fetchpriority="high">
+  <figcaption>Tw93 半年深度使用后的拆解。封面把 Claude Code 当成系统，而不是聊天窗口。</figcaption>
 </figure>
 
-<p class="lead">这是一份阅读笔记，不是原文转载。Tw93 写给非专业读者：2026 年模型突然变强，往往是后训练、评测、奖励、Agent 训练和蒸馏几块一起到位，而不是单一因素。</p>
+<p class="lead">这是一份阅读笔记，不是原文转载。Tw93 把自己半年、两个账号每月 40 刀换来的踩坑，收成一份 Claude Code 工程手册：底层怎么转、上下文为什么脏、Skills/Hooks/Subagents 怎么用、Prompt Caching 如何约束架构，以及 CLAUDE.md 该写什么。</p>
 
-<section class="card" id="pre">
-  <h2>预训练、数据与系统</h2>
+<section class="card" id="layers">
+  <h2>六层与底层循环</h2>
 
-  <p>预训练把语言分布和知识压进参数，并给后面的能力激活留空间。听不听指令、稳不稳，它管不到。规模定律更像预算分配：下一轮该堆参数还是堆数据？很多模型不是做小了，是欠训练。</p>
-  <p>开训前就定型的东西：tokenizer、context 长度、要不要多模态、要不要单卡可运行。Llama2 词表 32K，Llama3 扩到 128K 后序列大约短 15%，中文和代码的 token 效率在这一步已经定了。Chinchilla 给 8B 大约 200B tokens，Llama3 8B 实际用了 15T，过训练换的是更高能力密度和更便宜的推理。</p>
-  <p>数据配方是能力设计：模型看见什么、代码/数学/百科各占多少。去重和 benchmark 污染常被忽略。合成数据已成正式流程：强模型生成推理轨迹，再蒸馏给更小的 dense 模型。</p>
-  <p>系统约束是分布式问题。MoE 用相近计算量换总参数，代价是路由和基础设施。算力预算固定，模型大小、token 量、窗口、serving 互相让步。几千张卡跑几周出现 loss spike，只能回滚——实验室级容错不是读论文能解决的。DeepSeek-V3 公开说预训练没有不可恢复的 spike，也没有 rollback。</p>
-
-</section>
-<section class="card" id="post">
-  <h2>后训练与奖励</h2>
-
-  <p>指令微调改变回答方式。再往后：RLHF 先模仿再强化，DPO 直接从偏好对比学，RFT 把 grader 和奖励放进产品流程。偏好评测偏爱更长的回答，只看榜单不够。</p>
-  <p>DeepSeek-R1 四阶段：冷启动 SFT 先收住格式（纯 RL 的 R1-Zero 能跑但可读性差）；在可验证领域用 GRPO 做 RL，组内排名代替价值网络；拒绝采样把成功轨迹变回 SFT 数据；最后融入有益性和安全。四个阶段互相喂数据。</p>
-  <p>Eval 决定测什么，grader 把一次输出变成分数，reward 决定模型被往哪推。只看最终答案，模型会走捷径。Verified rewards 用程序验正确性，但过优化和 mode collapse 还在。可见 CoT 更适合当监控信号：模型可能用了额外提示却不承认，reward hacking 时还会补一段像样的解释。Reward tampering 和 alignment faking 说明，环境访问够强时，它优化的可能包括打分通道本身。</p>
-  <p>ORM 只打最终分，便宜但稀疏；PRM 打中间步，更稳也更贵。Constitutional AI 和 Deliberative Alignment 都在把对齐从人工标签变成训练目标内部的一部分。</p>
+  <p>作者把 Claude Code 拆成六层来看。只强化其中一层，系统就会失衡：CLAUDE.md 写太长，上下文先污染自己；工具堆太多，选择就糊；subagents 开得到处都是，状态漂移；验证跳过，出了问题不知道挂在哪。</p>
+  <blockquote class="hl-quote"><p>卡住的地方几乎从来不是模型不够聪明，更多时候是给了它错误的上下文，或者写出来了但根本没法判断对不对。</p></blockquote>
+  <p>真正要盯的五个面：结果不稳，先查上下文加载顺序；自动化失控，先看控制层有没有设计；长会话质量掉，多半是中间产物把窗口挤脏了——换新会话往往比再调 prompt 有用。</p>
+  <p>概念边界可以记成一句：给它新动作用 Tool/MCP，给它一套工作方法用 Skill，隔离执行环境用 Subagent，强制约束和审计用 Hook，跨项目分发用 Plugin。</p>
 
 </section>
-<section class="card" id="agent-train">
-  <h2>Agent 训练与发布</h2>
+<section class="card" id="context">
+  <h2>上下文工程</h2>
 
-  <p>推理模型证明：奖励稳、验证可靠、基建到位时，RL 能明显抬数学和代码。下一步不是把单次思考拉长，是让模型在环境里持续行动。Harness 决定它看见什么、怎么收反馈、何时剪上下文、何时调工具。工具返回不稳、浏览器和线上不一致，grader 会先错，模型随后学会钻环境漏洞。</p>
-  <p>Kimi 的 PARL 只训练编排层；Cursor 把 self-summarization 和实时 RL 接回生产流量；Chroma 把剪上下文训成策略。Meta-Harness 优化的不是权重，是 harness 代码本身：同一底模只改外围程序，benchmark 上可以拉开约 6 倍。它把 prior code、分数、execution traces 写进文件系统，让 proposer 像改代码一样诊断——因为 harness 的错常常很多步之后才显现，只看标量分数会把问题压扁。</p>
-  <p>发布后链路还在跑：蒸馏、专用化、生产流量回流。上线的不一定是训练曲线最右边那个 checkpoint，而是产品在上限、成本、延迟、回归之间的选择。以后看模型为什么变强，先问：发生在预训练还是后半段？来自权重、reward/eval，还是 harness 和部署回路？这个版本到底在优化什么？</p>
+  <p>很多人把上下文当容量问题。作者认为卡住的通常不是不够长，而是有用信息被淹没。200K 并非全部可用：一个典型 GitHub MCP 带 20–30 个工具定义，每个约 200 tokens；接 5 个 Server，固定开销就能到 25,000 tokens。</p>
+  <p>实践：CLAUDE.md 短、硬、可执行，优先写命令、约束、架构边界（官方自己大约 2.5K tokens）；大参考拆到 Skills 的 supporting files；路径/语言规则放 <code>.claude/rules/</code>；任务切换优先 <code>/clear</code>，同任务新阶段用 <code>/compact</code>，并把 Compact Instructions 写进契约，压缩后必须保留什么由你定。</p>
+  <p>动态噪声同样致命。<code>cargo test</code> 一次几千行，Claude 真正需要的只是「过了还是挂了，挂在哪里」。RTK（Rust Token Killer）用 Hook 在输出进窗口前过滤。默认压缩按「可重新读取」删早期 tool output，连架构决策一起扔——解法是 Compact Instructions，或开新会话前写一份 <code>HANDOFF.md</code>。</p>
+  <p>Plan Mode 把探索和执行拆开：探索只读，方案确认后才发生执行成本。复杂重构比「急着出代码」稳得多。</p>
+
+</section>
+<section class="card" id="skills-tools">
+  <h2>Skills、工具与 Hooks</h2>
+
+  <p>Skill 是按需加载的工作流：描述符常驻，正文按需展开。好 Skill 的描述回答「何时该用我」，不是「我是干什么的」；要有步骤、输入、输出和停止条件；有副作用的显式关掉自动调用。</p>
+  <p>三类典型：检查清单（质量门禁）、工作流（标准化高风险操作）、领域专家（按固定路径收集证据）。反模式：描述过短、正文几百行、一个 Skill 覆盖五件事、危险 Skill 允许自动调用。</p>
+  <p>给 Agent 的工具不像给人的 API。重点不是功能齐全，是让它更容易用对：名称按系统分层、大响应支持 concise/detailed、错误要教怎么改、能合并成高层任务就不要暴露碎片工具。</p>
+  <p>内部工具演进是同一课。问用户：给 Bash 加 question 参数会被忽略，约定 markdown 格式会忘，做成独立的 <code>AskUserQuestion</code> 才稳。搜索从 RAG 换成 Grep 后，模型开始递归读 Skill 引用——后来叫渐进式披露。模型变强后，曾经有用的 Todo 提醒反而成了枷锁，要定期回看限制还成不成立。</p>
+  <p>Hooks 把不能临场发挥的事收回确定性流程：保护文件、Edit 后 lint、SessionStart 注入环境、完成后通知。不适合复杂语义判断。三层叠加：CLAUDE.md 声明必须过测试，Skill 教顺序和修法，Hook 对关键路径硬校验。</p>
+
+</section>
+<section class="card" id="cache-verify">
+  <h2>缓存、验证与 CLAUDE.md</h2>
+
+  <p>Prompt Caching 按前缀匹配。静态系统 prompt、工具定义要稳；时间戳、打乱工具顺序、中途增删工具都会打坏缓存。动态信息放到下一条消息的 <code>&lt;system-reminder&gt;</code>，不要塞进系统 prompt。会话中途切模型等于为新模型重建缓存，往往比继续用原模型更贵。</p>
+  <p>Compaction 用一次 fork 调用做摘要，命中缓存只需约 1/10 价格。直觉上 Plan Mode 该换成只读工具集，但这会破坏缓存，所以实际用模型自己调用 <code>EnterPlanMode</code>，工具集不变。MCP 用 <code>defer_loading</code> stub，完整 schema 经 ToolSearch 再加载。</p>
+  <table>
+    <thead><tr><th>Verifier 层</th><th>例子</th></tr></thead>
+    <tbody>
+      <tr><td>最低</td><td>退出码、lint、typecheck、单测</td></tr>
+      <tr><td>中间</td><td>集成、截图对比、contract、smoke</td></tr>
+      <tr><td>更高</td><td>生产日志、监控、人工审查清单</td></tr>
+    </tbody>
+  </table>
+  <p>CLAUDE.md 只放每次会话都得成立的事：怎么 build/test、模块边界、NEVER 列表、Compact Instructions。不放背景、完整 API、空泛原则。纠正一次错误后，让它自己更新契约；再定期用健康检查清掉过时条目。作者把六层检查收成开源 Skill <code>tw93/claude-health</code>。</p>
+  <p class="note">三个阶段：会用功能 → 会配约束 → 让 agent 在约束下自己跑。说不清「什么叫做完」，就不适合直接扔给它自主完成。</p>
 
 </section>
 

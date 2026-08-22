@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>总结整理</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
 :root {
   --paper: #F4EFE6;
@@ -54,6 +57,25 @@ body {
   padding-right: max(0px, env(safe-area-inset-right));
 }
 .masthead { margin: 0 0 40px; }
+.brand-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 12px;
+}
+.brand-mark {
+  display: block;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  line-height: 0;
+}
+.brand-mark img {
+  display: block;
+  width: 36px;
+  height: 36px;
+}
+.brand-row h1 { margin: 0; }
 .kicker {
   font-size: 11px;
   letter-spacing: 0.18em;
@@ -266,7 +288,12 @@ footer {
 <div class="wrap">
   <header class="masthead">
     <p class="kicker">NOTES</p>
-    <h1>总结整理</h1>
+    <div class="brand-row">
+      <a class="brand-mark" href="." aria-label="总结整理">
+        <img src="logo.svg" alt="" width="36" height="36">
+      </a>
+      <h1>总结整理</h1>
+    </div>
     <p class="lead">公开阅读笔记，按分类与来源标记。</p>
   </header>
 
@@ -305,7 +332,7 @@ footer {
       </div>
       <div class="entry-body">
         <h2 class="title">Codex 进阶指南：作为 Multi-Agent 编排控制平面</h2>
-        <p class="blurb">跨项目、跨 worktree、跨 SSH 的 Agent 运维控制台。Task 和 Subagent 生命周期不同，没有 wait-all。</p>
+        <p class="blurb">把 Codex 当成多智能体调度台</p>
         <p class="meta">
           <span>原文 <time datetime="2026-07-30">2026-07-30</time></span>
           <span>分类 <span translate="no">AI</span></span>
@@ -320,7 +347,7 @@ footer {
       </div>
       <div class="entry-body">
         <h2 class="title" translate="no">The new rules of context engineering for Claude 5 models</h2>
-        <p class="blurb">给 Claude 5 松绑：系统提示删掉八成，编码评测不掉。规则变判断，例子变接口，记忆自动写。</p>
+        <p class="blurb">Claude 5 的上下文工程新规则</p>
         <p class="meta">
           <span>原文 <time datetime="2026-07-24">2026-07-24</time></span>
           <span>分类 <span translate="no">AI</span></span>
@@ -335,7 +362,7 @@ footer {
       </div>
       <div class="entry-body">
         <h2 class="title" translate="no">Getting started with loops</h2>
-        <p class="blurb">循环是重复干活直到停条件成立。turn、<span translate="no">/goal</span>、时间触发、proactive 四类，先选最简单的。</p>
+        <p class="blurb">先设计循环，再写提示</p>
         <p class="meta">
           <span>原文 <time datetime="2026-07-06">2026-07-06</time></span>
           <span>分类 <span translate="no">AI</span></span>
@@ -350,7 +377,7 @@ footer {
       </div>
       <div class="entry-body">
         <h2 class="title" translate="no">A harness for every task: dynamic workflows in Claude Code</h2>
-        <p class="blurb">为当前任务现场写 harness。对抗懒惰、自我偏好和目标漂移；构图是扇出、锦标赛、循环到停。</p>
+        <p class="blurb">每个任务都该有自己的 harness</p>
         <p class="meta">
           <span>原文 <time datetime="2026-06-02">2026-06-02</time></span>
           <span>分类 <span translate="no">AI</span></span>
@@ -365,7 +392,7 @@ footer {
       </div>
       <div class="entry-body">
         <h2 class="title">Claude Code Dynamic Workflows：把编排逻辑搬进代码的新原语</h2>
-        <p class="blurb">计划写进本机 JS，上下文只留终局。Bun 十一天约七十五万行；和 n8n 同类，作者换成了模型。</p>
+        <p class="blurb">编排逻辑写进代码里</p>
         <p class="meta">
           <span>原文 <time datetime="2026-05-28">2026-05-28</time></span>
           <span>分类 <span translate="no">AI</span></span>
@@ -373,14 +400,14 @@ footer {
         </p>
       </div>
     </a>
-    <a class="entry" href="2026-08-23-大模型训练-后训练/" data-category="AI" data-source="X">
+    <a class="entry" href="2026-08-23-llm-training-post-training/" data-category="AI" data-source="X">
       <div class="spine">
         <span class="spine-label">整理</span>
         <time class="spine-date" datetime="2026-08-23">2026-08-23</time>
       </div>
       <div class="entry-body">
         <h2 class="title">你不知道的大模型训练：原理、路径与新实践</h2>
-        <p class="blurb">2026 年的体感差距多在后训练。Eval、grader、reward 和 harness 一起改写上线效果。</p>
+        <p class="blurb">差距出在后训练，不在预训练</p>
         <p class="meta">
           <span>原文 <time datetime="2026-04-03">2026-04-03</time></span>
           <span>分类 <span translate="no">AI</span></span>
@@ -388,14 +415,14 @@ footer {
         </p>
       </div>
     </a>
-    <a class="entry" href="2026-08-23-agent-原理-架构/" data-category="AI" data-source="X">
+    <a class="entry" href="2026-08-23-agent-principles-architecture/" data-category="AI" data-source="X">
       <div class="spine">
         <span class="spine-label">整理</span>
         <time class="spine-date" datetime="2026-08-23">2026-08-23</time>
       </div>
       <div class="entry-body">
         <h2 class="title">你不知道的 Agent：原理、架构与工程实践</h2>
-        <p class="blurb">Harness 比更贵的模型更决定成功率。先查工具定义，评测坏了先修评测，再用 OpenClaw 看落地。</p>
+        <p class="blurb">Harness 和工具描述比换模型更要紧</p>
         <p class="meta">
           <span>原文 <time datetime="2026-03-19">2026-03-19</time></span>
           <span>分类 <span translate="no">AI</span></span>
@@ -410,7 +437,7 @@ footer {
       </div>
       <div class="entry-body">
         <h2 class="title" translate="no">Lessons from Building Claude Code: How We Use Skills</h2>
-        <p class="blurb">Skills 是文件夹不是一篇 markdown。九类用法，gotchas 最高信噪，description 是路由条件。</p>
+        <p class="blurb">Anthropic 内部怎么写 Skills</p>
         <p class="meta">
           <span>原文 <time datetime="2026-03-17">2026-03-17</time></span>
           <span>分类 <span translate="no">AI</span></span>
@@ -418,14 +445,14 @@ footer {
         </p>
       </div>
     </a>
-    <a class="entry" href="2026-08-23-claude-code-架构-治理/" data-category="AI" data-source="X">
+    <a class="entry" href="2026-08-23-claude-code-architecture-governance/" data-category="AI" data-source="X">
       <div class="spine">
         <span class="spine-label">整理</span>
         <time class="spine-date" datetime="2026-08-23">2026-08-23</time>
       </div>
       <div class="entry-body">
         <h2 class="title">你不知道的 Claude Code：架构、治理与工程实践</h2>
-        <p class="blurb">六层一起看。上下文太吵，Hooks 强制约束，没有 verifier 就没有工程上的 Agent。</p>
+        <p class="blurb">上下文乱了就不是 Prompt 问题</p>
         <p class="meta">
           <span>原文 <time datetime="2026-03-12">2026-03-12</time></span>
           <span>分类 <span translate="no">AI</span></span>
@@ -439,8 +466,8 @@ footer {
         <time class="spine-date" datetime="2026-08-21">2026-08-21</time>
       </div>
       <div class="entry-body">
-        <h2 class="title" translate="no">How Anthropic uses Claude Code</h2>
-        <p class="blurb">Daisy Hollman，<span translate="no">NDC Copenhagen</span>。<span translate="no">Context</span> 是盒子，hooks 才能扩，2026 的瓶颈是人的注意力。</p>
+        <h2 class="title" translate="no">How Anthropic uses Claude Code: Agentic Software Engineering at Scale</h2>
+        <p class="blurb">2026 年瓶颈是人的注意力</p>
         <p class="meta">
           <span>原文 <time datetime="2026-08-11">2026-08-11</time></span>
           <span>分类 <span translate="no">AI</span></span>
@@ -448,14 +475,14 @@ footer {
         </p>
       </div>
     </a>
-    <a class="entry" href="2026-08-21-应试教育-AI-重新学习/" data-category="认知" data-source="YouTube">
+    <a class="entry" href="2026-08-21-exam-education-ai/" data-category="认知" data-source="YouTube">
       <div class="spine">
         <span class="spine-label">整理</span>
         <time class="spine-date" datetime="2026-08-21">2026-08-21</time>
       </div>
       <div class="entry-body">
-        <h2 class="title">刘嘉：应试教育在 AI 面前全军覆没</h2>
-        <p class="blurb">清华教授对谈。逻辑原点、学习与涌现、死亡意识、<span translate="no">Transformer</span> 三个瓶颈、AI 时代怎么教小孩。</p>
+        <h2 class="title">清华教授：应试教育在AI面前全军覆没，我们应该如何重新学习？</h2>
+        <p class="blurb">应试教育之后，怎么重新学习</p>
         <p class="meta">
           <span>原文 <time datetime="2026-03-28">2026-03-28</time></span>
           <span>分类 认知</span>

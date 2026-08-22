@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Notes">
+  <rect width="128" height="128" fill="#F4EFE6"/>
+  <path fill="#C96442" d="M24 26h35v66L20 102z"/>
+  <path fill="#C96442" d="M69 26h35l4 76-39-10z"/>
+  <text x="88" y="74" text-anchor="middle" fill="#FFFFFF" font-family="Georgia, 'Times New Roman', Times, serif" font-size="44" font-weight="600">N</text>
+</svg>
