@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Engineering Skills Map: Building and Deploying AI Applications</title>
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="icon" href="../logo.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<style>
+
+
+:root {
+  --paper: #F4EFE6;
+  --card: #FBF7F0;
+  --ink: #191918;
+  --muted: #6B6459;
+  --rule: #E4D9C8;
+  --accent: #C96442;
+  --accent-soft: #D97757;
+  --wash: rgba(201, 100, 66, 0.14);
+  --wash-strong: rgba(201, 100, 66, 0.22);
+  --serif: "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", "Noto Serif SC", Georgia, "Times New Roman", serif;
+  --sans: "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Noto Sans Mono CJK SC", monospace;
+  --rail: 248px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 32px; color-scheme: light; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.75;
+}
+
+.skip {
+  position: absolute;
+  left: 16px;
+  top: 12px;
+  z-index: 10;
+  padding: 8px 12px;
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  font-size: 13px;
+  transform: translateY(-160%);
+}
+.skip:focus,
+.skip:focus-visible { transform: none; }
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+h1, h2 { text-wrap: balance; }
+section[id], h1, h2 { scroll-margin-top: 32px; }
+
+/* Fixed left rail */
+.rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--rail);
+  height: 100vh;
+  overflow-y: auto;
+  padding: 28px 22px 36px;
+  background: #F5F0E8;
+  border-right: 1px solid var(--rule);
+  z-index: 4;
+}
+.rail-home {
+  display: inline-block;
+  margin: 0 0 16px;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+.rail-home:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.rail-title {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.35;
+  margin: 0 0 18px;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.rail summary {
+  display: none;
+  list-style: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.rail summary::-webkit-details-marker { display: none; }
+.rail nav ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: toc;
+}
+.rail nav li {
+  counter-increment: toc;
+  margin: 0;
+  border-top: 1px solid var(--rule);
+}
+.rail nav li:last-child { border-bottom: 1px solid var(--rule); }
+.rail nav a {
+  display: block;
+  position: relative;
+  padding: 9px 2px 9px 2.2em;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.rail nav a::before {
+  content: counter(toc, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 9px;
+  font-family: var(--serif);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--rule);
+  font-variant-numeric: tabular-nums;
+}
+.rail nav a:hover,
+.rail nav a.is-active {
+  color: var(--ink);
+}
+.rail nav a:hover::before,
+.rail nav a.is-active::before {
+  color: var(--accent);
+}
+.rail nav a.is-active { font-weight: 600; }
+
+/* Main deck */
+.deck {
+  width: min(760px, calc(100% - var(--rail) - 64px));
+  max-width: 760px;
+  padding: 56px 0 96px;
+  margin-right: auto;
+  margin-left: calc(var(--rail) + max(40px, (100% - var(--rail) - 760px) / 2));
+}
+header.hero { padding: 8px 0 8px; }
+h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(32px, 5vw, 46px);
+  line-height: 1.18;
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.subtitle {
+  font-family: var(--serif);
+  font-size: 22px;
+  color: var(--muted);
+  margin: 0 0 8px;
+  font-style: italic;
+}
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin: 22px 0 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.facts .fact {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+.facts dt {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.facts dd {
+  margin: 0;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.facts a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.facts a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.lead {
+  color: var(--ink);
+  margin: 28px 0 8px;
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 40px 42px 36px;
+  margin: 36px 0;
+  counter-increment: slide;
+}
+.deck { counter-reset: slide; }
+.card h2 {
+  font-family: var(--serif);
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 8px;
+  letter-spacing: -0.015em;
+}
+.card h2::after {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 1px;
+  background: var(--accent);
+  margin: 16px 0 22px;
+}
+.card h3 {
+  font-family: var(--serif);
+  font-size: 20px;
+  margin: 28px 0 10px;
+}
+p { margin: 0 0 14px; }
+p:last-child { margin-bottom: 0; }
+ul, ol { margin: 0 0 14px; padding-left: 22px; }
+li { margin: 0 0 6px; }
+
+blockquote,
+blockquote.hl-quote {
+  margin: 22px 0;
+  padding: 18px 22px 18px 24px;
+  background: rgba(201, 100, 66, 0.08);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  font-family: var(--serif);
+  font-size: 21px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+blockquote p { margin: 0; }
+
+figure { margin: 22px 0 10px; }
+figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
+  border: 1px solid var(--rule);
+  background: #EFE6D8;
+}
+figcaption {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 10px;
+  line-height: 1.55;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14.5px;
+  line-height: 1.55;
+  margin: 8px 0 4px;
+}
+th, td {
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: top;
+  padding: 10px 8px;
+}
+th {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  background: rgba(201, 100, 66, 0.06);
+  font-weight: 600;
+}
+th:first-child, td:first-child { padding-left: 10px; }
+
+.note {
+  font-size: 14px;
+  color: var(--ink);
+  background: rgba(201, 100, 66, 0.08);
+  border-radius: 0;
+  padding: 12px 14px;
+  margin: 16px 0 0;
+  border-left: 2px solid var(--accent);
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.92em;
+}
+
+mark.hl, .hl {
+  background: linear-gradient(transparent 58%, rgba(201, 100, 66, 0.28) 58%);
+  color: inherit;
+  padding: 0 .12em;
+}
+
+.takeaways { display: grid; gap: 14px; margin-top: 12px; }
+.take {
+  background: linear-gradient(180deg, rgba(201, 100, 66, 0.16), rgba(201, 100, 66, 0.08));
+  border: 1px solid rgba(201, 100, 66, 0.35);
+  border-left: 3px solid var(--accent);
+  border-radius: 0;
+  padding: 16px 18px;
+  color: var(--ink);
+}
+.take strong {
+  color: var(--accent);
+  font-family: var(--serif);
+  font-size: 1.08em;
+}
+
+footer {
+  margin-top: 48px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+@media (max-width: 980px) {
+  .rail {
+    position: relative;
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 16px 20px 14px;
+  }
+  .rail-title { display: none; }
+  .rail summary {
+    display: block;
+    padding: 6px 0;
+  }
+  .rail details:not([open]) nav { display: none; }
+  .rail details[open] nav { display: block; margin-top: 8px; }
+  .rail nav ol {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 12px;
+  }
+  .rail nav li:last-child { border-bottom: none; }
+  .deck {
+    width: calc(100% - 36px);
+    max-width: none;
+    margin: 0 auto;
+    padding: 32px 0 64px;
+  }
+  .card { padding: 26px 20px 22px; margin: 22px 0; }
+  .tldr { padding: 26px 20px 22px; }
+  body { font-size: 16px; }
+}
+
+.tldr {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  padding: 36px 42px 32px;
+  margin: 24px 0 32px;
+}
+.tldr h2 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 18px;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+.tldr ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: tldr;
+}
+.tldr li {
+  counter-increment: tldr;
+  display: block;
+  position: relative;
+  margin: 0;
+  padding: 16px 0 16px 2.6em;
+  border-top: 1px solid var(--rule);
+  line-height: 1.65;
+}
+.tldr li:last-child { padding-bottom: 0; }
+.tldr li::before {
+  content: counter(tldr, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 16px;
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.tldr li strong {
+  font-family: var(--serif);
+  color: var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+<aside class="rail">
+  <a class="rail-home" href="../">全部笔记</a>
+  <p class="rail-title">做 AI 应用，先把这六项技能练扎实</p>
+  <details class="toc-wrap" open>
+    <summary>目录</summary>
+    <nav aria-label="目录">
+<ol>
+        <li><a href="#highlights">核心观点</a></li>
+        <li><a href="#map">技能图从哪来</a></li>
+        <li><a href="#six">六项技能</a></li>
+        <li><a href="#iterative">为何必须迭代</a></li>
+        <li><a href="#skills">逐项拆开</a></li>
+        <li><a href="#close">收束</a></li>
+      </ol>
+    </nav>
+  </details>
+</aside>
+<main class="deck" id="main">
+<header class="hero">
+  <h1 translate="no">AI Engineering Skills Map: Building and Deploying AI Applications</h1>
+  <dl class="facts">
+    <div class="fact"><dt>分类</dt><dd translate="no">AI</dd></div>
+    <div class="fact"><dt>来源</dt><dd translate="no">X · <a href="https://x.com/AndrewYNg">@AndrewYNg</a></dd></div>
+    <div class="fact"><dt>原文</dt><dd><time datetime="2026-08-21">2026-08-21</time></dd></div>
+    <div class="fact"><dt>整理</dt><dd><time datetime="2026-08-23">2026-08-23</time></dd></div>
+    <div class="fact"><dt>原文链接</dt><dd><a href="https://x.com/AndrewYNg/status/2090840747738374568" translate="no">原文</a></dd></div>
+  </dl>
+</header>
+
+<section class="tldr" id="highlights">
+  <h2>先看这五句</h2>
+  <ol>
+    <li><strong>输出不确定，所以只能迭代。</strong>AI 应用和传统软件的本质差别在这：没法事先规划完再施工。</li>
+    <li><strong>建造和上线要会六件事。</strong>LLM 基础、用数据接地、搭 agentic 系统、以评估驱动开发、生产运维、机器学习基础。</li>
+    <li><strong>最拉开差距的，是纪律严的 evals / 错误分析。</strong>会不会跑这一轮，决定你是不是在随机试。</li>
+    <li><strong>生产要单独对付不可预测性、成本和延迟。</strong>可观测、漂移、回归测试、模型选择和蒸馏，都不是传统运维的平移。</li>
+    <li><strong>技能图来自招聘、专家访谈和问卷。</strong>软件工程是下一篇。</li>
+  </ol>
+</section>
+
+<figure>
+  <img src="images/cover.jpg" alt="AI Engineering Skills Map: Building and Deploying AI Applications 封面" fetchpriority="high">
+  <figcaption>Andrew Ng 把「建造并上线 AI 应用」拆成六项技能。作者 @AndrewYNg。</figcaption>
+</figure>
+
+<p class="lead">这是一份阅读笔记，不是原文转载。吴恩达先前画过一张 AI 工程技能图，顶层四块：建造并上线 AI 应用、软件工程基础、用 coding agent、塑造建造过程。这篇只展开第一块——你会不会把不确定的模型，做成能上线的系统。</p>
+
+<section class="card" id="map">
+  <h2>技能图从哪来</h2>
+  <p>这不是书房里的分类游戏。地图来自大量招聘启事、结构化专家访谈和问卷，看行业实际在招什么、用什么、缺什么。顶层四项里，软件工程会另写一篇；coding agent 和 shaping the build 也先按下。这篇只回答：一个人要能独立把 AI 应用造出来、送上去，手里得有哪些本事。</p>
+  <p>「会用模型」不够。会选模型、会给它数据、会设计循环、会用评估推下一步、会在生产里盯住漂移和成本，并且还懂机器学习在底层怎么工作——这六项叠在一起，才叫会建造和部署。</p>
+</section>
+
+<section class="card" id="six">
+  <h2>六项技能</h2>
+  <table>
+    <thead><tr><th>技能</th><th>在管什么</th></tr></thead>
+    <tbody>
+      <tr><td>LLM foundations</td><td>模型怎么切词、怎么生成，何时可靠、何时会翻车</td></tr>
+      <tr><td>Grounding models with data</td><td>怎么把对的上下文喂进去，而不只是堆 RAG</td></tr>
+      <tr><td>Building agentic systems</td><td>从写死的工作流，到让模型自己决定下一步的 harness</td></tr>
+      <tr><td>Evaluation-driven development</td><td>用评估和错误分析决定下一刀砍哪里</td></tr>
+      <tr><td>Operating in production</td><td>不可预测、成本和延迟，要单独对付</td></tr>
+      <tr><td>Machine learning foundations</td><td>监督学习和强化学习仍是底座；偏差/方差还在指导决策</td></tr>
+    </tbody>
+  </table>
+  <p>六项不是并列清单，是一套应对「输出不确定」的装备。前三项让你造得出来，中间一项决定你是不是在瞎试，后两项决定你能不能活在线上、以及你有没有底层心智模型。</p>
+</section>
+
+<section class="card" id="iterative">
+  <h2>为何必须迭代</h2>
+  <p>AI 应用和传统软件的关键差别：前者的输出更难预测。你事先不知道 LLM 会吐什么，也不知道监督学习模型会给出什么预测。因为这种不确定，建造 AI 系统比传统软件更迭代——更难在动手前把过程规划完。</p>
+  <p>熟练的 AI 工程师在重复同一件事：做出一块、检查它、再决定下一步试什么。路径被中间结果强烈牵引。真正的本事，是会判断「下一步该做什么」，这样才能用不可靠的 AI 组件，拼出可靠的软件系统。</p>
+  <blockquote>可靠的系统，可以建立在不可靠的组件上。前提是你会根据中间结果决定下一刀。</blockquote>
+  <p>这也解释了后面为什么把评估驱动开发单独抬出来：迭代不是多试几次，而是每轮都把力气压到更可能结果实的方向上。</p>
+</section>
+
+<section class="card" id="skills">
+  <h2>逐项拆开</h2>
+
+  <h3>LLM 基础</h3>
+  <p>懂大模型怎么把输入切成 token、怎么生成输出，才能判断什么时候可以指望它、什么时候它会失败。同一套基础也用来做一串具体取舍：要不要上多模态、上下文窗口里该塞什么、缓存命中、知识截止日期、推理力度、采样参数，以及何时打开工具调用这类特殊能力。</p>
+  <p>基础扎实，才能选对模型或模型组合，并在需要时上微调或自托管。不懂机制，就容易把失败当成玄学，或者把所有问题都丢给「换一个更强的模型」。</p>
+
+  <h3>用数据接地</h3>
+  <p>LLM 要有好的输入上下文，输出才有用。早期的办法是向量检索做 RAG，但「把数据接到模型上」的菜单已经长了很多。你要决定：哪些写进提示，哪些让模型用工具按需取；数据用哪种表示——向量索引、知识图谱，还是结构化数据（比如客户档案）上的语义层。</p>
+  <p>还要把文本、PDF、HTML、图片变成模型吃得下的输入，并做出能保持干净、新鲜的数据管道。菜单越熟，越能把相关上下文送到模型眼前，而不是把整库一股脑塞进窗口。</p>
+
+  <h3>搭 agentic 系统</h3>
+  <p>一端是写死的工作流：一串预先排好的 LLM 调用。另一端是 agent harness：模型反复自己决定下一步。架构选择包括：哪些步骤串起来、哪些并行、哪里用代码、哪里用模型，以及工作流或 harness 的回退。</p>
+  <p>设计循环时还要定：模型能调哪些工具（MCP、CLI、沙箱执行环境）、记忆怎么架构、长会话如何管上下文、任务要不要从单 agent 升到多 agent 编排。原型能跑，离生产还差可靠、安全和治理：护栏、对抗输入、数据外泄这类关键风险，都要识别并绕开。</p>
+  <p>工作流还在快速变。和自己应用相关的前沿也值得跟：语音 agent、computer-use agent、生成式 UI。</p>
+
+  <h3>以评估驱动开发</h3>
+  <p>作者的经验里，最能把人拉开的，是能不能跑一轮纪律严的 evals / 错误分析，用它来驱动开发。这样你才会反复把力气压到更可能结果实的方向。这件事难，因为正确做法随项目而变，甚至随同一项目的阶段而变。</p>
+  <p>做好评估本身是一门深的技术活：看系统的 traces 和输出，做探索性分析，再叠上产品和业务判断，决定测什么。选项菜单包括：确定性的代码评估、LLM 当裁判、人在回路。还要评估你的评估，让量尺自己也能迭代。评估喂回开发，进度才从随机试变成系统推进。</p>
+  <p class="note">会不会做这一轮，比会不会写提示更能决定你能不能把不可靠的组件做成可靠系统。</p>
+
+  <h3>生产运维</h3>
+  <p>运维 AI 软件和传统软件不同，因为它的不可预测、成本和延迟。先要有可观测性，才能看清真实用量下的表现：盯性能、抓漂移、快速响应模型故障和对抗性提示注入这类安全事件。</p>
+  <p>回归测试和 CI/CD 要比传统软件更依赖统计评估，测试投入要按「错一次有多贵」来校准。面向大量用户时，还要会选一套组合去压成本和延迟：模型选择、蒸馏和微调、把 agentic 工作流简化。这些不是把传统 SRE 手册换个封面。</p>
+
+  <h3>机器学习基础</h3>
+  <p>现代 LLM 是用机器学习做出来的，包括监督学习和强化学习。作者认识的每一个擅长用 LLM 建造的工程师，对机器学习和深度学习都有一定深度。许多应用仍然要会用机器学习——别人训好的模型，或自己训一个。</p>
+  <p>这要求熟悉常见模型和权衡：精度、训练速度、推理速度，以及怎么为训练和评估工程化数据。偏差/方差、错误分析、把数据工程做好——这些心智框架本来就是为「输出不确定的系统」准备的，在 AI 系统开发里仍然管着大量决策。</p>
+</section>
+
+<section class="card" id="close">
+  <h2>收束</h2>
+  <p>要把 AI 系统造好并送上去，要学的东西很多，这行有技术深度。但每多懂一点，都会让你更会做 AI 工程，也能做出更有意思的应用。软件工程是这六项的强互补，作者说会另写一篇。</p>
+  <p>读完可以自问三句：你现在的建造过程，是事先规划完再施工，还是被中间结果牵引着迭代？下一刀砍哪里，是感觉还是评估？上线之后，不可预测、成本和延迟，有没有人单独负责？</p>
+</section>
+
+<footer>
+  按原文整理，不是逐字转载。原文版权归 @AndrewYNg 及 X。<br>
+  原文版权归原作者及原平台；本页是个人阅读笔记。
+</footer>
+</main>
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll(".rail nav a"));
+  var sections = Array.prototype.slice.call(document.querySelectorAll("section.card, section.tldr"));
+  if (!links.length || !sections.length || !("IntersectionObserver" in window)) return;
+  var map = {};
+  links.forEach(function (a) {
+    var id = (a.getAttribute("href") || "").replace("#", "");
+    if (id) map[id] = a;
+  });
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      var id = entry.target.id;
+      links.forEach(function (a) { a.classList.remove("is-active"); });
+      if (map[id]) map[id].classList.add("is-active");
+    });
+  }, { rootMargin: "-18% 0px -64% 0px", threshold: 0.01 });
+  sections.forEach(function (s) { io.observe(s); });
+})();
+</script>
+</body>
+</html>
