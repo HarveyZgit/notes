@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>万字长文｜Codex 从入门到精通</title>
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="icon" href="../logo.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<style>
+
+:root {
+  --paper: #F4EFE6;
+  --card: #FBF7F0;
+  --ink: #191918;
+  --muted: #6B6459;
+  --rule: #E4D9C8;
+  --accent: #C96442;
+  --accent-soft: #D97757;
+  --wash: rgba(201, 100, 66, 0.14);
+  --wash-strong: rgba(201, 100, 66, 0.22);
+  --serif: "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", "Noto Serif SC", Georgia, "Times New Roman", serif;
+  --sans: "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Noto Sans Mono CJK SC", monospace;
+  --rail: 248px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 32px; color-scheme: light; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.75;
+}
+
+.skip {
+  position: absolute;
+  left: 16px;
+  top: 12px;
+  z-index: 10;
+  padding: 8px 12px;
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  font-size: 13px;
+  transform: translateY(-160%);
+}
+.skip:focus,
+.skip:focus-visible { transform: none; }
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+h1, h2 { text-wrap: balance; }
+section[id], h1, h2 { scroll-margin-top: 32px; }
+
+/* Fixed left rail */
+.rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--rail);
+  height: 100vh;
+  overflow-y: auto;
+  padding: 28px 22px 36px;
+  background: #F5F0E8;
+  border-right: 1px solid var(--rule);
+  z-index: 4;
+}
+.rail-home {
+  display: inline-block;
+  margin: 0 0 16px;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+.rail-home:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.rail-title {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.35;
+  margin: 0 0 18px;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.rail summary {
+  display: none;
+  list-style: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.rail summary::-webkit-details-marker { display: none; }
+.rail nav ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: toc;
+}
+.rail nav li {
+  counter-increment: toc;
+  margin: 0;
+  border-top: 1px solid var(--rule);
+}
+.rail nav li:last-child { border-bottom: 1px solid var(--rule); }
+.rail nav a {
+  display: block;
+  position: relative;
+  padding: 9px 2px 9px 2.2em;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.rail nav a::before {
+  content: counter(toc, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 9px;
+  font-family: var(--serif);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--rule);
+  font-variant-numeric: tabular-nums;
+}
+.rail nav a:hover,
+.rail nav a.is-active {
+  color: var(--ink);
+}
+.rail nav a:hover::before,
+.rail nav a.is-active::before {
+  color: var(--accent);
+}
+.rail nav a.is-active { font-weight: 600; }
+
+/* Main deck */
+.deck {
+  width: min(760px, calc(100% - var(--rail) - 64px));
+  max-width: 760px;
+  padding: 56px 0 96px;
+  margin-right: auto;
+  margin-left: calc(var(--rail) + max(40px, (100% - var(--rail) - 760px) / 2));
+}
+header.hero { padding: 8px 0 8px; }
+h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(32px, 5vw, 46px);
+  line-height: 1.18;
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.subtitle {
+  font-family: var(--serif);
+  font-size: 22px;
+  color: var(--muted);
+  margin: 0 0 8px;
+  font-style: italic;
+}
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin: 22px 0 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.facts .fact {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+.facts dt {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.facts dd {
+  margin: 0;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.facts a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.facts a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.lead {
+  color: var(--ink);
+  margin: 28px 0 8px;
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 40px 42px 36px;
+  margin: 36px 0;
+  counter-increment: slide;
+}
+.deck { counter-reset: slide; }
+.card h2 {
+  font-family: var(--serif);
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 8px;
+  letter-spacing: -0.015em;
+}
+.card h2::after {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 1px;
+  background: var(--accent);
+  margin: 16px 0 22px;
+}
+.card h3 {
+  font-family: var(--serif);
+  font-size: 20px;
+  margin: 28px 0 10px;
+}
+p { margin: 0 0 14px; }
+p:last-child { margin-bottom: 0; }
+ul, ol { margin: 0 0 14px; padding-left: 22px; }
+li { margin: 0 0 6px; }
+
+blockquote,
+blockquote.hl-quote {
+  margin: 22px 0;
+  padding: 18px 22px 18px 24px;
+  background: rgba(201, 100, 66, 0.08);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  font-family: var(--serif);
+  font-size: 21px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+blockquote p { margin: 0; }
+
+figure { margin: 22px 0 10px; }
+figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
+  border: 1px solid var(--rule);
+  background: #EFE6D8;
+}
+figcaption {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 10px;
+  line-height: 1.55;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14.5px;
+  line-height: 1.55;
+  margin: 8px 0 4px;
+}
+th, td {
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: top;
+  padding: 10px 8px;
+}
+th {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  background: rgba(201, 100, 66, 0.06);
+  font-weight: 600;
+}
+th:first-child, td:first-child { padding-left: 10px; }
+
+.note {
+  font-size: 14px;
+  color: var(--ink);
+  background: rgba(201, 100, 66, 0.08);
+  border-radius: 0;
+  padding: 12px 14px;
+  margin: 16px 0 0;
+  border-left: 2px solid var(--accent);
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.92em;
+}
+
+mark.hl, .hl {
+  background: linear-gradient(transparent 58%, rgba(201, 100, 66, 0.28) 58%);
+  color: inherit;
+  padding: 0 .12em;
+}
+
+.takeaways { display: grid; gap: 14px; margin-top: 12px; }
+.take {
+  background: linear-gradient(180deg, rgba(201, 100, 66, 0.16), rgba(201, 100, 66, 0.08));
+  border: 1px solid rgba(201, 100, 66, 0.35);
+  border-left: 3px solid var(--accent);
+  border-radius: 0;
+  padding: 16px 18px;
+  color: var(--ink);
+}
+.take strong {
+  color: var(--accent);
+  font-family: var(--serif);
+  font-size: 1.08em;
+}
+
+footer {
+  margin-top: 48px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+@media (max-width: 980px) {
+  .rail {
+    position: relative;
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 16px 20px 14px;
+  }
+  .rail-title { display: none; }
+  .rail summary {
+    display: block;
+    padding: 6px 0;
+  }
+  .rail details:not([open]) nav { display: none; }
+  .rail details[open] nav { display: block; margin-top: 8px; }
+  .rail nav ol {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 12px;
+  }
+  .rail nav li:last-child { border-bottom: none; }
+  .deck {
+    width: calc(100% - 36px);
+    max-width: none;
+    margin: 0 auto;
+    padding: 32px 0 64px;
+  }
+  .card { padding: 26px 20px 22px; margin: 22px 0; }
+  .tldr { padding: 26px 20px 22px; }
+  body { font-size: 16px; }
+}
+
+.tldr {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  padding: 36px 42px 32px;
+  margin: 24px 0 32px;
+}
+.tldr h2 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 18px;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+.tldr ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: tldr;
+}
+.tldr li {
+  counter-increment: tldr;
+  display: block;
+  position: relative;
+  margin: 0;
+  padding: 16px 0 16px 2.6em;
+  border-top: 1px solid var(--rule);
+  line-height: 1.65;
+}
+.tldr li:last-child { padding-bottom: 0; }
+.tldr li::before {
+  content: counter(tldr, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 16px;
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.tldr li strong {
+  font-family: var(--serif);
+  color: var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+<aside class="rail">
+  <a class="rail-home" href="../">全部笔记</a>
+  <p class="rail-title">先认清界面和边界，再谈精通</p>
+  <details class="toc-wrap" open>
+    <summary>目录</summary>
+    <nav aria-label="目录">
+<ol>
+        <li><a href="#highlights">核心观点</a></li>
+        <li><a href="#agent">它会动手</a></li>
+        <li><a href="#ui">界面和工作区</a></li>
+        <li><a href="#where">在哪跑、怎么规划</a></li>
+        <li><a href="#review">权限和审查</a></li>
+        <li><a href="#extend">规则与扩展</a></li>
+        <li><a href="#order">从 0 到 1</a></li>
+      </ol>
+    </nav>
+  </details>
+</aside>
+<main class="deck" id="main">
+<header class="hero">
+  <h1>万字长文｜Codex 从入门到精通</h1>
+  <dl class="facts">
+    <div class="fact"><dt>分类</dt><dd translate="no">AI</dd></div>
+    <div class="fact"><dt>来源</dt><dd translate="no">X · <a href="https://x.com/miles_mazy">@miles_mazy</a></dd></div>
+    <div class="fact"><dt>原文</dt><dd><time datetime="2026-08-23">2026-08-23</time></dd></div>
+    <div class="fact"><dt>整理</dt><dd><time datetime="2026-08-27">2026-08-27</time></dd></div>
+    <div class="fact"><dt>原文链接</dt><dd><a href="https://x.com/miles_mazy/status/2091339513134010554" translate="no">原文</a></dd></div>
+  </dl>
+</header>
+
+<section class="tldr" id="highlights">
+  <h2>先看这五句</h2>
+  <ol>
+    <li>Codex 不是聊天框，它会改文件、跑命令；说「完成了」只说明执行停了，还要自己看 Diff、终端和测试。</li>
+    <li>项目是长期目录，任务是一次有结束点的对话；工作区只开完成任务所需的最小目录。</li>
+    <li>日常用 Local，并行或试改动用 Worktree，边界清楚可等的用 Cloud。</li>
+    <li>权限默认 Workspace-write；Skill 教怎么做，Plugin 是能力包，MCP 是外部接口，缺哪层补哪层。</li>
+    <li>先会看改了什么、有没越界，再学 Plan、Worktree 和扩展；插件装得多不算精通。</li>
+  </ol>
+</section>
+
+<figure>
+  <img src="images/cover.jpg" alt="万字长文｜Codex 从入门到精通 封面" fetchpriority="high">
+  <figcaption>封面把 Codex 画成从命令输入到任务编排再到系统的三步。作者 @miles_mazy。</figcaption>
+</figure>
+
+<p class="lead">这是一份阅读笔记，不是万字教程的转载。原文从界面讲起：项目和任务差在哪，Local、Worktree、Cloud 怎么选，Plan 要不要开，权限给到哪一档，Plugins、Skills、MCP 又为什么同时存在。先把这些边界认清，再谈精通。</p>
+
+<section class="card" id="agent">
+  <h2>它会动手</h2>
+  <p>Codex 是会实际操作的 Agent。普通聊天工具停在文字；它还能读文件、改代码和文档、跑命令、看 Git 改动、打开网页、操作应用，并调用已经接上的外部工具。所以最适合交给它的，是一件有材料、有边界、有结果的工作。</p>
+  <blockquote>Prompt → Plan → Execute → Verify</blockquote>
+  <p>Prompt 是你提出任务，Plan 是它准备怎么做，Execute 是读写文件和跑命令，Verify 是检查结果。最容易被跳过的是最后一步。它说「完成了」，只说明当前执行停了，不能自动证明文件正确、页面能用或测试已经通过。</p>
+  <p>入口有五个：桌面 App、CLI、Cloud、IDE、Chrome 扩展。小白不必同时学。已经打开 App，就先把 App 用明白；习惯终端，再补 CLI。后三个是给具体场景用的，不是「越多越专业」。</p>
+</section>
+
+<section class="card" id="ui">
+  <h2>界面和工作区</h2>
+  <p>App 主体分三块：左侧管项目和任务，中间处理对话与执行，右侧检查文件改动。面板会在周围展开，主逻辑不变。</p>
+  <h3>左：项目和任务</h3>
+  <p>项目对应一个工作目录，告诉 Codex「这一批文件属于同一项长期工作」。它决定默认从哪里读材料，也决定沙盒通常允许写到哪里。任务是项目下面的一次独立对话，最好只负责一个明确结果。项目可以长期存在，任务应该有结束点。</p>
+  <p>旧任务已经混入很多无关上下文、新需求又完全不同，直接新建更干净。只是接着改同一个结果，就留在原任务里，不必为了形式上的整洁反复开新对话。</p>
+  <h3>中：对话区也是控制台</h3>
+  <p>中间会显示回复、计划、命令、工具调用、审批和总结。底部输入框不只是聊天框：发送、停止、选模型、改权限、加附件、语音输入，以及在 Local / Worktree / Cloud 之间切换，都在这里。执行中不必等它彻底结束。方向不对，就立刻补一句「只检查，不要修改」「先停在计划阶段」。</p>
+  <h3>右：Diff 是审查台</h3>
+  <p>右侧用来看它到底改了什么。价值不只是扫一眼：可以按文件看未提交修改，在具体行旁留 inline 评论，按块暂存或撤销，也能在 App 里 commit、push 或开 PR。某一行有问题，直接在那一行评论，比在输入框里说「上面那个函数」准得多。</p>
+  <h3>工作区只开最小目录</h3>
+  <p>工作区就是当前工作的目录。选错，是「找不到文件」「改到别处」「读了太多无关材料」最常见的原因。标准很简单：完成这件事所需的文件，能否集中放在一个最小目录里。能，就只打开这个目录。不要把整个桌面、个人主目录或一堆无关项目交给它。</p>
+  <ul>
+    <li>只改一个独立项目：打开项目根目录。</li>
+    <li>一个仓库里有多个互不相关的应用：分别加成多个项目。</li>
+    <li>前后端分成相邻目录：以主要目录启动，需要时再补额外目录权限。</li>
+    <li>只想分析：仍打开正确目录，权限改只读。</li>
+    <li>任务要在远端执行：选 Cloud，而不是扩大本地权限。</li>
+  </ul>
+  <p>CLI 里用 <code>--cd</code> 指定工作目录，用 <code>--add-dir</code> 增加额外可写目录，比直接给整台电脑写权限更清楚。边界越小，误操作的影响范围也越小。</p>
+</section>
+
+<section class="card" id="where">
+  <h2>在哪跑、怎么规划</h2>
+  <table>
+    <thead><tr><th>模式</th><th>它在哪工作</th><th>什么时候选</th></tr></thead>
+    <tbody>
+      <tr><td>Local</td><td>直接改当前目录，改动立刻出现在本地文件</td><td>日常改文档、修一个 Bug、跑测试、看项目结构</td></tr>
+      <tr><td>Worktree</td><td>给任务一份 Git 隔离副本，本机正在用的目录不跟着变</td><td>多个任务改同一仓库，或想试改动又不想碰当前分支</td></tr>
+      <tr><td>Cloud</td><td>远端隔离环境克隆仓库再执行，完成后看 Diff 再决定是否合并</td><td>边界清楚、可以异步等待：审查、修明确 Issue、批量重构、跑测试</td></tr>
+    </tbody>
+  </table>
+  <p>Local 的优点是直接，缺点也直接：你和它同时改同一文件，可能互相干扰。Worktree 不是每个任务都要开；只改一个小文件、只有一个 Agent 在工作，Local 更短。需要频繁讨论、依赖本机文件或本地应用的工作，Local 或 Worktree 通常比 Cloud 更顺。</p>
+  <h3>Plan 什么时候有用</h3>
+  <p>Plan 是执行前的路线。复杂任务里，它能提前暴露范围过大、顺序不合理、准备装不必要依赖。简单任务里，它也可能只是多一道形式。</p>
+  <p>适合先规划的：任务跨多个文件，修改不可轻易回退，需要先调查原因，或者还在比较几种实现。改标题、查一个报错位置、执行一条确定命令，没有必要强行先列五步。</p>
+  <p>一份有用的 Plan 至少回答四个问题：真正要解决什么，准备看哪些材料，准备改哪些地方，最后怎么证明完成。只有「分析需求、开始实现、测试结果、总结」这种模板，信息量很低，可以要求它重写。</p>
+  <p class="note">接到任务先判断真正的问题和最短可靠路径。能直接完成就不额外搭流程；能复用就不从头重做；能改局部就不推倒重来。Plan 是帮你选方法，不是给简单问题增加仪式感。</p>
+</section>
+
+<section class="card" id="review">
+  <h2>权限和审查</h2>
+  <p>Codex 能读写文件、跑命令，权限不能含糊。常见沙盒可以看成三档：Read-only 只分析，Workspace-write 在工作区可写，Full access 更高。对大多数人，Workspace-write 足够覆盖日常。要分析时用 Read-only。Full access 不该为了少点几次确认而打开，更不适合无人值守的定时任务。</p>
+  <p>看到审批请求，先看四件事：准备执行什么命令，在哪个目录执行，是否需要网络，这一步对当前目标为什么有必要。安装依赖、上传文件、删除数据、改账号设置、对外发布和访问凭据，都值得停下来确认。</p>
+  <p><code>/permissions</code> 可以查看和调整当前安全模式。<code>--full-auto</code> 适合在工作区内低摩擦执行，它不等于整机完全开放。<code>--yolo</code> 会跳过审批和沙盒，不适合作为日常默认项。</p>
+  <h3>终端、浏览器、Computer Use</h3>
+  <p>每个 App 任务都有自己的终端，目录会跟随任务：Local 打开本地项目，Worktree 打开对应隔离目录。更方便的一点是，Codex 能读终端当前输出。看到报错，直接说「检查终端里的错误」，不必整段复制。</p>
+  <p>内置浏览器适合打开本地页面并检查界面，可以在元素上留下带位置的评论。它不负责复用你已经登录的 Chrome 会话。需要操作 Gmail、Salesforce、LinkedIn 或内部系统时，用 Chrome 扩展。</p>
+  <p>Computer Use 让它操作桌面应用：点击、输入、拖拽、读屏幕、用快捷键。适合没有 API 的旧工具、批量录入和跨应用流程。它能操作，不代表任何操作都该自动化。涉及付款、发布、删除、账号权限和对外发送时，最终确认仍该留给人。</p>
+</section>
+
+<section class="card" id="extend">
+  <h2>规则与扩展</h2>
+  <h3>AGENTS.md 和 Memory</h3>
+  <p>AGENTS.md 是进入项目时会读取的规则文件，适合记录不会随着一次任务结束而消失的信息：构建命令、目录结构、代码规范、验收方式和不能做的事。可以先用 <code>/init</code> 生成初稿，再删掉没用的。规则要来自真实问题，不要一次写成几十页「公司宪法」。每当它在同一件事上重复犯错，再补一条具体规则。</p>
+  <p>Memory 用来保留你反复表达过的偏好和纠正：项目固定用哪套测试工具、提交信息采用什么格式、某类文件该放哪里。它更像逐渐积累的隐式偏好；AGENTS.md 是明确可见、可以审查的项目规则。重要规则仍然建议写进 AGENTS.md。</p>
+  <h3>Skill、Plugin、MCP</h3>
+  <p>三个概念经常被混在一起。最简单的区分：</p>
+  <table>
+    <thead><tr><th>层</th><th>它是什么</th></tr></thead>
+    <tbody>
+      <tr><td>Skill</td><td>教 Codex 怎么做一类事情。核心是目录里的 SKILL.md：名称、触发说明和步骤</td></tr>
+      <tr><td>Plugin</td><td>把一组 Skill、MCP 和连接器打包分发，安装后能跨工作区使用</td></tr>
+      <tr><td>MCP</td><td>统一接口。外部服务实现后，查询和操作就能当成工具用</td></tr>
+    </tbody>
+  </table>
+  <p>Skill 可以显式点名，也可以按 description 隐式触发。涉及破坏性操作的，适合关掉隐式触发，只允许手动点名。个人通用 Skill 放用户级目录，团队共享放仓库的 <code>.agents/skills/</code>。一类工作确实会反复发生，才值得固化。</p>
+  <p>装插件之前先问：当前任务是不是反复需要这个系统的数据或动作。只用一次的网站，不一定值得装；已有原生功能能完成，也不用为了「生态」再套一层。MCP 可能带来真实外部操作，配置时要注意认证、工具白名单和权限范围。</p>
+  <h3>Automation 和 /goal</h3>
+  <p>Automation 是定时任务：固定频率检查、未来某个时间执行，以及跨天继续推进的长任务。设置可以压成五步：选项目、写到点后要执行的 Prompt、选时间或频率、选 Local 或 Worktree、检查权限再保存。对 Git 仓库，用 Worktree 更稳，不会直接打扰正在编辑的目录。定时之前，先在普通任务里手动跑一次同样的 Prompt。</p>
+  <p><code>/goal</code> 适合跨多次会话推进、有明确完成标准的长任务。它可以跨 <code>/clear</code>、对话压缩和会话切换保留状态。普通几分钟任务不需要它；需要你频繁判断的探索任务，也不适合强行让它「不做完不停止」。目标太空，Agent 只会不断寻找新的事情做。</p>
+  <blockquote>Skill 是操作手册，Plugin 是能力包，MCP 是外部接口，Automation 是闹钟，/goal 是长期任务状态。缺哪一层再补哪一层。</blockquote>
+</section>
+
+<section class="card" id="order">
+  <h2>从 0 到 1</h2>
+  <p>刚开始用，按这个顺序熟悉，而不是一次装满所有扩展。</p>
+  <ol>
+    <li>只练四件事：选对工作区，新建一个任务，控制 Read-only 与 Workspace-write，学会看 Diff。能独立判断「它改了什么、有没有越界」，基础就已经过关。</li>
+    <li>加入 Plan、终端和 <code>/review</code>。复杂任务先看计划，完成后自己运行检查，再让独立审查 Agent 看一次改动。</li>
+    <li>才学 Worktree 和多任务并行。确实有两个互不依赖的任务时再并行，不要为了看到多个 Agent 同时跑，把一件可以顺手做完的事硬拆成三份。</li>
+    <li>按真实需求装扩展。重复工作固化成 Skill，需要外部系统才接 MCP，需要一整套现成能力才装 Plugin，需要定时或跨天运行才开 Automation 和 <code>/goal</code>。</li>
+  </ol>
+  <p>能否熟练使用 Codex，不取决于装了多少插件，也不取决于每次都写很长的 Prompt。真正的分水岭是：能不能给它正确的材料和边界，能不能在它执行时及时纠偏，能不能用 Diff、终端、测试和页面判断结果，而不是只看一句「已经完成」。</p>
+</section>
+
+<footer>
+  按原文整理，不是逐字转载。原文版权归 @miles_mazy 及 X。<br>
+  原文版权归原作者及原平台；本页是个人阅读笔记。
+</footer>
+</main>
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll(".rail nav a"));
+  var sections = Array.prototype.slice.call(document.querySelectorAll("section.card, section.tldr"));
+  if (!links.length || !sections.length || !("IntersectionObserver" in window)) return;
+  var map = {};
+  links.forEach(function (a) {
+    var id = (a.getAttribute("href") || "").replace("#", "");
+    if (id) map[id] = a;
+  });
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      var id = entry.target.id;
+      links.forEach(function (a) { a.classList.remove("is-active"); });
+      if (map[id]) map[id].classList.add("is-active");
+    });
+  }, { rootMargin: "-18% 0px -64% 0px", threshold: 0.01 });
+  sections.forEach(function (s) { io.observe(s); });
+})();
+</script>
+</body>
+</html>

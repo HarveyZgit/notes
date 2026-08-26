@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>昨天在深圳做完 FDE 路演，我更确定：企业真正缺的不是模型</title>
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="icon" href="../logo.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<style>
+
+:root {
+  --paper: #F4EFE6;
+  --card: #FBF7F0;
+  --ink: #191918;
+  --muted: #6B6459;
+  --rule: #E4D9C8;
+  --accent: #C96442;
+  --accent-soft: #D97757;
+  --wash: rgba(201, 100, 66, 0.14);
+  --wash-strong: rgba(201, 100, 66, 0.22);
+  --serif: "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", "Noto Serif SC", Georgia, "Times New Roman", serif;
+  --sans: "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Noto Sans Mono CJK SC", monospace;
+  --rail: 248px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 32px; color-scheme: light; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.75;
+}
+
+.skip {
+  position: absolute;
+  left: 16px;
+  top: 12px;
+  z-index: 10;
+  padding: 8px 12px;
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  font-size: 13px;
+  transform: translateY(-160%);
+}
+.skip:focus,
+.skip:focus-visible { transform: none; }
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+h1, h2 { text-wrap: balance; }
+section[id], h1, h2 { scroll-margin-top: 32px; }
+
+/* Fixed left rail */
+.rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--rail);
+  height: 100vh;
+  overflow-y: auto;
+  padding: 28px 22px 36px;
+  background: #F5F0E8;
+  border-right: 1px solid var(--rule);
+  z-index: 4;
+}
+.rail-home {
+  display: inline-block;
+  margin: 0 0 16px;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+.rail-home:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.rail-title {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.35;
+  margin: 0 0 18px;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.rail summary {
+  display: none;
+  list-style: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.rail summary::-webkit-details-marker { display: none; }
+.rail nav ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: toc;
+}
+.rail nav li {
+  counter-increment: toc;
+  margin: 0;
+  border-top: 1px solid var(--rule);
+}
+.rail nav li:last-child { border-bottom: 1px solid var(--rule); }
+.rail nav a {
+  display: block;
+  position: relative;
+  padding: 9px 2px 9px 2.2em;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.rail nav a::before {
+  content: counter(toc, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 9px;
+  font-family: var(--serif);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--rule);
+  font-variant-numeric: tabular-nums;
+}
+.rail nav a:hover,
+.rail nav a.is-active {
+  color: var(--ink);
+}
+.rail nav a:hover::before,
+.rail nav a.is-active::before {
+  color: var(--accent);
+}
+.rail nav a.is-active { font-weight: 600; }
+
+/* Main deck */
+.deck {
+  width: min(760px, calc(100% - var(--rail) - 64px));
+  max-width: 760px;
+  padding: 56px 0 96px;
+  margin-right: auto;
+  margin-left: calc(var(--rail) + max(40px, (100% - var(--rail) - 760px) / 2));
+}
+header.hero { padding: 8px 0 8px; }
+h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(32px, 5vw, 46px);
+  line-height: 1.18;
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.subtitle {
+  font-family: var(--serif);
+  font-size: 22px;
+  color: var(--muted);
+  margin: 0 0 8px;
+  font-style: italic;
+}
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin: 22px 0 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.facts .fact {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+.facts dt {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.facts dd {
+  margin: 0;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.facts a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.facts a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.lead {
+  color: var(--ink);
+  margin: 28px 0 8px;
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 40px 42px 36px;
+  margin: 36px 0;
+  counter-increment: slide;
+}
+.deck { counter-reset: slide; }
+.card h2 {
+  font-family: var(--serif);
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 8px;
+  letter-spacing: -0.015em;
+}
+.card h2::after {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 1px;
+  background: var(--accent);
+  margin: 16px 0 22px;
+}
+.card h3 {
+  font-family: var(--serif);
+  font-size: 20px;
+  margin: 28px 0 10px;
+}
+p { margin: 0 0 14px; }
+p:last-child { margin-bottom: 0; }
+ul, ol { margin: 0 0 14px; padding-left: 22px; }
+li { margin: 0 0 6px; }
+
+blockquote,
+blockquote.hl-quote {
+  margin: 22px 0;
+  padding: 18px 22px 18px 24px;
+  background: rgba(201, 100, 66, 0.08);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  font-family: var(--serif);
+  font-size: 21px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+blockquote p { margin: 0; }
+
+figure { margin: 22px 0 10px; }
+figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
+  border: 1px solid var(--rule);
+  background: #EFE6D8;
+}
+figcaption {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 10px;
+  line-height: 1.55;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14.5px;
+  line-height: 1.55;
+  margin: 8px 0 4px;
+}
+th, td {
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: top;
+  padding: 10px 8px;
+}
+th {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  background: rgba(201, 100, 66, 0.06);
+  font-weight: 600;
+}
+th:first-child, td:first-child { padding-left: 10px; }
+
+.note {
+  font-size: 14px;
+  color: var(--ink);
+  background: rgba(201, 100, 66, 0.08);
+  border-radius: 0;
+  padding: 12px 14px;
+  margin: 16px 0 0;
+  border-left: 2px solid var(--accent);
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.92em;
+}
+
+mark.hl, .hl {
+  background: linear-gradient(transparent 58%, rgba(201, 100, 66, 0.28) 58%);
+  color: inherit;
+  padding: 0 .12em;
+}
+
+.takeaways { display: grid; gap: 14px; margin-top: 12px; }
+.take {
+  background: linear-gradient(180deg, rgba(201, 100, 66, 0.16), rgba(201, 100, 66, 0.08));
+  border: 1px solid rgba(201, 100, 66, 0.35);
+  border-left: 3px solid var(--accent);
+  border-radius: 0;
+  padding: 16px 18px;
+  color: var(--ink);
+}
+.take strong {
+  color: var(--accent);
+  font-family: var(--serif);
+  font-size: 1.08em;
+}
+
+footer {
+  margin-top: 48px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+@media (max-width: 980px) {
+  .rail {
+    position: relative;
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 16px 20px 14px;
+  }
+  .rail-title { display: none; }
+  .rail summary {
+    display: block;
+    padding: 6px 0;
+  }
+  .rail details:not([open]) nav { display: none; }
+  .rail details[open] nav { display: block; margin-top: 8px; }
+  .rail nav ol {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 12px;
+  }
+  .rail nav li:last-child { border-bottom: none; }
+  .deck {
+    width: calc(100% - 36px);
+    max-width: none;
+    margin: 0 auto;
+    padding: 32px 0 64px;
+  }
+  .card { padding: 26px 20px 22px; margin: 22px 0; }
+  .tldr { padding: 26px 20px 22px; }
+  body { font-size: 16px; }
+}
+
+.tldr {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  padding: 36px 42px 32px;
+  margin: 24px 0 32px;
+}
+.tldr h2 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 18px;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+.tldr ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: tldr;
+}
+.tldr li {
+  counter-increment: tldr;
+  display: block;
+  position: relative;
+  margin: 0;
+  padding: 16px 0 16px 2.6em;
+  border-top: 1px solid var(--rule);
+  line-height: 1.65;
+}
+.tldr li:last-child { padding-bottom: 0; }
+.tldr li::before {
+  content: counter(tldr, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 16px;
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.tldr li strong {
+  font-family: var(--serif);
+  color: var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+<aside class="rail">
+  <a class="rail-home" href="../">全部笔记</a>
+  <p class="rail-title">缺的是能把模型接到业务结果的人</p>
+  <details class="toc-wrap" open>
+    <summary>目录</summary>
+    <nav aria-label="目录">
+<ol>
+        <li><a href="#highlights">核心观点</a></li>
+        <li><a href="#gap">Demo 到生产</a></li>
+        <li><a href="#loop">岗位，也是回路</a></li>
+        <li><a href="#ceiling">门槛与上限</a></li>
+        <li><a href="#evidence">六类证据</a></li>
+        <li><a href="#agents">人守门</a></li>
+        <li><a href="#pivot">转型与企业侧</a></li>
+      </ol>
+    </nav>
+  </details>
+</aside>
+<main class="deck" id="main">
+<header class="hero">
+  <h1>昨天在深圳做完 FDE 路演，我更确定：企业真正缺的不是模型</h1>
+  <dl class="facts">
+    <div class="fact"><dt>分类</dt><dd translate="no">AI</dd></div>
+    <div class="fact"><dt>来源</dt><dd translate="no">X · <a href="https://x.com/miles_mazy">@miles_mazy</a></dd></div>
+    <div class="fact"><dt>原文</dt><dd><time datetime="2026-08-12">2026-08-12</time></dd></div>
+    <div class="fact"><dt>整理</dt><dd><time datetime="2026-08-27">2026-08-27</time></dd></div>
+    <div class="fact"><dt>原文链接</dt><dd><a href="https://x.com/miles_mazy/status/2087516591244361755" translate="no">原文</a></dd></div>
+  </dl>
+</header>
+
+<section class="tldr" id="highlights">
+  <h2>先看这五句</h2>
+  <ol>
+    <li>企业缺的不是更强的模型，而是能把模型、业务、数据和组织责任接到生产结果的人。</li>
+    <li>FDE 既是岗位，更是现场与研发两头同转的机制；只下沉会变成高级实施。</li>
+    <li>工程能力是门槛，客户与商业能力决定上限。</li>
+    <li>证据要分级（需求/计算/模拟/测量/供应商声明/认证），不能互相冒充。</li>
+    <li>Agent 能扩展执行，责任转不出去；人负责授权、合并和最终判断。</li>
+  </ol>
+</section>
+
+<figure>
+  <img src="images/cover.jpg" alt="昨天在深圳做完 FDE 路演，我更确定：企业真正缺的不是模型 封面" fetchpriority="high">
+  <figcaption>路演封面把标题压成一句：企业真正缺的不是模型，是人。作者 @miles_mazy。</figcaption>
+</figure>
+
+<p class="lead">这是一份阅读笔记，不是路演逐页转载。原文从深圳一场给投资人和协会的 FDE 汇报写起：准备讲科研系统怎样配合落地，现场反复追问的却是更基础的问题——FDE 是一个人还是一套服务，更像销售还是工程师，程序员能不能转，企业又该怎么用这种人。</p>
+
+<section class="card" id="gap">
+  <h2>Demo 到生产</h2>
+  <p>做一个 AI 演示已经很容易。拿几份文档做问答，用模型生成报告，接几个工具跑一段自动化，半天就能看到效果。真正进入企业，问题马上变了：资料有多个版本，数据散在不同系统，账号权限拿不到，业务规则只存在于老员工脑子里，模型答错以后没人知道该不该拦，上线后又没有人维护评测和成本。</p>
+  <p>模型回答得再漂亮，只要没有进入真实工作流，就没有产生业务结果。系统能够调用接口，只要权限、审批和失败恢复没做，企业也不敢让它执行。</p>
+  <blockquote>企业真正缺的，是有人愿意把「模型能做什么」一路负责到「客户真的得到什么」。</blockquote>
+  <figure>
+    <img src="images/slide-gap.jpg" alt="路演插图：一个人把模型端和业务结果端的线接起来">
+    <figcaption>缺口不在模型本身，而在有没有人把两端接到生产结果上。</figcaption>
+  </figure>
+  <p>OpenAI 对 FDE 的职责写得很直接：从客户发现、技术范围、系统设计、构建，一直负责到生产上线；成功也不以演示完成计算，而看生产采用、工作流变化，以及现场反馈有没有进入产品和模型路线。Anthropic 也在 Applied AI 下面配置工程、架构和部署相关角色。</p>
+  <p>单独补上其中一段，项目还是会卡。招一个算法工程师，可能解决模型问题，却没人确认业务目标；找一家咨询公司，可能得到一套方案，却没人把代码跑进生产；让销售推动项目，可能拿下订单，却把无法兑现的承诺留给交付团队。缺口巨大，指的不是招聘网站上少了多少简历，而是从兴趣走向结果的整条责任链都是空的。</p>
+</section>
+
+<section class="card" id="loop">
+  <h2>岗位，也是回路</h2>
+  <p>从名字看，FDE 当然是一个岗位：Forward Deployed Engineer。Forward 指向前部署、靠近问题现场；Engineer 则要求这个人真正参与构建和上线，不能只停在建议和协调上。把视角拉远，它更像一套把现场和研发连接起来的组织机制。</p>
+  <figure>
+    <img src="images/slide-loop.jpg" alt="路演插图：FDE 在客户现场和研发中台之间来回，带回可复用模块">
+    <figcaption>左边是客户现场，右边是研发后台。FDE 在中间把能力带下去，把验证过的方法带回来。</figcaption>
+  </figure>
+  <p>如果只有向下输出，FDE 很快会变成高级实施或驻场外包。每个客户重新写一遍，项目越多，公司越依赖堆人。如果只有向上汇报，现场又变成需求收集，客户等几个月才能看到一次产品排期。</p>
+  <p>两个循环要同时转：研发能力向现场下沉，现场成果向研发后台回流。项目里临时改通一个接口、处理一个例外，只能算解决了当下的问题。还要把这些做法拆开看：哪些只是这个客户的特殊配置，哪些可以抽成模板、组件、评测集或标准流程；再带着证据交给后台研发验证、入库和维护。</p>
+  <p>它们不一定全部做成软件产品。一套经过验证的数据字段定义、一份异常处理清单、一个行业术语映射、一组评测题，同样是研发资产。下一次遇到相似项目，团队不必照搬上一家客户的方案，也不用从零开始。</p>
+  <p>FDE 可以由一个人承担，也可以由一支小队共同承担。岗位怎么拆可以变，但必须有人从客户问题负责到生产结果，再把可复用的资产带回研发。如果项目上线以后就撤场，这条链其实还没走完。企业如果只改一个职位名称，没有改变部门之间的责任边界，就没有真正建立 FDE 能力。</p>
+</section>
+
+<section class="card" id="ceiling">
+  <h2>门槛与上限</h2>
+  <p>路演后最容易争论的问题：销售属性更重要，还是技术属性更重要。原文的答案很明确——工程能力是门槛，客户与商业能力决定上限。</p>
+  <p>没有技术能力，FDE 很容易变成会讲 AI 的销售。他能把模型、Agent 和私有化部署讲得很热闹，却无法判断数据能不能用、接口能不能接、模型为什么错、系统能不能上线。客户问一句「这个承诺怎么验收」，答案就只能回到漂亮的 PPT。</p>
+  <p>但一个技术很强、完全不愿意碰客户的工程师，也很难做好这件事。他可能写得出最复杂的系统，却不知道企业愿意为什么付钱，不知道哪位业务负责人承担结果，也不知道客户说「我们想做知识库」时，背后可能只是客服每天在几十份文件里找答案。</p>
+  <p>这里说的销售属性，和喝酒、应酬、催客户签字没有多少关系。FDE 得找出客户正在为什么付出代价，让不同角色愿意把真实流程和限制说出来，再把技术选择讲成范围、价值、风险和代价。客户压周期、压价格、压效果时，还得守住不能乱承诺的边界。这些事最后仍然要回到工程判断：该缩范围，还是这个系统根本做不到；本地部署要继续追问数据边界、并发和运维；想让 Agent 自动执行付款，就要把审批、幂等和回滚摆到桌面上。</p>
+  <p class="note">程序员转 FDE，最该补的是客户发现、表达和谈判；销售或咨询转 FDE，最该补的是动手构建、数据、系统集成和生产责任。两边都不能靠 AI 假装已经会了。</p>
+</section>
+
+<section class="card" id="evidence">
+  <h2>六类证据</h2>
+  <p>路演把「科研配合 FDE」放进来，不是为了学术包装，而是把证据、复现和审查纪律带进企业交付。企业 AI 项目有一个麻烦：很多结论看起来都像真的。模型说能提升效率，供应商说支持某项能力，工程师按参数估算吞吐，演示跑通了一批样本，客户又根据经验判断可以上线。如果不区分这些结论背后的证据，它们最后会被一起写进方案，仿佛可信度完全相同。</p>
+  <figure>
+    <img src="images/slide-evidence.jpg" alt="路演插图：把结论分进需求、计算、模拟、实测、声明、认证六个箱子">
+    <figcaption>六类证据不必排高低，真正要防的是互相冒充。</figcaption>
+  </figure>
+  <table>
+    <thead><tr><th>类型</th><th>它实际证明了什么</th></tr></thead>
+    <tbody>
+      <tr><td>REQUIREMENT</td><td>客户或项目明确提出的要求</td></tr>
+      <tr><td>CALCULATED</td><td>根据公开模型和假设计算出来的结果</td></tr>
+      <tr><td>SIMULATED</td><td>使用记录下来的输入和条件完成的模拟</td></tr>
+      <tr><td>MEASURED</td><td>在可重现条件下实际观察到的结果</td></tr>
+      <tr><td>SUPPLIER_DECLARED</td><td>供应商或外部权威给出的声明</td></tr>
+      <tr><td>CERTIFIED</td><td>有明确认证记录支持的结论</td></tr>
+    </tbody>
+  </table>
+  <p>根据并发和 Token 量算出的成本，只能叫计算结果；测试环境跑通，只能说明在那组条件下测到了；供应商写「支持私有化」，不代表已经通过客户自己的安全审查。一句话能不能进入交付方案，取决于它有什么证据，也取决于证据能不能被重新检查。</p>
+  <p>六条原则因此有了实际用途：数据优先、证据分级、可重现、可恢复、人类负责、隐私边界。一个 FDE 如果只留下代码，没有证据、决定和恢复方法，研发后台就无法判断哪些能力值得复用，换个人以后项目也会重新失忆。</p>
+</section>
+
+<section class="card" id="agents">
+  <h2>人守门</h2>
+  <p>路演最后一页留下一句值得继续验证的话：一个 FDE 带着一群 Agent，就能完成 AI 转型的交付。方向可以认，但要补上一个前提——Agent 可以扩展执行能力，责任转不出去。</p>
+  <figure>
+    <img src="images/slide-agents.jpg" alt="路演插图：研究、开发、测试、交付由 Agent 推进，最后由人按确认键">
+    <figcaption>Agent 让手变多了；授权、合并和最终判断仍在人这边。</figcaption>
+  </figure>
+  <p>以前，一个人很难同时完成客户研究、会议整理、方案比较、原型开发、测试、文档和项目复盘。现在这些工作可以拆给不同的 AI。但 AI 不知道客户没有写进文档的利益冲突，也不知道一句「原则上可以」到底算不算承诺。它不能自行决定哪些数据允许上传，不能代替负责人批准范围变化，更不能在项目失败时承担商业后果。</p>
+  <blockquote>AI 可以提出、实现和审查，人负责授权、合并和最终判断。</blockquote>
+  <p>原始材料可以由 Agent 整理，进入项目事实库之前必须由人确认；代码可以由 Agent 起草，进入生产之前必须经过测试和审批；报告可以由 Agent 生成，证据类型不能由它自行升级。未来的交付团队可能会很小：前面是少数能够进现场、懂业务、敢作技术判断的 FDE，后面连接研究、开发、测试和交付 Agent。人数可能变少，对领头那个人的判断力要求却会更高。</p>
+</section>
+
+<section class="card" id="pivot">
+  <h2>转型与企业侧</h2>
+  <h3>程序员怎么转</h3>
+  <p>程序员转 FDE 的优势很明显：有工程基础，理解系统边界，也更容易识别一个 AI 演示离生产还有多远。真正困难的地方，是从「别人把需求写清楚，我负责实现」，转到「需求本身不清楚，我先判断什么值得实现」。</p>
+  <p>转型不必从背一份更长的技术栈开始。RAG、Agent、MCP、模型部署当然要学，但它们只是工具。更有效的办法，是完整跑一次小型交付：跟着一个实际使用者走完最近一次任务，记录输入、动作、判断、系统、输出和例外；再从中找一个高频、可测、失败后能人工接管的环节，做一个很小的版本。</p>
+  <p>过程中刻意训练四类产出：</p>
+  <ul>
+    <li>一份能让客户纠正的现状判断；</li>
+    <li>一份有范围和验收条件的交付方案；</li>
+    <li>一个能够使用真实样本验证的最小系统；</li>
+    <li>一套讲清失败、修复和业务变化，并能回流研发后台的资产包。</li>
+  </ul>
+  <p>这四样东西比「我学过十个 Agent 框架」更能证明你具备 FDE 能力。做 FDE 以后，沟通不再是开发前的准备工作，沟通本身就是系统设计的一部分。</p>
+  <h3>企业要提供什么</h3>
+  <p>企业最危险的做法，是把 FDE 当成一个「懂 AI 的万能驻场」。什么需求都交给他，所有部门都不提供负责人，最后再用「有没有做出一个智能体」验收。他可以还原流程、指出矛盾、给出方案、参与构建，却不能替业务部门确认规则，不能替数据 Owner 开放权限，也不能替管理层决定什么风险可以接受。</p>
+  <p>要让 FDE 产生价值，至少要提供四样东西：真实工作现场、能够使用的样本、有权作决定的人，以及允许从小范围验证的空间。</p>
+  <h3>项目留下什么</h3>
+  <p>项目做完以后，还得回头看有没有留下两层能力。对客户，要留下可接管的系统、数据标准、证据规则、评测集、运行手册和失败边界；对交付方的研发后台，要留下经过脱敏和抽象的模板、组件、行业规则及评测方法。前一层避免客户长期依赖驻场人员，后一层让下一次同类项目能够站在这次交付的结果上继续做。</p>
+  <p>商业模式可以分成效果付费、定制开发和私有化部署三层，但不该一上来全部购买。问题还没验证时，先做诊断或小范围验证；场景成立但系统差异很大，再进入定制开发；数据和基础设施真的有明确约束，才讨论私有化。按效果付费也必须先约定基线、归因和双方投入，否则「效果」只会变成新的争议。</p>
+  <p>判断 FDE 是否合格，可以问得很简单：他有没有深入真实流程，有没有亲手参与构建，有没有用证据说明结果，有没有把现场经验变成研发后台接得住的资产，有没有让客户内部团队逐渐减少对他的依赖。如果答案都是「没有」，这个岗位无论叫什么，本质上仍然只是销售、咨询或外包。</p>
+  <p>未来真正稀缺的，不只是会使用 AI 的人，而是能带着 AI 进入真实世界、把复杂问题做成可验证结果的人。</p>
+</section>
+
+<footer>
+  按原文整理，不是逐字转载。原文版权归 @miles_mazy 及 X。<br>
+  原文版权归原作者及原平台；本页是个人阅读笔记。
+</footer>
+</main>
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll(".rail nav a"));
+  var sections = Array.prototype.slice.call(document.querySelectorAll("section.card, section.tldr"));
+  if (!links.length || !sections.length || !("IntersectionObserver" in window)) return;
+  var map = {};
+  links.forEach(function (a) {
+    var id = (a.getAttribute("href") || "").replace("#", "");
+    if (id) map[id] = a;
+  });
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      var id = entry.target.id;
+      links.forEach(function (a) { a.classList.remove("is-active"); });
+      if (map[id]) map[id].classList.add("is-active");
+    });
+  }, { rootMargin: "-18% 0px -64% 0px", threshold: 0.01 });
+  sections.forEach(function (s) { io.observe(s); });
+})();
+</script>
+</body>
+</html>
