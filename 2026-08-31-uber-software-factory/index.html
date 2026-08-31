@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>在 Uber 规模上高效运转软件工厂 · Running a Software Factory Efficiently at Uber Scale</title>
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="icon" href="../logo.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<style>
+:root {
+  --paper: #F4EFE6;
+  --card: #FBF7F0;
+  --ink: #191918;
+  --muted: #6B6459;
+  --rule: #E4D9C8;
+  --accent: #C96442;
+  --accent-soft: #D97757;
+  --wash: rgba(201, 100, 66, 0.14);
+  --wash-strong: rgba(201, 100, 66, 0.22);
+  --serif: "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", "Noto Serif SC", Georgia, "Times New Roman", serif;
+  --sans: "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Noto Sans Mono CJK SC", monospace;
+  --rail: 248px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 32px; color-scheme: light; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.75;
+}
+.skip {
+  position: absolute;
+  left: 16px;
+  top: 12px;
+  z-index: 10;
+  padding: 8px 12px;
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  font-size: 13px;
+  transform: translateY(-160%);
+}
+.skip:focus,
+.skip:focus-visible { transform: none; }
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+h1, h2 { text-wrap: balance; }
+section[id], h1, h2, h3 { scroll-margin-top: 32px; }
+
+.rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--rail);
+  height: 100vh;
+  overflow-y: auto;
+  padding: 28px 22px 36px;
+  background: #F5F0E8;
+  border-right: 1px solid var(--rule);
+  z-index: 4;
+}
+.rail-home {
+  display: inline-block;
+  margin: 0 0 16px;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+.rail-home:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.rail-title {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.35;
+  margin: 0 0 18px;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.rail summary {
+  display: none;
+  list-style: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.rail summary::-webkit-details-marker { display: none; }
+.rail nav ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: toc;
+}
+.rail nav li {
+  counter-increment: toc;
+  margin: 0;
+  border-top: 1px solid var(--rule);
+}
+.rail nav li:last-child { border-bottom: 1px solid var(--rule); }
+.rail nav a {
+  display: block;
+  position: relative;
+  padding: 9px 2px 9px 2.2em;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.rail nav a::before {
+  content: counter(toc, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 9px;
+  font-family: var(--serif);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--rule);
+  font-variant-numeric: tabular-nums;
+}
+.rail nav a:hover,
+.rail nav a.is-active { color: var(--ink); }
+.rail nav a:hover::before,
+.rail nav a.is-active::before { color: var(--accent); }
+.rail nav a.is-active { font-weight: 600; }
+
+.deck {
+  width: min(760px, calc(100% - var(--rail) - 64px));
+  max-width: 760px;
+  padding: 56px 0 96px;
+  margin-right: auto;
+  margin-left: calc(var(--rail) + max(40px, (100% - var(--rail) - 760px) / 2));
+  counter-reset: slide;
+}
+header.hero { padding: 8px 0 8px; }
+h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(32px, 5vw, 46px);
+  line-height: 1.18;
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.subtitle {
+  font-family: var(--serif);
+  font-size: 22px;
+  color: var(--muted);
+  margin: 0 0 8px;
+  font-style: italic;
+}
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin: 22px 0 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.facts .fact {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+.facts dt {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.facts dd {
+  margin: 0;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.facts a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.facts a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 40px 42px 36px;
+  margin: 36px 0;
+  counter-increment: slide;
+}
+.card h2 {
+  font-family: var(--serif);
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 8px;
+  letter-spacing: -0.015em;
+}
+.card h2::after {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 1px;
+  background: var(--accent);
+  margin: 16px 0 22px;
+}
+.card h3 {
+  font-family: var(--serif);
+  font-size: 20px;
+  line-height: 1.35;
+  margin: 28px 0 10px;
+  letter-spacing: -0.01em;
+}
+.card a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.card a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+p { margin: 0 0 14px; }
+p:last-child { margin-bottom: 0; }
+ul, ol { margin: 0 0 14px; padding-left: 22px; }
+li { margin: 0 0 6px; }
+
+.byline {
+  margin: 22px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+}
+.byline a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.byline a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+figure { margin: 22px 0 10px; }
+figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
+  border: 1px solid var(--rule);
+  background: #EFE6D8;
+}
+figcaption {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 10px;
+  line-height: 1.55;
+}
+figcaption a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+figcaption a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+.tm {
+  font-size: 13px;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 18px;
+}
+
+footer {
+  margin-top: 48px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.tldr {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  padding: 36px 42px 32px;
+  margin: 24px 0 32px;
+}
+.tldr h2 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 10px;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+.tldr-note {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 16px;
+}
+.tldr ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: tldr;
+}
+.tldr li {
+  counter-increment: tldr;
+  display: block;
+  position: relative;
+  margin: 0;
+  padding: 16px 0 16px 2.6em;
+  border-top: 1px solid var(--rule);
+  line-height: 1.65;
+}
+.tldr li:last-child { padding-bottom: 0; }
+.tldr li::before {
+  content: counter(tldr, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 16px;
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.tldr li strong {
+  font-family: var(--serif);
+  color: var(--ink);
+}
+
+@media (max-width: 980px) {
+  .rail {
+    position: relative;
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 16px 20px 14px;
+  }
+  .rail-title { display: none; }
+  .rail summary { display: block; padding: 6px 0; }
+  .rail details:not([open]) nav { display: none; }
+  .rail details[open] nav { display: block; margin-top: 8px; }
+  .rail nav ol {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 12px;
+  }
+  .rail nav li:last-child { border-bottom: none; }
+  .deck {
+    width: calc(100% - 36px);
+    max-width: none;
+    margin: 0 auto;
+    padding: 32px 0 64px;
+  }
+  .card { padding: 26px 20px 22px; margin: 22px 0; }
+  .tldr { padding: 26px 20px 22px; }
+  body { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+</style>
+<link rel="stylesheet" href="../site.css">
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+<aside class="rail">
+  <a class="rail-home" href="../">全部笔记</a>
+  <p class="rail-title">在 Uber 规模上高效运转软件工厂</p>
+  <details class="toc-wrap" open>
+    <summary>目录</summary>
+    <nav aria-label="目录">
+      <ol>
+        <li><a href="#highlights">先看这五句</a></li>
+        <li><a href="#introduction">引言</a></li>
+        <li><a href="#factory">软件工厂与成本方程</a></li>
+        <li><a href="#measure">我们如何度量</a></li>
+        <li><a href="#levers">优化杠杆</a></li>
+        <li><a href="#price-token">优化 Price / Token</a></li>
+        <li><a href="#tokens-request">优化 Tokens / Request</a></li>
+        <li><a href="#requests-turn">优化 Requests / Turn</a></li>
+        <li><a href="#visibility">可见性与教育</a></li>
+        <li><a href="#whats-next">下一步</a></li>
+        <li><a href="#conclusion">结论</a></li>
+        <li><a href="#acknowledgments">致谢</a></li>
+      </ol>
+    </nav>
+  </details>
+</aside>
+<main class="deck" id="main">
+<header class="hero">
+  <h1>在 Uber 规模上高效运转软件工厂</h1>
+  <p class="subtitle" translate="no">Running a Software Factory Efficiently at Uber Scale</p>
+  <dl class="facts">
+    <div class="fact"><dt>分类</dt><dd translate="no">AI</dd></div>
+    <div class="fact"><dt>来源</dt><dd>X · <a href="https://x.com/UberEng" translate="no">@UberEng</a></dd></div>
+    <div class="fact"><dt>原文</dt><dd><time datetime="2026-08-28">2026-08-28</time></dd></div>
+    <div class="fact"><dt>整理</dt><dd><time datetime="2026-08-31">2026-08-31</time></dd></div>
+    <div class="fact"><dt>作者</dt><dd><a href="https://x.com/udaykiran" translate="no">@udaykiran</a></dd></div>
+    <div class="fact"><dt>原文链接</dt><dd><a href="https://x.com/i/article/2090828118454071296" translate="no">原文</a></dd></div>
+  </dl>
+</header>
+
+<section class="tldr" id="highlights">
+  <h2>先看这五句 / Highlights</h2>
+  <p class="tldr-note">译者补充，不是原文。</p>
+  <ol>
+    <li>Uber 里七成以上 PR 已算到本地或云端 Agent 头上；技能一天跑三万多次。</li>
+    <li>2026 年 2 月到 8 月，周活用户 7 倍、周请求 9.4 倍，总花费从 4 月起相对稳住。固定模型看，每千次请求成本从峰值降约 34%，每会话从 6 月峰值降 52%。</li>
+    <li>用法分成四层，越高层对成本、质量和选模型越可控；花费拆成可独立度量的几项相乘。</li>
+    <li>优化打在中间几项：选帕累托模型、压缩每请求 token（缓存 TTL、MCP 改走 shell/tool search/code-mode）、用上下文图减少瞎搜。</li>
+    <li>战略是从交互式会话转向托管 Agent 舰队：每类工作有基准和帕累托模型，比优化几千人各自的终端更划算。</li>
+  </ol>
+</section>
+
+<figure>
+  <img src="images/cover.jpg" alt="Running a Software Factory Efficiently at Uber Scale 封面" width="1750" height="700" fetchpriority="high">
+  <figcaption>Uber Engineering《Running a Software Factory Efficiently at Uber Scale》封面。文章作者 <a href="https://x.com/udaykiran" translate="no">@udaykiran</a>；发布账号 <a href="https://x.com/UberEng" translate="no">@UberEng</a>。</figcaption>
+</figure>
+
+<p class="byline">文章作者：<a href="https://x.com/udaykiran" translate="no">@udaykiran</a></p>
+
+<section class="card" id="introduction">
+  <h2>引言</h2>
+  <p>AI 工具已经嵌入 Uber 软件开发的每一个阶段。超过 70% 的 pull request 被归到本地或云端 Agent 头上。工程师已经在软件开发生命周期里建了超过 3,600 个 agent skill，每天执行超过 30K 次 agent skill。</p>
+  <p>在 <a href="https://youtu.be/17-YSUHo6Lk">AI Engineer 2026</a> 大会上，我们分享了对 Software Factory 的设想，以及我们正在生命周期各处搭建的构建块和托管 Agent。随着这一设想推进，越来越多的会话不再由人发起，而是由自动化的托管 Agent 接手：代码评审、CI 失败自愈、带视觉校验的端到端 PR、on-call 告警分诊、流入 bug 的调试，以及各类需要人来评审/升级的代码维护任务。</p>
+  <p>如图 1 所示，从 2026 年 2 月到 8 月，面向全体员工（工程师与非工程师）的所有 agentic 产品的周活用户增长了 7x，周 agentic 请求增长了 9.4x。与此同时，由于全盘优化，我们的 AI 总花费从 4 月起相对稳住。</p>
+  <figure>
+    <img src="images/fig1.jpg" alt="Figure 1：2026 年 2 月至 8 月中旬的周活用户、Agent 请求量与成本；用户已在各工具间去重。" width="1516" height="556">
+    <figcaption>Figure 1：2026 年 2 月至 8 月中旬的周活用户、Agent 请求量与成本；用户已在各工具间去重。</figcaption>
+  </figure>
+  <p>采用率、工作负载配比、模型升级都在持续变化，要单独看出我们自己的优化收益，就要把模型固定住——因为每次升级、每个模型族，行为都会变。我们从 2 月做到 7 月：每 1,000 次模型请求的成本相对峰值下降了近 34%，每会话成本相对 6 月峰值下降了 52%。</p>
+  <figure>
+    <img src="images/fig2.jpg" alt="Figure 2：固定模型下的成本优化效果。*每会话成本数据从 5 月底开始。" width="1478" height="554">
+    <figcaption>Figure 2：固定模型下的成本优化效果。*每会话成本数据从 5 月底开始。</figcaption>
+  </figure>
+  <p>这篇博客会把我们对 software factory 的想法走一遍：Agent 会话运行的四层、我们用来拆解花费的成本方程、每一项怎么度量，以及我们如何在每一层优化这些项。</p>
+  <p>本对比中的所有定价与供应商指标均基于公开信息；成本效率的提升来自在标准档位定价之内，更智能地把 Uber 内部工作负载路由出去。我们测到的具体降本数字只属于我们的环境，你的结果会因代码库、团队规模和 Agent 工作流而不同；但对真实工作做基准、再同时优化准确率和成本，这套方法是普遍适用的。</p>
+</section>
+
+<section class="card" id="factory">
+  <h2>软件工厂与成本方程</h2>
+  <h3>Agent 用法的四层</h3>
+  <p>我们把 AI 用法分成四层，从最专门到最一般。如图 3 所示，层越高，我们对成本、质量和选模型的控制就越强。</p>
+  <figure>
+    <img src="images/fig3.jpg" alt="Figure 3：Agent 会话运行的四层。" width="1522" height="966">
+    <figcaption>Figure 3：Agent 会话运行的四层。</figcaption>
+  </figure>
+  <h3>成本方程</h3>
+  <p>在上面任何一层，我们都能把一次 agentic 会话的成本拆成下面这些项，并且可以独立度量、独立优化。</p>
+  <figure>
+    <img src="images/fig4.jpg" alt="Figure 4：总花费拆成相乘的六项。" width="1334" height="412">
+    <figcaption>Figure 4：总花费拆成相乘的六项。</figcaption>
+  </figure>
+  <p>前两项代表采用与参与，我们希望在全体用户里继续涨——无论人是交互着用，还是 Agent 替他们干活。中间三项提供了优化空间：Agent 在工程师真正提出的请求之上、替自己多做的那些活。我们的力气主要花在这里。这包括帮 Agent 更快规划、减少多余 turn 或错误、优化输入 token 等机制。</p>
+</section>
+
+<section class="card" id="measure">
+  <h2>我们如何度量</h2>
+  <p>下面是我们每周、每月跟踪的完整指标集，用来做短期和长期的预测与规划。</p>
+  <figure>
+    <img src="images/metrics.png" alt="每周和每月跟踪的完整指标集。" width="1094" height="1428">
+  </figure>
+</section>
+
+<section class="card" id="levers">
+  <h2>优化杠杆</h2>
+  <p>接下来几节，我们会把用来优化成本方程每一部分的关键杠杆讲清楚。其中有些杠杆会影响成本方程里的一行或多行。</p>
+  <figure>
+    <img src="images/levers.png" alt="优化成本方程各部分的关键杠杆。" width="1572" height="1290">
+  </figure>
+</section>
+
+<section class="card" id="price-token">
+  <h2>优化 Price / Token</h2>
+  <p>Token 单价由供应商定。哪份工作负载跑哪个模型，由我们选。在托管 Agent 的每一层，我们都为该负载挑选最帕累托有效的模型。对我们来说，帕累托有效指的是：成本/完成任务、输出质量、模型可靠性。</p>
+  <h3>由基准驱动的模型选择</h3>
+  <p>选模型分四步，我们跑的每一个托管 Agent 都一样。</p>
+  <ul>
+    <li>用该 Agent 的真实工作搭一套基准。</li>
+    <li>把 Agent 跑在一套 harness 上，前沿模型或开权模型都走同一接口。</li>
+    <li>切到帕累托最优的那个，并且持续切。前沿每隔几周就会动。</li>
+  </ul>
+  <p>往前看，我们会持续用托管 Agent 汇总出来的洞察，测试并部署各种模型路由策略，从而改进工作负载表现。</p>
+  <p>例如我们用 uReview 给所有 pull request 做 AI 代码评审。基准来自带已知 bug 的真实 PR，并标成 easy、medium、hard。我们按这些 bug 打 precision、recall 和 F1，再加上每次评审的成本、延迟、超时和噪声。如图 5 所示，换模型提高了 F1，同时大幅降低了 cost/PR。图中虚线是帕累托前沿。它左下方的点，都会被某个更便宜或更好的配置压过。</p>
+  <figure>
+    <img src="images/fig5.jpg" alt="Figure 5：我们为 uReview 测试过的每一种配置。" width="1472" height="744">
+    <figcaption>Figure 5：我们为 uReview 测试过的每一种配置。</figcaption>
+  </figure>
+  <p>用我们大型 monorepo 里成千上万的真实 PR，内部还有一套 Uber SWE Benchmark，会让前沿模型和开权模型跑不同类型的任务。我们用它来指导所有 SDLC 托管 Agent 的选模型。</p>
+  <h3>默认模型选择</h3>
+  <p>在交互界面里，token 单价是固定的；但你可以有策略地把 token 分到不同模型上。主要管这件事的是两个默认设置：会话初始模型和 subagent 模型。</p>
+  <p>subagent 默认设置被证明是最有杠杆的一项，而且还会越来越重要。随着最新模型更能干好多 Agent 编排，会拉起 subagent 的会话比例一直在涨。因为 subagent 做的是输入明确、定义清楚的任务，往往不需要前沿级推理，我们默认给它们更弱、更省钱的模型，同时仍允许手动覆盖。主模型负责任务拆解和评估，subagent 去执行。</p>
+</section>
+
+<section class="card" id="tokens-request">
+  <h2>优化 Tokens / Request</h2>
+  <p>每一个 turn 都会把完整对话历史、项目上下文和工具结果再发一遍。任何能减小每请求 payload 的东西，都会在整段会话里复利。</p>
+  <h3>默认项</h3>
+  <p>所有交互式 harness 都用统一的包装层来管安装、配置、认证和成本可见性。两套标准化默认配置会直接压低每请求的 token 消耗：</p>
+  <ul>
+    <li><strong>即便是 1M 上下文窗口的模型，也会在 400k tokens 触发自动压缩：</strong>这个阈值在模型表现、缓存突发和重复输入 token 成本之间做平衡。我们的测量显示，全舰队每请求输入 token 有明显下降。</li>
+    <li><strong>推理力度默认 Medium：</strong>输出 token（含内部推理 token）在主模型上按输入 token 费率的若干倍计费；这项策略调整直接砍掉了最贵那一类 token 的花费。对很大一类任务，Medium 推理在成本与质量之间打得比较好。</li>
+  </ul>
+  <h3>Prompt 缓存策略</h3>
+  <p>我们的 prompt 缓存策略由供应商 prompt cache 读写的经济账驱动。因为每个 turn 都会把完整对话历史再传一遍，把前面的上下文缓存起来，就能避免反复付全价，后续读取只需标准输入 token 费率的 0.1x。但写入溢价不同：5 分钟缓存条目是 1.25x，1 小时条目是 2x。所以选最优 TTL（Time-to-Live）取决于 turn 之间空档有多长。可用的 TTL 选项包括 Anthropic® 的 5 分钟和 1 小时，以及 OpenAI® 的 30 分钟。</p>
+  <figure>
+    <img src="images/fig6.jpg" alt="Figure 6：两种 TTL 时长下 5 个 turn 的对比。" width="1524" height="750">
+    <figcaption>Figure 6：两种 TTL 时长下 5 个 turn 的对比。</figcaption>
+  </figure>
+  <p>因为工程师经常让交互会话空闲超过 5 分钟，我们把默认的 5 分钟 TTL 改成了 1 小时窗口。这些频繁的空档以前会让前缀缓存失效，被迫按全价重建上下文。相比之下，sub-agent 仍用 5 分钟缓存 TTL，因为它们的执行焦点限于单个、短命的任务。</p>
+  <h3>通过 Shell 执行 MCP 工具</h3>
+  <p>在 Uber，所有 MCP（Model Context Protocol）交互都走统一网关。这一个入口覆盖内部和第三方 SaaS MCP 的 1,000 多个 MCP 服务器，便于集中认证和策略执行。</p>
+  <p>但标准 MCP 会把全部工具 schema 直接加载进每一次会话，不管工程师在这次会话里会不会调用。例如装了 100 多个工具时，这种预加载会给初始 prompt 加上大约 50K-70K tokens 的 schema 开销，随后每个上下文 turn 都会再发一遍。</p>
+  <figure>
+    <img src="images/fig7.jpg" alt="Figure 7：会话开始时 Agent 已经带着什么：到达同一套工具的三种方式。" width="1258" height="600">
+    <figcaption>Figure 7：会话开始时 Agent 已经带着什么：到达同一套工具的三种方式。</figcaption>
+  </figure>
+  <p>为了解决这种上下文膨胀，我们引入了两套互补的优化机制：</p>
+  <ul>
+    <li><strong>CLI 工具解析：</strong>不再直接接 MCP，而是让模型执行一条 shell 命令。CLI 在调用时动态向网关解析并调用所需工具，从而把 Uber MCP schema 从会话上下文里拿掉。内部 MCP 网关上全部 1K+ MCP 工具都投影成 CLI 命令。</li>
+    <li><strong>Tool search：</strong>让模型搜索工具目录、按需只加载需要的工具，从而扩到几千个工具。这能缓解上下文膨胀，通常会降低工具定义占用的 token，并且在工具库变大时仍保持高选择准确率，避免大工具集带来的退化。</li>
+  </ul>
+  <h3>Code-Mode</h3>
+  <p>当工具以 shell 命令直接调函数时，模型可以在同一脚本里把多个动作打成一批。这种批处理对爱聊天的工具协议特别有利。标准 MCP 工作流里，每个动作都要单独一个模型 turn：发出请求、把原始响应装进上下文窗口、再顺序处理结果。例如执行一条 SQL 查询，需要提交请求、轮询状态 2 到 5 次、再取回输出。Code-mode 把整段流程收成一个自动 Python 循环，中间轮询不进模型的活动上下文。如图 8 左侧，模型参与轮询循环，每次响应都进它的上下文；右侧，循环跑在子进程里，只把摘要送回来。</p>
+  <figure>
+    <img src="images/fig8.jpg" alt="Figure 8：同一条数仓查询，两种走法。" width="1514" height="724">
+    <figcaption>Figure 8：同一条数仓查询，两种走法。</figcaption>
+  </figure>
+  <p>我们在同一会话里用两条路径各跑了 5 条相同的 SQL 查询来测量：</p>
+  <figure>
+    <img src="images/sql.png" alt="同一会话中，两条路径各跑 5 条相同 SQL 查询的测量结果。" width="1560" height="1186">
+  </figure>
+  <p>前三行点出了主要发现：即便结果集很小、远低于响应体积上限，code-mode 也能把 token 用量降 50% 以上。这些效率不是靠绕开大数据 payload，而是靠消掉不必要的开销，包括 schema 初始化、多 turn 轮询，以及多余的逐步推理。</p>
+  <p>批量工作流会把效果放大，因为本该是 N 个模型 turn 的循环变成一条脚本，节省会复利到 90% 以上。我们为最常访问的 MCP 服务器部署了 25 个以上预置的 code-mode skill，确保标准工作流默认走最省钱的路径。</p>
+  <h3>SaaS MCPs</h3>
+  <p>管第三方软件比管我们自己的内部服务器难得多。供应商把 MCP 服务器设计成暴露完整产品能力，因为他们没法预知某个客户具体怎么用。例如一套 workspace 套件把 49 个工具打进一个服务器，schema 大约要 ~22K tokens；消息和项目跟踪供应商分别带 34 和 46 个工具。加载两三个供应商服务器，会让 Agent 在用户还没输入 prompt 之前，就已经带着比正在编辑的文件还多的 schema 开销。</p>
+  <p>为此，我们把 SaaS MCP 服务器也走 MCP 网关，机制和内部 MCP 一样。我们还把这些 MCP 全部暴露成 CLI，任何 agentic 表面都能调。另外，我们在 code-mode 插件里为每个服务器写专用 skill，把常见工作流封装起来。这让许多 SaaS 供应商上的 agentic 工作流变得高效。</p>
+  <figure>
+    <img src="images/fig9.jpg" alt="Figure 9：每个 SaaS MCP 服务器都挂在我们的 MCP 网关后面，以保证统一、高效的访问模式。" width="1532" height="564">
+    <figcaption>Figure 9：每个 SaaS MCP 服务器都挂在我们的 MCP 网关后面，以保证统一、高效的访问模式。</figcaption>
+  </figure>
+</section>
+
+<section class="card" id="requests-turn">
+  <h2>优化 Requests / Turn</h2>
+  <p>没有 grounding 的 Agent 失败得慢，而不是失败得便宜：它会反复把越来越大的上下文窗口发出去，再搜一个地方。事先提供更丰富的信息，仍然是降低这种搜索开销最有力的杠杆。</p>
+  <h3>上下文工程</h3>
+  <p>在 Uber 庞大的代码库与数据生态里——数亿行代码、成千上万张表——Agent 把大多数 turn 花在找信息上，而不是写代码。为此我们做了 AI Context Graph：一张统一的网络，含 24 million 个节点和 80 million 条边，覆盖 86 种节点和 117 种边类型。它整合了 30 多个内部系统的数据，包括服务、工程团队、事故日志、pull request、架构设计文档、部署、数据集，以及历史上的表使用查询，并让任何 Agent 都能用自然语言查询。</p>
+  <figure>
+    <img src="images/fig10.jpg" alt="Figure 10：同一提示、同一模型，有无图 grounding 的执行路径对比。" width="1518" height="552">
+    <figcaption>Figure 10：同一提示、同一模型，有无图 grounding 的执行路径对比。</figcaption>
+  </figure>
+  <p>有 grounding 的 Agent 查了历史用量，找到被 50 多名分析师用过的那张具体的表，38 秒给出答案。反过来，没有 grounding 的 Agent 看不见那张表；它花了 20 分钟翻服务代码、拉起 2 个 subagent、撞上 3 次错误，最后错误地得出数据集不可查询的结论。</p>
+</section>
+
+<section class="card" id="visibility">
+  <h2>可见性与教育</h2>
+  <p>这里的杠杆是可见性和反馈环，让工程师和 Agent 更快收敛。</p>
+  <h3>状态栏</h3>
+  <p>我们在 harness 状态栏放了一个实时成本计数器，跟踪每个用户在单个 harness 以及所有 harness 上的实时花费。</p>
+  <figure>
+    <img src="images/fig11.jpg" alt="Figure 11：状态栏，以及随之一起交付的会话分析器和效率指南。" width="1532" height="230">
+    <figcaption>Figure 11：状态栏，以及随之一起交付的会话分析器和效率指南。</figcaption>
+  </figure>
+  <h3>可见性与花费档位</h3>
+  <p>为了避免强加硬顶，我们做了实时花费跟踪和自动轻推：</p>
+  <ul>
+    <li><strong>状态栏实时计数器。</strong>正在跑的会话成本始终显示在终端里。</li>
+    <li><strong>Harness 池。</strong>所有交互式 harness 共用一档，而不是按工具拆预算。托管 Agent 另有独立档位。</li>
+    <li><strong>Slack 轻推。</strong>在预期花费的 50/80/100% 告警，让工程师有时间做安排。</li>
+    <li><strong>好走的审批流。</strong>升档由经理签字，并快速生效。</li>
+    <li><strong>成本检查 skill 与提示。</strong>一个看板 skill，按需拆成本，并在状态栏做实时辅导。</li>
+  </ul>
+  <p>这些让工程师能自己评估任务 ROI，同时抑制失控花费。</p>
+  <h3>会话分析看板</h3>
+  <p>状态栏能标出一次会话的总支出，但看不到成本驱动因素，也给不出可执行的效率步骤。一般性指导只能给高层原则，评不了单个开发者的工作流。会话分析看板通过直接检查会话产物来补上这个缺口。</p>
+  <p>它直接做进运行时，零配置、无需 opt-in。执行 <em>cost dashboard</em> <strong>skill</strong>，会分析该用户在本地和远程云沙箱、在其使用的全部 harness 上的所有会话轨迹。它不产出一个汇总指标，而是在会话里标出 16 种不同的反模式，每种配上财务影响和针对性修复。其中一些类别包括：</p>
+  <ul>
+    <li><strong>次优模型路由：</strong>把 Sonnet 轻松就能完成的简单多 turn 会话跑在 Opus 上。</li>
+    <li><strong>上下文窗口膨胀：</strong>大块 MCP payload（例如 40KB 的响应）留在上下文里，后续 turn 反复计费。</li>
+    <li><strong>缓存过期不经济：</strong>长时间中断后再恢复会话，过期的 prompt cache 迫使按全价重建前缀。</li>
+    <li><strong>Prompt 初始化开销：</strong>用户还没输入，就预加载 100,000 tokens 的系统指令和工具定义。</li>
+  </ul>
+  <figure>
+    <img src="images/fig12.jpg" alt="Figure 12：会话级成本看板，标出浪费模式和潜在节省。" width="1290" height="348">
+    <figcaption>Figure 12：会话级成本看板，标出浪费模式和潜在节省。</figcaption>
+  </figure>
+</section>
+
+<section class="card" id="whats-next">
+  <h2>下一步？</h2>
+  <p>正在推进的事项包括：</p>
+  <ul>
+    <li><strong>扩大托管 Agent 舰队：</strong>每一个新 Agent，我们都走同一条路线图：定目标结果指标、组评估基准、找到帕累托最优模型。这套系统方法旨在把 SDLC 的每一阶段往工厂成熟度模型的更高处推。</li>
+    <li><strong>动态模型路由：</strong>我们正在把基准覆盖扩到更多编程语言、代码仓库和 Agent 模态。模型能力差异很大，有效的模型路由高度依赖全面评估。</li>
+    <li><strong>加深上下文图集成：</strong>我们正在让更广的一批自主 Agent 用上图查询能力。</li>
+    <li><strong>把会话分析演进成实时开发者指导：</strong>从周期性批量检测反模式，转到持续轨迹监控，目标是把个性化的实时效率建议直接送给工程师。</li>
+    <li><strong>持续改进 Skill：</strong>我们在做一套自动化办法，从 agent skill 执行里记录 papercut，再根据收集到的轨迹自动生成 skill 更新。</li>
+  </ul>
+</section>
+
+<section class="card" id="conclusion">
+  <h2>结论</h2>
+  <p>管住、压住不断上涨的 AI 编码开支，同样是一项可下手的工程问题。靠消掉浪费的、零价值的 token 消耗，而不是只靠更低单价或降级工具，我们把用量扩了 7x，同时在所有指标上降低了单位成本，并提升/维持了输出质量。</p>
+  <p>核心战略转变，是从交互式开发者工作流走向完全托管的 Agent。把 SDLC 工作负载迁进托管环境，就能对模型路由、执行 harness 和运营花费有完整控制。优化一支专门的托管 Agent 舰队——每个都配上专用评估基准和帕累托有效模型——本质上比优化几千名工程师各自的终端会话更省钱、也更能扩。</p>
+</section>
+
+<section class="card" id="acknowledgments">
+  <h2>致谢</h2>
+  <p>这是许多工程师的集体努力：他们在 Uber 规模上搭建最有效率的积木来实现 Software Factory，同时确保我们花出去的每一个 token 都有 ROI。我们要感谢参与 Software Factory 各项努力的核心团队，名单如下：Abhishek Bhatia, Adam Huda, Aditya Patel, Alok Srivastava, Ameya Ketkar, Anil Purohit, Atakan Kandemir, Ben Chou, Brandon Barker, Danielle Yim, Deepanshu Mehndiratta, Gaurav Gill, Israel Marban, Jason Varbedian, Karen Xu, Lei Shi, Mager Mager, Meghana Somasundara, Peng Liu, Preet Inder, Qiushen Wang, Rush Tehrani, Shesh Patel, Shiven Tripathi, Shubham Gupta, Stas Khalup, Ting Chen, Tse-Shi Wang, Ty Smith, Vikram Hullukunte, Weiqiang Wang, Will Bond.</p>
+  <p>也要感谢 Johannes Gehrke、Mattie Toia、Sumanth Sukumar 和 Praveen Neppalli Naga 的领导。</p>
+  <p class="tm">Anthropic® is a registered trademark of Anthropic PBC.<br>
+  Claude Code™ and Claude® are trademarks of Anthropic, PBC.<br>
+  OpenAI® and its logos are registered trademarks of OpenAI®.</p>
+</section>
+
+<footer>
+  全文翻译，未删减。原文版权归 Uber Engineering / @udaykiran 及 X。本页是个人阅读译本。
+</footer>
+</main>
+
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll(".rail nav a"));
+  var sections = Array.prototype.slice.call(document.querySelectorAll("section.card, section.tldr"));
+  if (!links.length || !sections.length || !("IntersectionObserver" in window)) return;
+  var map = {};
+  links.forEach(function (a) {
+    var id = (a.getAttribute("href") || "").replace("#", "");
+    if (id) map[id] = a;
+  });
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      var id = entry.target.id;
+      links.forEach(function (a) { a.classList.remove("is-active"); });
+      if (map[id]) map[id].classList.add("is-active");
+    });
+  }, { rootMargin: "-18% 0px -64% 0px", threshold: 0.01 });
+  sections.forEach(function (s) { io.observe(s); });
+})();
+</script>
+<script src="../site.js" defer></script>
+</body>
+</html>
