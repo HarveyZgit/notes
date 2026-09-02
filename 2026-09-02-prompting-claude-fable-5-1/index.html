@@ -1,0 +1,1646 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prompting Claude Fable 5.1 · 按你看到的症状改</title>
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="icon" href="../logo.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<style>
+
+:root {
+  --paper: #F4EFE6;
+  --card: #FBF7F0;
+  --ink: #191918;
+  --muted: #6B6459;
+  --rule: #E4D9C8;
+  --accent: #C96442;
+  --accent-soft: #D97757;
+  --wash: rgba(201, 100, 66, 0.14);
+  --wash-strong: rgba(201, 100, 66, 0.22);
+  --serif: "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", "Noto Serif SC", Georgia, "Times New Roman", serif;
+  --sans: "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Noto Sans Mono CJK SC", monospace;
+  --rail: 248px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 32px; color-scheme: light; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.75;
+}
+.skip {
+  position: absolute;
+  left: 16px;
+  top: 12px;
+  z-index: 10;
+  padding: 8px 12px;
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  font-size: 13px;
+  transform: translateY(-160%);
+}
+.skip:focus,
+.skip:focus-visible { transform: none; }
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+h1, h2 { text-wrap: balance; }
+section[id], h1, h2, h3 { scroll-margin-top: 32px; }
+
+.rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--rail);
+  height: 100vh;
+  overflow-y: auto;
+  padding: 28px 22px 36px;
+  background: #F5F0E8;
+  border-right: 1px solid var(--rule);
+  z-index: 4;
+}
+.rail-home {
+  display: inline-block;
+  margin: 0 0 16px;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+.rail-home:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.rail-title {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.35;
+  margin: 0 0 18px;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.rail summary {
+  display: none;
+  list-style: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.rail summary::-webkit-details-marker { display: none; }
+.rail nav ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: toc;
+}
+.rail nav li {
+  counter-increment: toc;
+  margin: 0;
+  border-top: 1px solid var(--rule);
+}
+.rail nav li:last-child { border-bottom: 1px solid var(--rule); }
+.rail nav a {
+  display: block;
+  position: relative;
+  padding: 9px 2px 9px 2.2em;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.rail nav a::before {
+  content: counter(toc, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 9px;
+  font-family: var(--serif);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--rule);
+  font-variant-numeric: tabular-nums;
+}
+.rail nav a:hover,
+.rail nav a.is-active { color: var(--ink); }
+.rail nav a:hover::before,
+.rail nav a.is-active::before { color: var(--accent); }
+.rail nav a.is-active { font-weight: 600; }
+
+.deck {
+  width: min(760px, calc(100% - var(--rail) - 64px));
+  max-width: 760px;
+  padding: 56px 0 96px;
+  margin-right: auto;
+  margin-left: calc(var(--rail) + max(40px, (100% - var(--rail) - 760px) / 2));
+  counter-reset: slide;
+}
+header.hero { padding: 8px 0 8px; }
+h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(32px, 5vw, 46px);
+  line-height: 1.18;
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.subtitle {
+  font-family: var(--serif);
+  font-size: 22px;
+  color: var(--muted);
+  margin: 0 0 8px;
+  font-style: italic;
+}
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin: 22px 0 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.facts .fact {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+.facts dt {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.facts dd {
+  margin: 0;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.facts a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.facts a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.lead {
+  color: var(--ink);
+  margin: 28px 0 8px;
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 40px 42px 36px;
+  margin: 36px 0;
+  counter-increment: slide;
+}
+.card h2 {
+  font-family: var(--serif);
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 8px;
+  letter-spacing: -0.015em;
+}
+.card h2::after {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 1px;
+  background: var(--accent);
+  margin: 16px 0 22px;
+}
+.card h3 {
+  font-family: var(--serif);
+  font-size: 20px;
+  margin: 28px 0 10px;
+}
+.card h4 {
+  font-family: var(--serif);
+  font-size: 17px;
+  margin: 24px 0 10px;
+}
+.card a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.card a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+p { margin: 0 0 14px; }
+p:last-child { margin-bottom: 0; }
+ul, ol { margin: 0 0 14px; padding-left: 22px; }
+li { margin: 0 0 6px; }
+
+blockquote,
+blockquote.hl-quote {
+  margin: 22px 0;
+  padding: 18px 22px 18px 24px;
+  background: rgba(201, 100, 66, 0.08);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  font-family: var(--serif);
+  font-size: 21px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+blockquote p { margin: 0; }
+
+figure { margin: 22px 0 10px; }
+figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
+  border: 1px solid var(--rule);
+  background: #EFE6D8;
+}
+figcaption {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 10px;
+  line-height: 1.55;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 8px 0 16px;
+}
+table {
+  width: 100%;
+  min-width: 520px;
+  border-collapse: collapse;
+  font-size: 14.5px;
+  line-height: 1.55;
+  margin: 0;
+}
+th, td {
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: top;
+  padding: 10px 8px;
+}
+th {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  background: rgba(201, 100, 66, 0.06);
+  font-weight: 600;
+}
+th:first-child, td:first-child { padding-left: 10px; }
+
+.note {
+  font-size: 14px;
+  color: var(--ink);
+  background: rgba(201, 100, 66, 0.08);
+  border-radius: 0;
+  padding: 12px 14px;
+  margin: 16px 0 0;
+  border-left: 2px solid var(--accent);
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.92em;
+}
+p code, li code, td code, dd code, figcaption code, .key code, .vs code, .gs code, .sidebar code, .worked code {
+  font-size: 0.88em;
+  background: rgba(20, 20, 19, 0.07);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+pre {
+  display: block;
+  overflow-x: auto;
+  background: #2b2b2b;
+  color: #f8f8f2;
+  padding: 14px 16px;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.5;
+  border-radius: 2px;
+  margin: 14px 0 18px;
+  -webkit-overflow-scrolling: touch;
+}
+pre code {
+  font-size: inherit;
+  background: none;
+  color: inherit;
+  padding: 0;
+  border-radius: 0;
+}
+
+.vs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 18px 0;
+}
+.vs > div {
+  padding: 14px 16px;
+  background: #F7F2E9;
+  border: 1px solid var(--rule);
+}
+.vs small {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+.vs .ai-native { background: rgba(201, 100, 66, 0.08); border-color: rgba(201, 100, 66, 0.28); }
+
+.gs {
+  border: 1px solid var(--rule);
+  background: #F7F2E9;
+  padding: 16px 18px 6px;
+  margin: 18px 0;
+}
+.gs .k {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 0 0 12px;
+}
+.gs .kv { margin: 0 0 14px; }
+.gs .kv b {
+  display: block;
+  font-family: var(--serif);
+  font-size: 15px;
+  margin: 0 0 4px;
+}
+
+.sidebar {
+  margin: 22px 0;
+  padding: 18px 20px;
+  background: rgba(201, 100, 66, 0.08);
+  border-left: 3px solid var(--accent);
+}
+.sidebar small {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+.sidebar h3 { margin-top: 0; }
+.sidebar em { color: var(--muted); font-size: 14px; }
+
+.stage {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 18px 20px;
+  margin: 0 0 18px;
+  background: rgba(201, 100, 66, 0.10);
+  border: 1px solid rgba(201, 100, 66, 0.22);
+}
+.stage b {
+  font-family: var(--serif);
+  font-size: 28px;
+  line-height: 1;
+  color: var(--accent);
+  flex: 0 0 auto;
+}
+.stage h2 { margin: 0 0 4px; }
+.stage h2::after { display: none; }
+.stage p { margin: 0; color: var(--muted); font-size: 15px; }
+
+.key {
+  margin: 22px 0;
+  padding: 16px 18px;
+  background: #C96442;
+  color: #141413;
+  font-family: var(--serif);
+  font-size: 18px;
+  line-height: 1.5;
+}
+.key code { background: rgba(20,20,19,0.08); }
+
+.worked {
+  margin: 22px 0;
+  padding: 18px 20px;
+  border: 1px solid var(--rule);
+  background: #F7F2E9;
+}
+.worked small {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+.worked h3 { margin-top: 0; }
+.worked em { color: var(--muted); font-size: 14px; display: block; margin: 0 0 12px; }
+.buys { margin: 16px 0 0; }
+.buys p { margin: 0 0 10px; font-size: 15px; }
+
+.res { margin: 16px 0 8px; }
+.res a {
+  display: block;
+  padding: 12px 0;
+  border-top: 1px solid var(--rule);
+  text-decoration: none;
+  color: var(--ink);
+  border-bottom: none;
+}
+.res a:last-child { border-bottom: 1px solid var(--rule); }
+.res a:hover { color: var(--accent); }
+.res a small {
+  display: block;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+footer {
+  margin-top: 48px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.tldr {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  padding: 36px 42px 32px;
+  margin: 24px 0 32px;
+}
+.tldr h2 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 10px;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+.tldr-note {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 16px;
+}
+.tldr ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: tldr;
+}
+.tldr li {
+  counter-increment: tldr;
+  display: block;
+  position: relative;
+  margin: 0;
+  padding: 16px 0 16px 2.6em;
+  border-top: 1px solid var(--rule);
+  line-height: 1.65;
+}
+.tldr li:last-child { padding-bottom: 0; }
+.tldr li::before {
+  content: counter(tldr, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 16px;
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.tldr li strong {
+  font-family: var(--serif);
+  color: var(--ink);
+}
+
+@media (max-width: 980px) {
+  .rail {
+    position: relative;
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 16px 20px 14px;
+  }
+  .rail-title { display: none; }
+  .rail summary { display: block; padding: 6px 0; }
+  .rail details:not([open]) nav { display: none; }
+  .rail details[open] nav { display: block; margin-top: 8px; }
+  .rail nav ol {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 12px;
+  }
+  .rail nav li:last-child { border-bottom: none; }
+  .deck {
+    width: calc(100% - 36px);
+    max-width: none;
+    margin: 0 auto;
+    padding: 32px 0 64px;
+  }
+  .card { padding: 26px 20px 22px; margin: 22px 0; }
+  .tldr { padding: 26px 20px 22px; }
+  body { font-size: 16px; }
+  .vs { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+
+.prompt-gloss {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 16px 0 6px;
+}
+.lang-tabs { margin: 14px 0 18px; }
+.lang-tablist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 2px;
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid var(--rule);
+}
+.lang-tablist button {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.3;
+  padding: 8px 12px;
+  margin: 0 0 -1px;
+  cursor: pointer;
+  border-radius: 0;
+}
+.lang-tablist button:hover { color: var(--ink); }
+.lang-tablist button[aria-selected="true"] {
+  color: var(--ink);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+.lang-tabs .tab-panel { display: none; margin: 0; }
+.lang-tabs .tab-panel.is-on { display: block; }
+.lang-tabs .tab-panel pre { margin-top: 0; }
+.symptoms {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+}
+.symptoms li {
+  display: block;
+  position: relative;
+  margin: 0;
+  padding: 10px 0 10px 0;
+  border-top: 1px solid var(--rule);
+  line-height: 1.55;
+}
+.symptoms li:last-child { border-bottom: 1px solid var(--rule); }
+.symptoms a { display: inline; }
+
+</style>
+<link rel="stylesheet" href="../site.css">
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+<aside class="rail">
+  <a class="rail-home" href="../">全部笔记</a>
+  <p class="rail-title" translate="no">Prompting Claude Fable 5.1</p>
+  <details class="toc-wrap" open>
+    <summary>目录</summary>
+    <nav aria-label="目录">
+      <ol>
+        <li><a href="#highlights">Highlights</a></li>
+        <li><a href="#symptoms">症状索引</a></li>
+        <li><a href="#consider-all-effort-levels">考虑所有 effort 档位</a></li>
+        <li><a href="#ask-for-user-facing-progress-updates">要求面向用户的进度更新</a></li>
+        <li><a href="#batch-independent-tool-calls-in-agent-loops">智能体循环里批量独立工具调用</a></li>
+        <li><a href="#keep-the-conversation-history-append-only">对话历史只追加</a></li>
+        <li><a href="#writing-density">文风密度</a></li>
+        <li><a href="#formatting-in-chat">聊天里的格式</a></li>
+        <li><a href="#quoting-retrieved-sources">引用检索到来源</a></li>
+        <li><a href="#finish-the-whole-task">把整件任务做完</a></li>
+        <li><a href="#tell-the-model-what-to-preserve-in-compaction-summaries">压缩摘要必须保留什么</a></li>
+        <li><a href="#keep-changes-and-tests-to-what-the-task-asks-for">改动和测试只做任务要求的</a></li>
+        <li><a href="#search-triggering-at-low-effort">低 effort 下的搜索触发</a></li>
+        <li><a href="#reduce-safeguard-false-positives">减少安全分类器误拒</a></li>
+        <li><a href="#prefer-targeted-edits-over-whole-file-rewrites">优先针对性编辑</a></li>
+        <li><a href="#leave-room-for-long-outputs-at-xhigh-and-max-effort">xhigh / max 给长输出留空间</a></li>
+        <li><a href="#let-the-lead-agent-keep-working-while-subagents-run">主智能体不要干等子智能体</a></li>
+        <li><a href="#give-vision-work-tools-to-crop-and-zoom">给视觉任务裁剪和放大工具</a></li>
+      </ol>
+    </nav>
+  </details>
+</aside>
+<main class="deck" id="main">
+<header class="hero">
+  <h1 translate="no">Prompting Claude Fable 5.1</h1>
+  <p class="subtitle">按你看到的症状改提示词</p>
+  <p class="lead">Claude Fable 5 的提示词大多能直接用；剩下那几处行为差异，按症状对号入座即可。</p>
+  <dl class="facts">
+    <div class="fact"><dt>分类</dt><dd translate="no">AI</dd></div>
+    <div class="fact"><dt>来源</dt><dd>官方 · Anthropic</dd></div>
+    <div class="fact"><dt>原文</dt><dd><time datetime="2026-09-02">2026-09-02</time></dd></div>
+    <div class="fact"><dt>整理</dt><dd><time datetime="2026-09-02">2026-09-02</time></dd></div>
+    <div class="fact"><dt>原文链接</dt><dd><a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-1" translate="no">原文</a></dd></div>
+  </dl>
+</header>
+
+<section class="tldr" id="highlights">
+  <h2>先看这五句 / Highlights</h2>
+  <p class="tldr-note">译者补充，不是原文。</p>
+  <ol>
+    <li>现有 Claude Fable 5 提示词在 5.1 上通常不用改；真正要动的，是你已经观察到的那几条行为差异。</li>
+    <li><code>effort</code> 是主旋钮：默认 <code>high</code>，用自己的 evals 把 <code>low</code> / <code>medium</code> / <code>xhigh</code> / <code>max</code> 重新扫一遍，档位名在不同模型上不是同一份思考量。</li>
+    <li>对话历史只追加：assistant 回合连 <code>thinking</code> 块原样回传；改前缀会 400（<code>bound to a different conversation</code>）或丢掉推理。</li>
+    <li>智能体循环里三件事：打开进度更新、同一回合批量互不依赖的工具调用、别把「下一步」说完就收工。</li>
+    <li><code>low</code> 更爱凭记忆作答；<code>xhigh</code> / <code>max</code> 会长考；安全分类器仍可能返回 <code>stop_reason: &quot;refusal&quot;</code>。</li>
+  </ol>
+</section>
+
+<section class="card" id="symptoms">
+  <h2>症状索引</h2>
+  <p>模型能力、API 变更、定价与可用性，见<a href="https://platform.claude.com/docs/en/models/fable-5-1/whats-new-fable-5-1">Claude Fable 5.1 有什么新变化</a>。跨 Claude 模型通用的技巧，见<a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices">提示词最佳实践</a>。</p>
+  <p>你现有的 Claude Fable 5 提示词在 Claude Fable 5.1 上通常不用改也能表现很好，但有几处行为差异值得知道。从与你观察到的现象对应的章节开始：</p>
+  <ul class="symptoms">
+    <li>拿不准该跑哪档 effort，或延迟和成本高于任务所需：<a href="#consider-all-effort-levels">考虑所有 effort 档位</a></li>
+    <li>工具调用之间几乎没有文字：<a href="#ask-for-user-facing-progress-updates">要求面向用户的进度更新</a></li>
+    <li>智能体循环里每回合只调一次工具：<a href="#batch-independent-tool-calls-in-agent-loops">在智能体循环里批量独立工具调用</a></li>
+    <li>请求失败，报 <code>bound to a different conversation</code>，或你的 harness 会在请求之间改写更早的回合：<a href="#keep-the-conversation-history-append-only">对话历史只追加、不改写</a></li>
+    <li>散文又长又密：<a href="#writing-density">文风密度</a></li>
+    <li>聊天回复的结构不够用：<a href="#formatting-in-chat">聊天里的格式</a></li>
+    <li>摘要复述了原文措辞却没标成引用：<a href="#quoting-retrieved-sources">引用检索到的来源</a></li>
+    <li>回合在工作做完前就结束，或模型为你已经要求过的工作再问许可：<a href="#finish-the-whole-task">把整件任务做完</a></li>
+    <li>客户端压缩摘要丢掉了约束、决策或精确细节：<a href="#tell-the-model-what-to-preserve-in-compaction-summaries">告诉模型压缩摘要必须保留什么</a></li>
+    <li>未经请求的修复或扩展，或提交的测试文件比任务需要的多：<a href="#keep-changes-and-tests-to-what-the-task-asks-for">改动和测试只做任务要求的</a></li>
+    <li>低 effort 下凭记忆作答而不搜索：<a href="#search-triggering-at-low-effort">低 effort 下的搜索触发</a></li>
+    <li>无害的编码请求返回 <code>stop_reason: &quot;refusal&quot;</code>：<a href="#reduce-safeguard-false-positives">减少安全分类器误拒</a></li>
+    <li>为了小改动重写整个文件：<a href="#prefer-targeted-edits-over-whole-file-rewrites">优先针对性编辑，不要整文件重写</a></li>
+    <li><code>xhigh</code> 或 <code>max</code> 下的长交付很慢，或撞上 <code>max_tokens</code>：<a href="#leave-room-for-long-outputs-at-xhigh-and-max-effort">在 xhigh 和 max 给长输出留空间</a></li>
+    <li>主智能体在子智能体运行时闲着：<a href="#let-the-lead-agent-keep-working-while-subagents-run">让主智能体在子智能体运行时继续干活</a></li>
+    <li>关于图表和稠密图像的答案漏掉细节：<a href="#give-vision-work-tools-to-crop-and-zoom">给视觉任务裁剪和放大工具</a></li>
+  </ul>
+  <p>Claude Fable 5.1 会运行安全分类器，并可能返回 <code>stop_reason: &quot;refusal&quot;</code>。见<a href="https://platform.claude.com/docs/en/models/fable-5-1/whats-new-fable-5-1#refusals-fallback-and-billing">拒绝、回退与计费</a>以及<a href="#reduce-safeguard-false-positives">减少安全分类器误拒</a>。</p>
+</section>
+
+<section class="card" id="consider-all-effort-levels">
+  <h2>考虑所有 effort 档位</h2>
+  <p>从默认 effort 档位 <code>high</code> 开始，再用你自己的 evals 测其余档位（<code>low</code>、<code>medium</code>、<code>xhigh</code> 和 <code>max</code>）。在 Claude Fable 5.1 上，effort 是在智力、延迟和成本之间做取舍的主控。即便你已经在 Claude Fable 5 上扫过一遍，也要重新扫：档位名称在不同模型上并不对应同样多的思考量。</p>
+  <p>Claude Fable 5.1 相对 Claude Fable 5 的能力提升在各档位都有，在更高档位上最大。在 <code>medium</code>，结果大致赶上 Claude Fable 5，成本却更低，所以只要 evals 显示质量站得住，就降到 <code>medium</code> 或 <code>low</code>。在 <code>low</code>，Claude Fable 5.1 按每次任务成本常常能和 Claude Opus、Claude Sonnet 模型竞争，分数还更高，所以你本来会用更小模型配更高 effort 的地方，把 <code>low</code> 也放进对比。</p>
+  <p>两个与档位相关的行为有独立章节：在 <code>low</code>，Claude Fable 5.1 更少调用搜索和检索工具（见<a href="#search-triggering-at-low-effort">低 effort 下的搜索触发</a>）；在 <code>xhigh</code> 和 <code>max</code>，它可能在写出长交付之前思考更久（见<a href="#leave-room-for-long-outputs-at-xhigh-and-max-effort">在 xhigh 和 max 给长输出留空间</a>）。</p>
+</section>
+
+<section class="card" id="ask-for-user-facing-progress-updates">
+  <h2>要求面向用户的进度更新</h2>
+  <p>Claude Fable 5.1 的默认行为，是在长工具调用回合里比 Claude Fable 5 写更少面向用户的更新。effort 越高、工具链越长，这一点越明显。用户会看到智能体连续安静好几分钟，或者最后一条消息只覆盖最后一步，而不是整件任务。</p>
+  <p>首先，确认你的客户端到底有没有收到进度更新。模型在工具调用之间写下的短注——刚找到什么、接下来做什么——会作为进度更新 <code>thinking</code> 块返回；在默认的 <code>thinking.display</code> 为 <code>&quot;omitted&quot;</code> 时，这些块是空的。把 <code>display: &quot;updates&quot;</code> 打开（beta，请求头 <code>thinking-display-updates-2026-08-18</code>），并把每个非空 <code>thinking</code> 块渲染成状态行；或者设 <code>&quot;summarized&quot;</code>，连同摘要后的推理一起接收。如果你根本没请求它们，模型的更新可能只是没到达用户。</p>
+  <p>其次，检查提示词里有没有压住叙述的指令。更早的模型工作时很爱给更新，于是系统提示里会出现「把所有发现留到最终回复」这类句子。加新内容之前，先删掉这类句子。</p>
+  <p>如果你仍想要更多更新，例如结对编程或其他人在回路里的工作，加一句短的系统提示，说明你希望模型何时给出面向用户的文字、每条更新该包含什么：</p>
+  <p class="prompt-gloss">开工前说一句你要做什么；过程中给短更新；收尾给一份独立可读的复盘。提示词原文保留英文，便于直接粘贴。</p>
+<pre><code>Before you start, say in a line what you&#x27;re about to do; brief updates while you work help the user follow along. Close with a short recap that stands on its own — what you found, what you did, and what&#x27;s next — so a reader who only sees the last message has the full picture.
+</code></pre>
+  <p>如果你的产品会折叠或隐藏工具输出，告诉模型。否则它可能跑一些命令去「展示」用户其实永远看不到的输出。把这条说明放在回合级 system 消息里（<code>clear_at: &quot;next_user_message&quot;</code>，beta）：</p>
+  <p class="prompt-gloss">用户几乎看不到命令输出时，该让用户读的内容写进回复。</p>
+<pre><code>Only you see that command&#x27;s output — the user&#x27;s terminal shows at most a few lines of it. If the user needs to read any of it, put it in your reply.
+</code></pre>
+</section>
+
+<section class="card" id="batch-independent-tool-calls-in-agent-loops">
+  <h2>在智能体循环里批量独立工具调用</h2>
+  <p>Claude Fable 5.1 通常会按预期发出并行工具调用：当请求点名要取好几样东西时，它会并行发出这些调用。例外是编码和计算机使用循环——下一步的独立调用是由任务暗示的，而不是被明确点名（自定义编码智能体、bash 加编辑器 harness、computer use）：这时它可能改成每回合只发一次。这不影响答案质量，但每个多余回合都要花 token、一次往返和墙上时钟。在当前请求末尾加一句提醒就能处理：</p>
+  <p class="prompt-gloss">先私下列出下一步需要什么，再在同一轮请求所有互不依赖的项。</p>
+<pre><code>First privately list what you need next; then request every item that doesn&#x27;t depend on another&#x27;s result in this one response.
+</code></pre>
+  <p>每次把工具结果送回去时，把它追加在那条 user 消息之后，作为一条回合级 system 消息：<code>messages</code> 里一条 <code>role: &quot;system&quot;</code> 记录，带 <code>clear_at: &quot;next_user_message&quot;</code>。一旦后面出现更新的 user 消息，API 会清掉更早的副本，于是模型只读到最新的那条。回合级 system 消息处于 beta，需要 beta 请求头 <code>mid-conversation-system-clear-at-2026-08-21</code>。没有 beta 时，把这句话放在同一条 user 消息里、<code>tool_result</code> 块后面的文本块中。</p>
+  <p>每一回合都追加一份新副本，更早的副本原封不动留在原地，字节级一致。它们还在数组里，但一旦被清除，模型就看不到它们，也不消耗输入 token。删除或改写它们等于编辑更早的回合：会从那一点重启提示词缓存，并使它们之后的 thinking 块失效（见<a href="#keep-the-conversation-history-append-only">对话历史只追加、不改写</a>）。</p>
+  <p>下面的循环展示这种放置方式。每个 assistant 回合按返回原样回传，每个 user 回合只携带工具结果，后面跟一份新的回合级提醒副本。</p>
+  <div class="lang-tabs">
+<div class="lang-tablist" role="tablist" aria-label="代码语言">
+<button type="button" role="tab" id="tab-python" aria-controls="panel-python" aria-selected="true" data-lang="python" translate="no">Python</button>
+<button type="button" role="tab" id="tab-typescript" aria-controls="panel-typescript" aria-selected="false" data-lang="typescript" translate="no">TypeScript</button>
+<button type="button" role="tab" id="tab-csharp" aria-controls="panel-csharp" aria-selected="false" data-lang="csharp" translate="no">C#</button>
+<button type="button" role="tab" id="tab-go" aria-controls="panel-go" aria-selected="false" data-lang="go" translate="no">Go</button>
+<button type="button" role="tab" id="tab-java" aria-controls="panel-java" aria-selected="false" data-lang="java" translate="no">Java</button>
+<button type="button" role="tab" id="tab-php" aria-controls="panel-php" aria-selected="false" data-lang="php" translate="no">PHP</button>
+<button type="button" role="tab" id="tab-ruby" aria-controls="panel-ruby" aria-selected="false" data-lang="ruby" translate="no">Ruby</button>
+</div>
+<div class="tab-panel is-on" role="tabpanel" id="panel-python" aria-labelledby="tab-python" data-panel="python">
+<pre><code>import anthropic
+from anthropic.types.beta import (
+    BetaMessageParam,
+    BetaToolParam,
+    BetaToolResultBlockParam,
+)
+
+client = anthropic.Anthropic()
+
+BATCH_NUDGE = (
+    &quot;First privately list what you need next; then request every item &quot;
+    &quot;that doesn&#x27;t depend on another&#x27;s result in this one response.&quot;
+)
+# In-memory files stand in for a working directory so the sample runs anywhere.
+FILES = {
+    &quot;pyproject.toml&quot;: &quot;&quot;&quot;\
+[project]
+name = &quot;demo&quot;
+version = &quot;0.1.0&quot;
+description = &quot;Demo project for the batching example&quot;
+&quot;&quot;&quot;,
+    &quot;README.md&quot;: &quot;&quot;&quot;\
+# demo
+
+A small demo project. Run `demo --help` for usage.
+&quot;&quot;&quot;,
+}
+tools: list[BetaToolParam] = [
+    {
+        &quot;name&quot;: &quot;read_file&quot;,
+        &quot;description&quot;: &quot;Read a UTF-8 text file from the working directory.&quot;,
+        &quot;input_schema&quot;: {
+            &quot;type&quot;: &quot;object&quot;,
+            &quot;properties&quot;: {&quot;path&quot;: {&quot;type&quot;: &quot;string&quot;}},
+            &quot;required&quot;: [&quot;path&quot;],
+        },
+    }
+]
+messages: list[BetaMessageParam] = [
+    {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Summarize pyproject.toml and README.md.&quot;}
+]
+
+while True:
+    response = client.beta.messages.create(
+        model=&quot;claude-fable-5-1&quot;,
+        max_tokens=16000,
+        betas=[&quot;mid-conversation-system-clear-at-2026-08-21&quot;],
+        tools=tools,
+        messages=messages,
+    )
+    # Append the assistant turn exactly as returned, thinking blocks included.
+    messages.append({&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: response.content})
+    if response.stop_reason != &quot;tool_use&quot;:
+        break
+    tool_results: list[BetaToolResultBlockParam] = []
+    for block in response.content:
+        if block.type == &quot;tool_use&quot;:
+            path = str(block.input[&quot;path&quot;])
+            if path in FILES:
+                tool_results.append(
+                    {
+                        &quot;type&quot;: &quot;tool_result&quot;,
+                        &quot;tool_use_id&quot;: block.id,
+                        &quot;content&quot;: FILES[path],
+                    }
+                )
+            else:
+                tool_results.append(
+                    {
+                        &quot;type&quot;: &quot;tool_result&quot;,
+                        &quot;tool_use_id&quot;: block.id,
+                        &quot;content&quot;: f&quot;File not found: {path}&quot;,
+                        &quot;is_error&quot;: True,
+                    }
+                )
+    # Send the tool results as the user turn, then a fresh copy of the nudge as a
+    # turn-scoped system message. Leave earlier copies in place: the API clears them,
+    # so the model sees only the newest one.
+    messages.append({&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: tool_results})
+    messages.append(
+        {&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: BATCH_NUDGE, &quot;clear_at&quot;: &quot;next_user_message&quot;}
+    )
+
+print(next((block.text for block in response.content if block.type == &quot;text&quot;), &quot;&quot;))
+</code></pre>
+</div>
+<div class="tab-panel" role="tabpanel" id="panel-typescript" aria-labelledby="tab-typescript" data-panel="typescript" hidden>
+<pre><code>import Anthropic from &quot;@anthropic-ai/sdk&quot;;
+
+const client = new Anthropic();
+
+const BATCH_NUDGE =
+  &quot;First privately list what you need next; then request every item &quot; +
+  &quot;that doesn&#x27;t depend on another&#x27;s result in this one response.&quot;;
+// In-memory files stand in for a working directory so the sample runs anywhere.
+const FILES = new Map&lt;string, string&gt;([
+  [
+    &quot;pyproject.toml&quot;,
+    `[project]
+name = &quot;demo&quot;
+version = &quot;0.1.0&quot;
+description = &quot;Demo project for the batching example&quot;
+`,
+  ],
+  [
+    &quot;README.md&quot;,
+    `# demo
+
+A small demo project. Run \`demo --help\` for usage.
+`,
+  ],
+]);
+const tools: Anthropic.Beta.Messages.BetaTool[] = [
+  {
+    name: &quot;read_file&quot;,
+    description: &quot;Read a UTF-8 text file from the working directory.&quot;,
+    input_schema: {
+      type: &quot;object&quot;,
+      properties: { path: { type: &quot;string&quot; } },
+      required: [&quot;path&quot;],
+    },
+  },
+];
+const messages: Anthropic.Beta.Messages.BetaMessageParam[] = [
+  { role: &quot;user&quot;, content: &quot;Summarize pyproject.toml and README.md.&quot; },
+];
+
+let response: Anthropic.Beta.Messages.BetaMessage;
+while (true) {
+  response = await client.beta.messages.create({
+    model: &quot;claude-fable-5-1&quot;,
+    max_tokens: 16000,
+    betas: [&quot;mid-conversation-system-clear-at-2026-08-21&quot;],
+    tools,
+    messages,
+  });
+  // Append the assistant turn exactly as returned, thinking blocks included.
+  messages.push({ role: &quot;assistant&quot;, content: response.content });
+  if (response.stop_reason !== &quot;tool_use&quot;) {
+    break;
+  }
+  const toolResults: Anthropic.Beta.Messages.BetaToolResultBlockParam[] = [];
+  for (const block of response.content) {
+    if (block.type !== &quot;tool_use&quot;) {
+      continue;
+    }
+    const { input } = block;
+    const path =
+      typeof input === &quot;object&quot; &amp;&amp;
+      input !== null &amp;&amp;
+      &quot;path&quot; in input &amp;&amp;
+      typeof input.path === &quot;string&quot;
+        ? input.path
+        : &quot;&quot;;
+    const text = FILES.get(path);
+    if (text === undefined) {
+      toolResults.push({
+        type: &quot;tool_result&quot;,
+        tool_use_id: block.id,
+        content: `File not found: ${path}`,
+        is_error: true,
+      });
+      continue;
+    }
+    toolResults.push({
+      type: &quot;tool_result&quot;,
+      tool_use_id: block.id,
+      content: text,
+    });
+  }
+  // Send the tool results as the user turn, then a fresh copy of the nudge as a
+  // turn-scoped system message. Leave earlier copies in place: the API clears them,
+  // so the model sees only the newest one.
+  messages.push({ role: &quot;user&quot;, content: toolResults });
+  messages.push({
+    role: &quot;system&quot;,
+    content: BATCH_NUDGE,
+    clear_at: &quot;next_user_message&quot;,
+  });
+}
+
+const finalText = response.content.find((block) =&gt; block.type === &quot;text&quot;);
+console.log(finalText?.text);
+</code></pre>
+</div>
+<div class="tab-panel" role="tabpanel" id="panel-csharp" aria-labelledby="tab-csharp" data-panel="csharp" hidden>
+<pre><code>using System.Text.Json;
+using Anthropic;
+using Anthropic.Models.Beta.Messages;
+
+AnthropicClient client = new();
+
+const string BatchNudge =
+    &quot;First privately list what you need next; then request every item &quot;
+    + &quot;that doesn&#x27;t depend on another&#x27;s result in this one response.&quot;;
+
+// In-memory files stand in for a working directory so the sample runs anywhere.
+Dictionary&lt;string, string&gt; files = new()
+{
+    [&quot;pyproject.toml&quot;] = &quot;&quot;&quot;
+        [project]
+        name = &quot;demo&quot;
+        version = &quot;0.1.0&quot;
+        description = &quot;Demo project for the batching example&quot;
+        &quot;&quot;&quot;,
+    [&quot;README.md&quot;] = &quot;&quot;&quot;
+        # demo
+
+        A small demo project. Run `demo --help` for usage.
+        &quot;&quot;&quot;,
+};
+
+List&lt;BetaToolUnion&gt; tools =
+[
+    new BetaTool
+    {
+        Name = &quot;read_file&quot;,
+        Description = &quot;Read a UTF-8 text file from the working directory.&quot;,
+        InputSchema = new InputSchema
+        {
+            Properties = new Dictionary&lt;string, JsonElement&gt;
+            {
+                [&quot;path&quot;] = JsonSerializer.SerializeToElement(new { type = &quot;string&quot; }),
+            },
+            Required = [&quot;path&quot;],
+        },
+    },
+];
+
+List&lt;BetaMessageParam&gt; messages =
+[
+    new() { Role = Role.User, Content = &quot;Summarize pyproject.toml and README.md.&quot; },
+];
+
+BetaMessage response;
+while (true)
+{
+    response = await client.Beta.Messages.Create(new MessageCreateParams
+    {
+        Model = &quot;claude-fable-5-1&quot;,
+        MaxTokens = 16000,
+        Betas = [&quot;mid-conversation-system-clear-at-2026-08-21&quot;],
+        Tools = tools,
+        Messages = messages,
+    });
+    // Append the assistant turn exactly as returned, thinking blocks included.
+    messages.Add(new()
+    {
+        Role = Role.Assistant,
+        Content = response.Content.Select(block =&gt; new BetaContentBlockParam(block.Json)).ToList(),
+    });
+    if (response.StopReason != BetaStopReason.ToolUse)
+    {
+        break;
+    }
+    List&lt;BetaContentBlockParam&gt; toolResults = [];
+    foreach (var block in response.Content)
+    {
+        if (block.TryPickToolUse(out var toolUse))
+        {
+            var path = toolUse.Input[&quot;path&quot;].GetString()!;
+            if (files.TryGetValue(path, out var fileText))
+            {
+                toolResults.Add(new BetaToolResultBlockParam { ToolUseID = toolUse.ID, Content = fileText });
+            }
+            else
+            {
+                toolResults.Add(new BetaToolResultBlockParam
+                {
+                    ToolUseID = toolUse.ID,
+                    Content = $&quot;File not found: {path}&quot;,
+                    IsError = true,
+                });
+            }
+        }
+    }
+    // Send the tool results as the user turn, then a fresh copy of the nudge as a
+    // turn-scoped system message. Leave earlier copies in place: the API clears them,
+    // so the model sees only the newest one.
+    messages.Add(new() { Role = Role.User, Content = toolResults });
+    messages.Add(new()
+    {
+        Role = Role.System,
+        Content = BatchNudge,
+        ClearAt = ClearAt.NextUserMessage,
+    });
+}
+
+foreach (var block in response.Content)
+{
+    if (block.TryPickText(out var text))
+    {
+        Console.WriteLine(text.Text);
+        break;
+    }
+}
+</code></pre>
+</div>
+<div class="tab-panel" role="tabpanel" id="panel-go" aria-labelledby="tab-go" data-panel="go" hidden>
+<pre><code>package main
+
+import (
+	&quot;context&quot;
+	&quot;encoding/json&quot;
+	&quot;fmt&quot;
+	&quot;log&quot;
+
+	&quot;github.com/anthropics/anthropic-sdk-go&quot;
+)
+
+const batchNudge = &quot;First privately list what you need next; then request every item &quot; +
+	&quot;that doesn&#x27;t depend on another&#x27;s result in this one response.&quot;
+
+// In-memory files stand in for a working directory so the sample runs anywhere.
+var files = map[string]string{
+	&quot;pyproject.toml&quot;: `[project]
+name = &quot;demo&quot;
+version = &quot;0.1.0&quot;
+description = &quot;Demo project for the batching example&quot;
+`,
+	&quot;README.md&quot;: `# demo
+
+A small demo project. Run &quot;demo --help&quot; for usage.
+`,
+}
+
+func main() {
+	client := anthropic.NewClient()
+	ctx := context.Background()
+
+	tools := []anthropic.BetaToolUnionParam{
+		{OfTool: &amp;anthropic.BetaToolParam{
+			Name:        &quot;read_file&quot;,
+			Description: anthropic.String(&quot;Read a UTF-8 text file from the working directory.&quot;),
+			InputSchema: anthropic.BetaToolInputSchemaParam{
+				Properties: map[string]any{
+					&quot;path&quot;: map[string]any{&quot;type&quot;: &quot;string&quot;},
+				},
+				Required: []string{&quot;path&quot;},
+			},
+		}},
+	}
+	messages := []anthropic.BetaMessageParam{
+		anthropic.NewBetaUserMessage(anthropic.NewBetaTextBlock(&quot;Summarize pyproject.toml and README.md.&quot;)),
+	}
+
+	var response *anthropic.BetaMessage
+	for {
+		var err error
+		response, err = client.Beta.Messages.New(ctx, anthropic.BetaMessageNewParams{
+			Model:     &quot;claude-fable-5-1&quot;,
+			MaxTokens: 16000,
+			Betas:     []anthropic.AnthropicBeta{&quot;mid-conversation-system-clear-at-2026-08-21&quot;},
+			Tools:     tools,
+			Messages:  messages,
+		})
+		if err != nil {
+			log.Fatal(err)
+		}
+		// Append the assistant turn exactly as returned, thinking blocks included.
+		messages = append(messages, response.ToParam())
+		if response.StopReason != anthropic.BetaStopReasonToolUse {
+			break
+		}
+		var toolResults []anthropic.BetaContentBlockParamUnion
+		for _, block := range response.Content {
+			toolUse, ok := block.AsAny().(anthropic.BetaToolUseBlock)
+			if !ok {
+				continue
+			}
+			var input struct {
+				Path string `json:&quot;path&quot;`
+			}
+			if err := json.Unmarshal([]byte(toolUse.JSON.Input.Raw()), &amp;input); err != nil {
+				log.Fatal(err)
+			}
+			text, found := files[input.Path]
+			if !found {
+				text = &quot;File not found: &quot; + input.Path
+			}
+			toolResults = append(toolResults, anthropic.NewBetaToolResultBlock(toolUse.ID, text, !found))
+		}
+		// Send the tool results as the user turn, then a fresh copy of the nudge as a
+		// turn-scoped system message. Leave earlier copies in place: the API clears them,
+		// so the model sees only the newest one.
+		messages = append(messages, anthropic.NewBetaUserMessage(toolResults...))
+		messages = append(messages, anthropic.BetaMessageParam{
+			Role:    anthropic.BetaMessageParamRoleSystem,
+			Content: []anthropic.BetaContentBlockParamUnion{anthropic.NewBetaTextBlock(batchNudge)},
+			ClearAt: anthropic.BetaMessageParamClearAtNextUserMessage,
+		})
+	}
+
+	for _, block := range response.Content {
+		if textBlock, ok := block.AsAny().(anthropic.BetaTextBlock); ok {
+			fmt.Println(textBlock.Text)
+			break
+		}
+	}
+}
+</code></pre>
+</div>
+<div class="tab-panel" role="tabpanel" id="panel-java" aria-labelledby="tab-java" data-panel="java" hidden>
+<pre><code>import com.anthropic.client.AnthropicClient;
+import com.anthropic.client.okhttp.AnthropicOkHttpClient;
+import com.anthropic.core.JsonValue;
+import com.anthropic.models.beta.messages.BetaContentBlockParam;
+import com.anthropic.models.beta.messages.BetaMessage;
+import com.anthropic.models.beta.messages.BetaMessageParam;
+import com.anthropic.models.beta.messages.BetaStopReason;
+import com.anthropic.models.beta.messages.BetaTool;
+import com.anthropic.models.beta.messages.BetaTool.InputSchema;
+import com.anthropic.models.beta.messages.BetaToolResultBlockParam;
+import com.anthropic.models.beta.messages.BetaToolUseBlock;
+import com.anthropic.models.beta.messages.MessageCreateParams;
+
+static final String BATCH_NUDGE =
+    &quot;First privately list what you need next; then request every item &quot;
+        + &quot;that doesn&#x27;t depend on another&#x27;s result in this one response.&quot;;
+
+// In-memory files stand in for a working directory so the sample runs anywhere.
+static final Map&lt;String, String&gt; FILES = Map.of(
+    &quot;pyproject.toml&quot;, &quot;&quot;&quot;
+        [project]
+        name = &quot;demo&quot;
+        version = &quot;0.1.0&quot;
+        description = &quot;Demo project for the batching example&quot;
+        &quot;&quot;&quot;,
+    &quot;README.md&quot;, &quot;&quot;&quot;
+        # demo
+
+        A small demo project. Run `demo --help` for usage.
+        &quot;&quot;&quot;);
+
+void main() {
+    AnthropicClient client = AnthropicOkHttpClient.fromEnv();
+
+    BetaTool readFileTool = BetaTool.builder()
+        .name(&quot;read_file&quot;)
+        .description(&quot;Read a UTF-8 text file from the working directory.&quot;)
+        .inputSchema(InputSchema.builder()
+            .properties(JsonValue.from(Map.of(&quot;path&quot;, Map.of(&quot;type&quot;, &quot;string&quot;))))
+            .required(List.of(&quot;path&quot;))
+            .build())
+        .build();
+    List&lt;BetaMessageParam&gt; messages = new ArrayList&lt;&gt;();
+    messages.add(BetaMessageParam.builder()
+        .role(BetaMessageParam.Role.USER)
+        .content(&quot;Summarize pyproject.toml and README.md.&quot;)
+        .build());
+
+    BetaMessage response;
+    while (true) {
+        response = client.beta().messages().create(MessageCreateParams.builder()
+            .model(&quot;claude-fable-5-1&quot;)
+            .maxTokens(16000)
+            .addBeta(&quot;mid-conversation-system-clear-at-2026-08-21&quot;)
+            .addTool(readFileTool)
+            .messages(messages)
+            .build());
+        // Append the assistant turn exactly as returned, thinking blocks included.
+        messages.add(response.toParam());
+        boolean requestedTools = response.stopReason()
+            .map(BetaStopReason.TOOL_USE::equals)
+            .orElse(false);
+        if (!requestedTools) {
+            break;
+        }
+        List&lt;BetaToolUseBlock&gt; toolUses = response.content().stream()
+            .flatMap(block -&gt; block.toolUse().stream())
+            .toList();
+        List&lt;BetaContentBlockParam&gt; toolResults = new ArrayList&lt;&gt;();
+        for (BetaToolUseBlock toolUse : toolUses) {
+            Map&lt;String, JsonValue&gt; input =
+                (Map&lt;String, JsonValue&gt;) toolUse._input().asObject().orElseThrow();
+            String path = input.get(&quot;path&quot;).asStringOrThrow();
+            String fileText = FILES.get(path);
+            BetaToolResultBlockParam.Builder result = BetaToolResultBlockParam.builder()
+                .toolUseId(toolUse.id());
+            if (fileText != null) {
+                result.content(fileText);
+            } else {
+                result.content(&quot;File not found: &quot; + path).isError(true);
+            }
+            toolResults.add(BetaContentBlockParam.ofToolResult(result.build()));
+        }
+        // Send the tool results as the user turn, then a fresh copy of the nudge as a
+        // turn-scoped system message. Leave earlier copies in place: the API clears them,
+        // so the model sees only the newest one.
+        messages.add(BetaMessageParam.builder()
+            .role(BetaMessageParam.Role.USER)
+            .contentOfBetaContentBlockParams(toolResults)
+            .build());
+        messages.add(BetaMessageParam.builder()
+            .role(BetaMessageParam.Role.SYSTEM)
+            .content(BATCH_NUDGE)
+            .clearAt(BetaMessageParam.ClearAt.NEXT_USER_MESSAGE)
+            .build());
+    }
+
+    String finalText = response.content().stream()
+        .flatMap(block -&gt; block.text().stream())
+        .findFirst()
+        .orElseThrow()
+        .text();
+    IO.println(finalText);
+}
+</code></pre>
+</div>
+<div class="tab-panel" role="tabpanel" id="panel-php" aria-labelledby="tab-php" data-panel="php" hidden>
+<pre><code>&lt;?php
+
+use Anthropic\Beta\Messages\BetaStopReason;
+use Anthropic\Client;
+
+$client = new Client();
+
+const BATCH_NUDGE = &#x27;First privately list what you need next; then request every item &#x27;
+    . &quot;that doesn&#x27;t depend on another&#x27;s result in this one response.&quot;;
+// In-memory files stand in for a working directory so the sample runs anywhere.
+const FILES = [
+    &#x27;pyproject.toml&#x27; =&gt; &lt;&lt;&lt;&#x27;TOML&#x27;
+        [project]
+        name = &quot;demo&quot;
+        version = &quot;0.1.0&quot;
+        description = &quot;Demo project for the batching example&quot;
+        TOML,
+    &#x27;README.md&#x27; =&gt; &lt;&lt;&lt;&#x27;MD&#x27;
+        # demo
+
+        A small demo project. Run `demo --help` for usage.
+        MD,
+];
+$tools = [
+    [
+        &#x27;name&#x27; =&gt; &#x27;read_file&#x27;,
+        &#x27;description&#x27; =&gt; &#x27;Read a UTF-8 text file from the working directory.&#x27;,
+        &#x27;input_schema&#x27; =&gt; [
+            &#x27;type&#x27; =&gt; &#x27;object&#x27;,
+            &#x27;properties&#x27; =&gt; [&#x27;path&#x27; =&gt; [&#x27;type&#x27; =&gt; &#x27;string&#x27;]],
+            &#x27;required&#x27; =&gt; [&#x27;path&#x27;],
+        ],
+    ],
+];
+$messages = [
+    [&#x27;role&#x27; =&gt; &#x27;user&#x27;, &#x27;content&#x27; =&gt; &#x27;Summarize pyproject.toml and README.md.&#x27;],
+];
+
+while (true) {
+    $response = $client-&gt;beta-&gt;messages-&gt;create(
+        model: &#x27;claude-fable-5-1&#x27;,
+        maxTokens: 16000,
+        betas: [&#x27;mid-conversation-system-clear-at-2026-08-21&#x27;],
+        tools: $tools,
+        messages: $messages,
+    );
+    // Append the assistant turn exactly as returned, thinking blocks included.
+    $messages[] = [&#x27;role&#x27; =&gt; &#x27;assistant&#x27;, &#x27;content&#x27; =&gt; $response-&gt;content];
+    if ($response-&gt;stopReason !== BetaStopReason::TOOL_USE-&gt;value) {
+        break;
+    }
+    $toolResults = [];
+    foreach ($response-&gt;content as $block) {
+        if ($block-&gt;type === &#x27;tool_use&#x27;) {
+            $path = $block-&gt;input[&#x27;path&#x27;];
+            if (array_key_exists($path, FILES)) {
+                $toolResults[] = [
+                    &#x27;type&#x27; =&gt; &#x27;tool_result&#x27;,
+                    &#x27;tool_use_id&#x27; =&gt; $block-&gt;id,
+                    &#x27;content&#x27; =&gt; FILES[$path],
+                ];
+            } else {
+                $toolResults[] = [
+                    &#x27;type&#x27; =&gt; &#x27;tool_result&#x27;,
+                    &#x27;tool_use_id&#x27; =&gt; $block-&gt;id,
+                    &#x27;content&#x27; =&gt; &quot;File not found: {$path}&quot;,
+                    &#x27;is_error&#x27; =&gt; true,
+                ];
+            }
+        }
+    }
+    // Send the tool results as the user turn, then a fresh copy of the nudge as a
+    // turn-scoped system message. Leave earlier copies in place: the API clears them,
+    // so the model sees only the newest one.
+    $messages[] = [&#x27;role&#x27; =&gt; &#x27;user&#x27;, &#x27;content&#x27; =&gt; $toolResults];
+    $messages[] = [
+        &#x27;role&#x27; =&gt; &#x27;system&#x27;,
+        &#x27;content&#x27; =&gt; BATCH_NUDGE,
+        &#x27;clear_at&#x27; =&gt; &#x27;next_user_message&#x27;,
+    ];
+}
+
+$textBlock = array_find($response-&gt;content, fn ($block) =&gt; $block-&gt;type === &#x27;text&#x27;);
+echo $textBlock-&gt;text, PHP_EOL;
+</code></pre>
+</div>
+<div class="tab-panel" role="tabpanel" id="panel-ruby" aria-labelledby="tab-ruby" data-panel="ruby" hidden>
+<pre><code>require &quot;anthropic&quot;
+
+client = Anthropic::Client.new
+
+BATCH_NUDGE =
+  &quot;First privately list what you need next; then request every item &quot; \
+  &quot;that doesn&#x27;t depend on another&#x27;s result in this one response.&quot;
+# In-memory files stand in for a working directory so the sample runs anywhere.
+FILES = {
+  &quot;pyproject.toml&quot; =&gt; &lt;&lt;~TOML,
+    [project]
+    name = &quot;demo&quot;
+    version = &quot;0.1.0&quot;
+    description = &quot;Demo project for the batching example&quot;
+  TOML
+  &quot;README.md&quot; =&gt; &lt;&lt;~MD
+    # demo
+
+    A small demo project. Run `demo --help` for usage.
+  MD
+}
+tools = [
+  {
+    name: &quot;read_file&quot;,
+    description: &quot;Read a UTF-8 text file from the working directory.&quot;,
+    input_schema: {
+      type: &quot;object&quot;,
+      properties: {path: {type: &quot;string&quot;}},
+      required: [&quot;path&quot;]
+    }
+  }
+]
+messages = [{role: &quot;user&quot;, content: &quot;Summarize pyproject.toml and README.md.&quot;}]
+
+response = nil
+loop do
+  response = client.beta.messages.create(
+    model: &quot;claude-fable-5-1&quot;,
+    max_tokens: 16000,
+    betas: [&quot;mid-conversation-system-clear-at-2026-08-21&quot;],
+    tools: tools,
+    messages: messages
+  )
+  # Append the assistant turn exactly as returned, thinking blocks included.
+  messages &lt;&lt; {role: &quot;assistant&quot;, content: response.content}
+  break unless response.stop_reason == :tool_use
+
+  tool_results = response.content.filter_map do |block|
+    next unless block.type == :tool_use
+
+    path = block.input[:path]
+    if FILES.key?(path)
+      {type: &quot;tool_result&quot;, tool_use_id: block.id, content: FILES[path]}
+    else
+      {
+        type: &quot;tool_result&quot;,
+        tool_use_id: block.id,
+        content: &quot;File not found: #{path}&quot;,
+        is_error: true
+      }
+    end
+  end
+  # Send the tool results as the user turn, then a fresh copy of the nudge as a
+  # turn-scoped system message. Leave earlier copies in place: the API clears them,
+  # so the model sees only the newest one.
+  messages &lt;&lt; {role: &quot;user&quot;, content: tool_results}
+  messages &lt;&lt; {role: &quot;system&quot;, content: BATCH_NUDGE, clear_at: &quot;next_user_message&quot;}
+end
+
+puts response.content.find { it.type == :text }&amp;.text
+</code></pre>
+</div>
+</div>
+</section>
+
+<section class="card" id="keep-the-conversation-history-append-only">
+  <h2>对话历史只追加、不改写</h2>
+  <p>把每个 assistant 回合按 API 返回的原样追加进历史，包括 thinking 块，并且不要在请求之间编辑更早的回合。对 2026 年 8 月 31 日及之后创建的新账户，Claude Fable 5.1 的 thinking 块只在产生它们的那次精确对话里有效：如果重放某个 thinking 块时，它前面的前缀（系统提示、工具列表，或任何更早的消息）已经变了，请求会返回 400；或者，若你设置 <code>thinking.block_binding.prefix_mismatch_behavior: &quot;drop_block&quot;</code>（beta，请求头 <code>thinking-binding-controls-2026-08-01</code>），受影响的块会被丢掉。未来模型预计会对所有账户执行这项检查，所以即便你今天还没被强制，现在就养成这个模式。</p>
+  <p>会触发这项检查的历史编辑，也正是会重启提示词缓存的那些：注入再删掉每回合提醒、就地摘要更早的回合，或在会话中途改写系统提示。把每回合提醒做成回合级 system 消息；用一条会话中途的 system 消息来改指令或工具，而不是重写 <code>system</code> 或 <code>tools</code>；修剪交给服务端压缩或上下文编辑。若你在客户端压缩，最简单的形状是：用一条摘要消息加上新的 user 回合替换整段历史，其它什么都不重放——没有 thinking 块被带过去，所以不会失败，模型会在压缩后的对话上重新思考（见<a href="https://platform.claude.com/docs/en/build-with-claude/preserved-thinking#custom-compaction-on-the-client">客户端自定义压缩</a>）。因为缓存读取现在更便宜（见<a href="https://platform.claude.com/docs/en/models/fable-5-1/whats-new-fable-5-1#pricing">定价</a>），为省钱而过早压缩，在 Claude Fable 5.1 上可能不再是正确的成本—智力权衡，所以试试更晚的压缩点。</p>
+  <p>要找出 harness 已经在做的编辑，用 <code>prefix_mismatch_behavior: &quot;drop_block&quot;</code> 跑一次会话并记录 <code>input_transformations</code>，做法见<a href="https://platform.claude.com/docs/en/build-with-claude/preserved-thinking#how-to-tell-whether-your-integration-is-impacted">如何判断你的集成是否受影响</a>；或者抓取它在几个正常回合里发出的精确请求，确认连续请求在追加的回合之前是字节级相同的。</p>
+</section>
+
+<section class="card" id="writing-density">
+  <h2>文风密度</h2>
+  <p>Claude Fable 5.1 的写作整体比更早的 Claude 模型高一档，套话更少，没解释的行话也更少。但有些情况下，它的散文比 Claude Fable 5 更密：句子更长，段落间断更少。一条定义反面模式——做作文风——的指令会有帮助。加到 user 消息里（首选）或系统提示里：</p>
+  <p class="prompt-gloss">定义「做作文风」：用隐喻和修辞代替直说，并要求有字面说法就用字面说法。</p>
+<pre><code>Mannered prose substitutes metaphor and flourish for direct statement. Instead of &quot;a parameter worth varying,&quot; the mannered writer produces &quot;a dial worth turning.&quot; Instead of &quot;this point still matters,&quot; they write &quot;this point earns its keep.&quot; The phrases exist to display the writer, not to convey the idea, and readers can tell. That is why mannered prose irritates: it makes the reader work harder so the writer can perform. It is also imprecise. Metaphors drag in connotations the writer did not choose and cannot control. The fix is to say what you mean. When a literal phrase is available, use it.
+</code></pre>
+  <p>短版本往往也够用：</p>
+  <p class="prompt-gloss">短指令：去掉所有做作文风。</p>
+<pre><code>Please remove all mannered prose.
+</code></pre>
+</section>
+
+<section class="card" id="formatting-in-chat">
+  <h2>聊天里的格式</h2>
+  <p>更早的模型在聊天里过度使用项目符号和加粗，许多提示词带着反格式规则来压住这一点。Claude Fable 5.1 走另一边：更少用加粗，也更少主动上标题、列表或引号。如果你的提示词里有反格式语言，删掉它，或换成一条说明何时适合用特定格式的规则，例如：</p>
+  <p class="prompt-gloss">内容够复杂或被明确要求时才用列表；对方要求最少格式时保持纯散文。</p>
+<pre><code>Use lists and bullet points when asked to, or when the content is multifaceted enough that they help with clarity. If the person explicitly requests minimal formatting, always format your responses without bullet points, headers, lists, or bold emphasis, as requested. In conversational, personal, or emotional exchanges, keep to plain prose.
+</code></pre>
+</section>
+
+<section class="card" id="quoting-retrieved-sources">
+  <h2>引用检索到的来源</h2>
+  <p>在摘要文档时，Claude Fable 5.1 比 Claude Fable 5 更可能复述源文本段落，却不把它们标成引用。要处理这一点，在系统提示里加一个完整的正确回复示例：用户请求、回复，以及一句解释为何正确的话。</p>
+  <p class="prompt-gloss">正确摘要示例：按两家媒体的异同组织，转述为主，只保留一句标明出处的原话。把两条 [web_search: …] 换成你自己的工具名。</p>
+<pre><code>&lt;example&gt;
+&lt;user&gt;look up how the Riverton Ledger and the Coast Dispatch each covered the Harbor Bridge closure and compare their reporting&lt;/user&gt;
+&lt;response&gt;
+[web_search: Harbor Bridge closure Riverton Ledger]
+[web_search: Harbor Bridge closure Coast Dispatch]
+Both outlets agree on the basics: the bridge closed on March 3 after inspectors found cracked welds, and the state expects repairs to take about eight months. Where they differ is emphasis. The Ledger treats it as a local-economy story. The Dispatch frames it as a funding failure; its editorial calls the closure &quot;entirely foreseeable.&quot; Read together, the Ledger explains who is affected now and the Dispatch explains how it came to this — neither account alone gives the whole picture.
+&lt;/response&gt;
+&lt;rationale&gt;CORRECT: The response is organized around where the two outlets agree and differ, not as a walk through either article. Each outlet&#x27;s reporting is conveyed in one or two sentences of the assistant&#x27;s own indirect speech. One short marked phrase from one source; every other claim is reworded. The response is still specific and complete.&lt;/rationale&gt;
+&lt;/example&gt;
+</code></pre>
+  <p>把两条 <code>[web_search: ...]</code> 换成你自己的工具名，好让模型把它们读成模板化的工具输出，而不是要原样吐出的字面文本。</p>
+</section>
+
+<section class="card" id="finish-the-whole-task">
+  <h2>把整件任务做完</h2>
+  <p>Claude Fable 5.1 能在方法论上几乎不需要指导的情况下执行非常长的任务，尤其当目标清楚时。但在复杂的异步工作负载上，要提醒它不要在工作做完前结束回合。没有这句提醒，模型有时会描述下一步要做什么而不是去做（「Next, I'll …」），或停下来为原始请求已经覆盖的步骤征求许可（「Shall I apply this?」）。用户只好回复「continue」或「go ahead」，这适合结对编程和其他人在回路里的工作，但没有用上模型完整的长程能力。</p>
+  <p>两条系统提示加在一起可以缓解。两条都用。若必须限制提示长度，只用第一条，它保留了大部分效果。第一条告诉模型：不要为已经要求过的工作再发问，并执行它已经说出口的下一步：</p>
+  <p class="prompt-gloss">自主执行：用户不在实时盯着；可逆且属于原请求的动作直接做；最后一段如果还是计划或「我会…」，现在就用工具做完。</p>
+<pre><code>You are operating autonomously. The user is not watching in real time and cannot answer questions mid-task, so asking &#x27;Want me to…?&#x27; or &#x27;Shall I…?&#x27; will block the work. For reversible actions that follow from the original request, proceed without asking. Stop only for destructive actions or genuine scope changes the user must decide. Offering follow-ups after the task is done is fine; asking permission before doing the work is not.
+
+Exception: when the user is describing a problem, asking a question, or thinking out loud rather than requesting a change, the deliverable is your assessment. Report your findings and stop. Don&#x27;t apply a fix until they ask for one.
+
+Before ending your turn, check your last paragraph. If it is a plan, an analysis, a question, a list of next steps, or a promise about work you have not done (&#x27;I&#x27;ll…&#x27;, &#x27;let me know when…&#x27;), do that work now with tool calls. That includes retrying after errors and gathering missing information yourself. Do not stop because the context or session is long. End your turn only when the task is complete or you are blocked on input only the user can provide.
+
+Before running a command that changes system state (such as restarts, deletes, or config edits), check that the evidence actually supports that specific action. A signal that pattern-matches to a known failure may have a different cause.
+</code></pre>
+  <p>开场那句——告诉模型用户并不在看——承担了大部分效果。按原文保留。如果你的产品需要模型为特定确认停下来，在这句后面加一句，把它们列出来。这段也可能让模型更少为含糊请求发问，所以在你自己的任务上核对这一权衡。</p>
+  <p>第二条把用户的请求定义为交付范围：</p>
+  <p class="prompt-gloss">用户请求（或他们批准的计划）就是范围，范围就是交付物：不要悄悄缩小、扩大或替换。</p>
+<pre><code># Delivering work
+The user&#x27;s request — or the plan they approved — sets the scope, and the scope is the deliverable: don&#x27;t quietly narrow, widen, or swap it. Read ambiguity the way a careful colleague would: make routine judgment calls yourself, and check in only when different readings would lead to materially different work. If you see a real problem with the task as specified, say so in a sentence or two and keep building under stated assumptions; if the user hears the concern and reaffirms, that is their decision, so deliver the full request.
+
+If a question comes up partway, first do everything that doesn&#x27;t depend on the answer; then state the assumption you made, or — when going ahead on a wrong guess would be unsafe or would make the work useless — put the question at the end of a turn that also delivers that progress. If one part turns out to be blocked, complete every other part in full and say exactly what you left out and why — the whole task is the deliverable, and scaling it down is the user&#x27;s call, not yours. A step you have decided on is something to run, not to announce: describing the next step and ending the turn leaves it undone until the user replies.
+
+Keep changes to what the request needs. Something else you notice worth doing — cleanup or documentation the task didn&#x27;t call for, a change to a file the task didn&#x27;t require — is a suggestion to make at the end, not a change to make; actions clearly beyond what the ask implies, and risky or destructive ones, still need the user&#x27;s go-ahead.
+</code></pre>
+</section>
+
+<section class="card" id="tell-the-model-what-to-preserve-in-compaction-summaries">
+  <h2>告诉模型压缩摘要必须保留什么</h2>
+  <p>当一段长对话被压缩时，明确告诉 Claude Fable 5.1 摘要必须保留什么，它会反应很好。服务端压缩已经在做这件事。若你在客户端压缩，用下面这条摘要指令：</p>
+  <p class="prompt-gloss">摘要须原样保留约束、决定、难复原的细节和未决事项；用户原话靠近原文，模型自己的解释可以压得更短。</p>
+<pre><code>Summarize the transcript inside &lt;summary&gt;&lt;/summary&gt; tags. Include relevant information in the summary such that this conversation will be continued by a new context window without needing to redo work or be reprovided with relevant constraints or context. Be sure to preserve: (1) any difficulties or problems that came up, and how they were handled or resolved; (2) any possibilities, options, or approaches that were raised, tried, or set aside, and why; (3) anything that was asked for, decided, agreed, ruled out, or established as a preference, constraint, or boundary — stated exactly; (4) exactly where things stand now — what has been covered, settled, or completed so far; (5) anything still open, unresolved, promised, or expected to happen next; (6) specific details that would be hard to reconstruct — names, numbers, dates, exact wording, links or references — kept exactly. Be complete on these even at the cost of length; keep everything else concise. Weight the two voices differently: keep what the user said, asked for, shared, or established carefully and close to their own words; your own explanations and reasoning can be condensed much further, to what they concluded or produced — as long as nothing in the six items above is dropped.
+</code></pre>
+</section>
+
+<section class="card" id="keep-changes-and-tests-to-what-the-task-asks-for">
+  <h2>改动和测试只做任务要求的</h2>
+  <p>当被要求实现一个开放式功能时，Claude Fable 5.1 会交付被要求的东西，有时还会多做：它可能修附近的代码、扩展任务没提到的行为，或提交比这次改动所值更多的测试文件。关于什么不要做的明确指令，它会反应很好。加上下面这条指令后，未经请求的添加和被提交的测试代码会大幅下降，任务成功率没有可测的变化：</p>
+  <p class="prompt-gloss">任务没点名的 bug / 优化 / 扩展不要塞进这次改动；测试只在任务要求或仓库已有同类测试时提交。</p>
+<pre><code>If, while working or testing, you find a pre-existing bug, a performance concern, or behavior the task doesn&#x27;t mention, don&#x27;t fix, optimize or extend it in this change unless the requested behavior cannot work without it; report it as a follow-up in your summary. Where the task is ambiguous, implement the reading its wording and the surrounding code most directly support, state that assumption in your summary, and don&#x27;t build for the other readings as well. Verify your work however you like; scratch scripts and quick checks need not be kept. Commit tests only where the task asks for them or this repository already keeps tests for this kind of change, sized like the neighboring test files — roughly one focused test per stated behavior — and don&#x27;t turn scratch checks into additional permanent test files. This is about extras only: implement every behavior the task asks for, completely.
+</code></pre>
+</section>
+
+<section class="card" id="search-triggering-at-low-effort">
+  <h2>低 effort 下的搜索触发</h2>
+  <p>在 <code>low</code> effort 下，Claude Fable 5.1 比 Claude Fable 5 更少调用搜索或检索工具，更常凭记忆作答。有些情况下，最简单的修复是只把受影响的回合提高 effort，而不是整段对话。见<a href="https://platform.claude.com/docs/en/build-with-claude/effort#changing-effort-mid-conversation">在对话中途更改 effort</a>。</p>
+  <p>另一些情况下，朝核实方向推一把提示词会有帮助。在系统提示里说明：认出一个名字并不等于知道它的当前状态，这类名字应按用户写下的样子去搜：</p>
+  <p class="prompt-gloss">对认不准、或处于快速变化领域的名字，先搜再答；至少一条查询带上用户原词。熟悉不是跳过搜索的理由。</p>
+<pre><code>When a query centers on a name you do not confidently recognize, or recognize from a fast-moving area like AI models and developer tools where the landscape shifts within months, the name itself is the thing to verify: search before answering, and include the name as the user wrote it in at least one query alongside any reformulations. This holds even when you have some background on it — partial background is exactly what makes an out-of-date answer sound authoritative, so familiarity is not a reason to skip the search.
+</code></pre>
+</section>
+
+<section class="card" id="reduce-safeguard-false-positives">
+  <h2>减少安全分类器误拒</h2>
+  <p>Claude Fable 5.1 的安全分类器比 Claude Fable 5 刚发布时更少误报，并且在源代码里找漏洞是允许的。误报仍会发生，被拦住的请求返回 <code>stop_reason: &quot;refusal&quot;</code>（见<a href="https://platform.claude.com/docs/en/models/fable-5-1/whats-new-fable-5-1#refusals-fallback-and-billing">拒绝、回退与计费</a>）。三种情形更容易触发：</p>
+  <ul>
+    <li>编译检查式措辞：不要问「Does this program compile without errors?」，改问「Are there any bugs in this program?」</li>
+    <li>较少人知道的编程语言：给模型关于这门语言是什么、怎么工作的上下文，例如让它能读到该语言的文档。</li>
+    <li>工具输出里的 Base64：把 base64 编码数据送进模型上下文的工具可能触发误报，建议的修复是去掉它们。</li>
+  </ul>
+</section>
+
+<section class="card" id="prefer-targeted-edits-over-whole-file-rewrites">
+  <h2>优先针对性编辑，不要整文件重写</h2>
+  <p>如果 Claude Fable 5.1 为了小改动重写整个文件，把下面这条指令追加到系统提示或第一条 user 消息。Claude Fable 5.1 比 Claude Fable 5 更常重写整个文本文件，而不是做针对性编辑。结果文件通常一样，但除非文件很短或大部分都在变，重写会消耗更多输出 token 和时间。这条指令能让 Claude Fable 5.1 在中小改动上回到与 Claude Fable 5 一致。</p>
+  <p class="prompt-gloss">在不影响最终结果的前提下，尽量外科手术式编辑，而不是重写整份文件。</p>
+<pre><code>The number of tokens used to edit files is best minimized, all else being equal. Therefore, when it will not affect the end result, try to surgically edit a file rather than rewrite the entire thing.
+</code></pre>
+</section>
+
+<section class="card" id="leave-room-for-long-outputs-at-xhigh-and-max-effort">
+  <h2>在 xhigh 和 max 给长输出留空间</h2>
+  <p>在 <code>xhigh</code>，尤其是 <code>max</code> effort 下，Claude Fable 5.1 可能在开始写回复之前思考更久。当单次请求要求一份长交付，例如完整重写一份长文档，它可能在思考里先起草大部分交付，再作为回复再写一遍，于是等待更长、输出 token 更多。最简单的做法是把这类请求跑在 <code>high</code>——推荐的起点——只在你测到质量收益的地方再升到 <code>xhigh</code> 或 <code>max</code>（见<a href="#consider-all-effort-levels">考虑所有 effort 档位</a>）。若你确实在 <code>xhigh</code> 或 <code>max</code> 上跑它们：</p>
+  <ul>
+    <li>把 <code>max_tokens</code> 设得给思考和回复都留出空间，而不只是你预期的回复长度。</li>
+    <li>把下面这条注记追加到 user 消息末尾。它会让散文和代码请求上的思考短得多。把 <code>[max_tokens]</code> 换成该请求实际的 <code>max_tokens</code> 值，例如 64,000。</li>
+  </ul>
+  <p class="prompt-gloss">思考里的起草和回复共用同一个 token 上限；长交付不要在推理里先写全文，再在回复里写第二遍。</p>
+<pre><code>Everything produced in one reply, including any reasoning or drafting it does before the reply, counts toward a single limit of about [max_tokens] tokens. If that limit is reached before the reply is finished, the person receives a cut-off response and has to start over. Composing an entire output or deliverable in full as reasoning and then again as a reply would double the length of the turn without improving the result, so don&#x27;t do that.
+
+Instead, when the person has asked for a long or effort-intensive deliverable such as a multi-section document, a large table or dataset, or a complete code file, spend extra effort on understanding the request, checking the inputs the answer depends on, settling the structure and other difficult decisions, and otherwise using the reasoning space to reason and the output space to write an output. Usually it is not needed to draft an output multiple times.
+</code></pre>
+</section>
+
+<section class="card" id="let-the-lead-agent-keep-working-while-subagents-run">
+  <h2>让主智能体在子智能体运行时继续干活</h2>
+  <p>如果你的编码智能体允许 Claude Fable 5.1 把工作委派给子智能体，不要强迫主智能体为每一个停下来等待。在编码任务上，让主智能体在子智能体运行时继续干，能在质量、token 用量和成本相近的情况下降低平均完成时间。这样设置：</p>
+  <ul>
+    <li>启动子智能体的工具立即返回。</li>
+    <li>每个子智能体的结果就绪后，再在后面的 <code>user</code> 消息里传回给主智能体。</li>
+    <li>给主智能体一个它可以在想等待结果时调用的单独工具。</li>
+  </ul>
+  <p>模型仍然经常选择等待。时间节省来自那些它转去干别的工作的运行。</p>
+</section>
+
+<section class="card" id="give-vision-work-tools-to-crop-and-zoom">
+  <h2>给视觉任务裁剪和放大工具</h2>
+  <p>Claude Fable 5.1 开箱的视觉能力更好；在稠密图表这类复杂视觉输入上，当它可以迭代地分析、裁剪并在视觉上核验所见时，才做得最好。要拿到完整收益，把模型当智能体来跑，并给它一个容器：里面放原始图像或视频，并预装基本图像处理库（例如 PIL 和 OpenCV）。如果跑容器开销太大，单是一个图像裁剪工具就能拿到大部分提升：一个返回所选区域、裁切并放大后的工具，让模型能更深入地查看特定细节，并用图像 token 扩展测试时计算。<a href="https://platform.claude.com/cookbook/multimodal-crop-tool">裁剪工具配方</a>里有一份可工作的定义。</p>
+</section>
+
+<footer>
+  全文翻译，未删减。原文版权归 Anthropic。本页是个人阅读译本。
+</footer>
+</main>
+
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll(".rail nav a"));
+  var sections = Array.prototype.slice.call(document.querySelectorAll("section.card, section.tldr"));
+  if (!links.length || !sections.length || !("IntersectionObserver" in window)) return;
+  var map = {};
+  links.forEach(function (a) {
+    var id = (a.getAttribute("href") || "").replace("#", "");
+    if (id) map[id] = a;
+  });
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      var id = entry.target.id;
+      links.forEach(function (a) { a.classList.remove("is-active"); });
+      if (map[id]) map[id].classList.add("is-active");
+    });
+  }, { rootMargin: "-18% 0px -64% 0px", threshold: 0.01 });
+  sections.forEach(function (s) { io.observe(s); });
+})();
+(function () {
+  var root = document.querySelector(".lang-tabs");
+  if (!root) return;
+  var tabs = Array.prototype.slice.call(root.querySelectorAll('[role="tab"]'));
+  var panels = Array.prototype.slice.call(root.querySelectorAll(".tab-panel"));
+  function show(lang) {
+    tabs.forEach(function (t) {
+      var on = t.getAttribute("data-lang") === lang;
+      t.setAttribute("aria-selected", on ? "true" : "false");
+    });
+    panels.forEach(function (p) {
+      var on = p.getAttribute("data-panel") === lang;
+      p.classList.toggle("is-on", on);
+      if (on) p.removeAttribute("hidden");
+      else p.setAttribute("hidden", "");
+    });
+  }
+  root.addEventListener("click", function (e) {
+    var btn = e.target.closest('[role="tab"]');
+    if (!btn) return;
+    show(btn.getAttribute("data-lang"));
+  });
+  root.addEventListener("keydown", function (e) {
+    var btn = e.target.closest('[role="tab"]');
+    if (!btn) return;
+    var i = tabs.indexOf(btn);
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+      e.preventDefault();
+      var n = tabs[(i + 1) % tabs.length];
+      n.focus();
+      show(n.getAttribute("data-lang"));
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+      e.preventDefault();
+      var p = tabs[(i - 1 + tabs.length) % tabs.length];
+      p.focus();
+      show(p.getAttribute("data-lang"));
+    }
+  });
+})();
+</script>
+<script src="../site.js" defer></script>
+</body>
+</html>
