@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grok Bot 工程实践 · Grok Bot for Engineering</title>
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="icon" href="../logo.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<style>
+:root {
+  --paper: #F4EFE6;
+  --card: #FBF7F0;
+  --ink: #191918;
+  --muted: #6B6459;
+  --rule: #E4D9C8;
+  --accent: #C96442;
+  --accent-soft: #D97757;
+  --wash: rgba(201, 100, 66, 0.14);
+  --wash-strong: rgba(201, 100, 66, 0.22);
+  --serif: "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", "Noto Serif SC", Georgia, "Times New Roman", serif;
+  --sans: "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Noto Sans Mono CJK SC", monospace;
+  --rail: 248px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 32px; color-scheme: light; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.75;
+}
+.skip {
+  position: absolute;
+  left: 16px;
+  top: 12px;
+  z-index: 10;
+  padding: 8px 12px;
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  font-size: 13px;
+  transform: translateY(-160%);
+}
+.skip:focus,
+.skip:focus-visible { transform: none; }
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+h1, h2 { text-wrap: balance; }
+section[id], h1, h2, h3 { scroll-margin-top: 32px; }
+
+.rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--rail);
+  height: 100vh;
+  overflow-y: auto;
+  padding: 28px 22px 36px;
+  background: #F5F0E8;
+  border-right: 1px solid var(--rule);
+  z-index: 4;
+}
+.rail-home {
+  display: inline-block;
+  margin: 0 0 16px;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+.rail-home:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.rail-title {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.35;
+  margin: 0 0 18px;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.rail summary {
+  display: none;
+  list-style: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.rail summary::-webkit-details-marker { display: none; }
+.rail nav ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: toc;
+}
+.rail nav li {
+  counter-increment: toc;
+  margin: 0;
+  border-top: 1px solid var(--rule);
+}
+.rail nav li:last-child { border-bottom: 1px solid var(--rule); }
+.rail nav a {
+  display: block;
+  position: relative;
+  padding: 9px 2px 9px 2.2em;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.rail nav a::before {
+  content: counter(toc, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 9px;
+  font-family: var(--serif);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--rule);
+  font-variant-numeric: tabular-nums;
+}
+.rail nav a:hover,
+.rail nav a.is-active { color: var(--ink); }
+.rail nav a:hover::before,
+.rail nav a.is-active::before { color: var(--accent); }
+.rail nav a.is-active { font-weight: 600; }
+
+.deck {
+  width: min(760px, calc(100% - var(--rail) - 64px));
+  max-width: 760px;
+  padding: 56px 0 96px;
+  margin-right: auto;
+  margin-left: calc(var(--rail) + max(40px, (100% - var(--rail) - 760px) / 2));
+  counter-reset: slide;
+}
+header.hero { padding: 8px 0 8px; }
+h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(32px, 5vw, 46px);
+  line-height: 1.18;
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.subtitle {
+  font-family: var(--serif);
+  font-size: 22px;
+  color: var(--muted);
+  margin: 0 0 8px;
+  font-style: italic;
+}
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin: 22px 0 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.facts .fact {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+.facts dt {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.facts dd {
+  margin: 0;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.facts a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.facts a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 40px 42px 36px;
+  margin: 36px 0;
+  counter-increment: slide;
+}
+.card h2 {
+  font-family: var(--serif);
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 8px;
+  letter-spacing: -0.015em;
+}
+.card h2::after {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 1px;
+  background: var(--accent);
+  margin: 16px 0 22px;
+}
+.card h3 {
+  font-family: var(--serif);
+  font-size: 20px;
+  line-height: 1.35;
+  margin: 28px 0 10px;
+  letter-spacing: -0.01em;
+}
+.card a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.card a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+p { margin: 0 0 14px; }
+p:last-child { margin-bottom: 0; }
+ul, ol { margin: 0 0 14px; padding-left: 22px; }
+li { margin: 0 0 6px; }
+
+.byline {
+  margin: 22px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+}
+.byline a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.byline a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+blockquote,
+blockquote.hl-quote {
+  margin: 22px 0;
+  padding: 18px 22px 18px 24px;
+  background: rgba(201, 100, 66, 0.08);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  font-family: var(--serif);
+  font-size: 19px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+blockquote p { margin: 0; }
+
+figure { margin: 22px 0 10px; }
+figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
+  border: 1px solid var(--rule);
+  background: #EFE6D8;
+}
+figcaption {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 10px;
+  line-height: 1.55;
+}
+figcaption a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+figcaption a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+.note {
+  font-size: 14px;
+  color: var(--ink);
+  background: rgba(201, 100, 66, 0.08);
+  border-radius: 0;
+  padding: 12px 14px;
+  margin: 16px 0 0;
+  border-left: 2px solid var(--accent);
+}
+.img-zh {
+  font-size: 14px;
+  color: var(--ink);
+  background: rgba(201, 100, 66, 0.08);
+  border-left: 2px solid var(--accent);
+  padding: 12px 14px;
+  margin: 10px 0 0;
+  line-height: 1.65;
+}
+.img-zh .label {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin: 0 0 8px;
+  font-weight: 600;
+}
+.img-zh p { margin: 0 0 8px; }
+.img-zh p:last-child { margin-bottom: 0; }
+.img-zh ul { margin: 0; padding-left: 18px; }
+.img-zh li { margin: 0 0 4px; }
+
+code {
+  font-family: var(--mono);
+  font-size: 0.92em;
+}
+p code, li code, td code, dd code, figcaption code, .note code, .img-zh code {
+  font-size: 0.88em;
+  background: rgba(20, 20, 19, 0.07);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.embed-card {
+  display: block;
+  margin: 22px 0 18px;
+  padding: 18px 20px 16px;
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+a.embed-card {
+  color: inherit;
+  border-bottom: none;
+}
+a.embed-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(201, 100, 66, 0.18);
+  color: inherit;
+}
+.embed-card .embed-kicker {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin: 0 0 8px;
+  font-weight: 600;
+}
+.embed-card .embed-title {
+  font-family: var(--serif);
+  font-size: 18px;
+  line-height: 1.35;
+  margin: 0 0 6px;
+  color: var(--ink);
+}
+.embed-card .embed-meta {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 10px;
+}
+.embed-card .embed-body {
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 0 0 10px;
+  color: var(--ink);
+}
+.embed-card .embed-orig {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 10px;
+  font-style: italic;
+  line-height: 1.55;
+}
+.embed-card .embed-link {
+  font-size: 13px;
+  color: var(--accent);
+  word-break: break-all;
+}
+.embed-card .embed-cta {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--accent);
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+
+footer {
+  margin-top: 48px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.tldr {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  padding: 36px 42px 32px;
+  margin: 24px 0 32px;
+}
+.tldr h2 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 10px;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+.tldr-note {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 16px;
+}
+.tldr ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: tldr;
+}
+.tldr li {
+  counter-increment: tldr;
+  display: block;
+  position: relative;
+  margin: 0;
+  padding: 16px 0 16px 2.6em;
+  border-top: 1px solid var(--rule);
+  line-height: 1.65;
+}
+.tldr li:last-child { padding-bottom: 0; }
+.tldr li::before {
+  content: counter(tldr, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 16px;
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.tldr li strong {
+  font-family: var(--serif);
+  color: var(--ink);
+}
+
+@media (max-width: 980px) {
+  .rail {
+    position: relative;
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 16px 20px 14px;
+  }
+  .rail-title { display: none; }
+  .rail summary { display: block; padding: 6px 0; }
+  .rail details:not([open]) nav { display: none; }
+  .rail details[open] nav { display: block; margin-top: 8px; }
+  .rail nav ol {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 12px;
+  }
+  .rail nav li:last-child { border-bottom: none; }
+  .deck {
+    width: calc(100% - 36px);
+    max-width: none;
+    margin: 0 auto;
+    padding: 32px 0 64px;
+  }
+  .card { padding: 26px 20px 22px; margin: 22px 0; }
+  .tldr { padding: 26px 20px 22px; }
+  body { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+</style>
+<link rel="stylesheet" href="../site.css">
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+<aside class="rail">
+  <a class="rail-home" href="../">全部笔记</a>
+  <p class="rail-title" translate="no">Grok Bot for Engineering</p>
+  <details class="toc-wrap" open>
+    <summary>目录</summary>
+    <nav aria-label="目录">
+      <ol>
+        <li><a href="#highlights">Highlights</a></li>
+        <li><a href="#intro">开篇</a></li>
+        <li><a href="#engineer-bots">工程 Bot 团队</a></li>
+        <li><a href="#scale">突破上下文上限</a></li>
+        <li><a href="#mini-org">迷你组织运营</a></li>
+        <li><a href="#bonus">加分玩法</a></li>
+        <li><a href="#learnings">经验与建议</a></li>
+        <li><a href="#cta">结尾与嵌入推文</a></li>
+      </ol>
+    </nav>
+  </details>
+</aside>
+<main class="deck" id="main">
+<header class="hero">
+  <h1 translate="no">Grok Bot for Engineering</h1>
+  <p class="subtitle">Grok Bot 工程实践</p>
+  <dl class="facts">
+    <div class="fact"><dt>分类</dt><dd translate="no">AI</dd></div>
+    <div class="fact"><dt>来源</dt><dd>X · <a href="https://x.com/lingxi" translate="no">@lingxi</a></dd></div>
+    <div class="fact"><dt>原文</dt><dd><time datetime="2026-08-31">2026-08-31</time></dd></div>
+    <div class="fact"><dt>整理</dt><dd><time datetime="2026-09-06">2026-09-06</time></dd></div>
+    <div class="fact"><dt>作者</dt><dd>Lingxi Li / <a href="https://x.com/lingxi" translate="no">@lingxi</a></dd></div>
+    <div class="fact"><dt>原文链接</dt><dd><a href="https://x.com/i/article/2090147220838588416" translate="no">原文</a></dd></div>
+  </dl>
+</header>
+
+<section class="tldr" id="highlights">
+  <h2>先看这五句 / Highlights</h2>
+  <p class="tldr-note">译者补充，不是原文。</p>
+  <ol>
+    <li><strong>把 Grok Bot 当高阶工程实习生</strong>：自带电脑、能管 coding agents，还会跟你的工作方式学习；人开会或睡觉时，舰队仍在推进。</li>
+    <li><strong>五名工程 bot + 一名 ops bot</strong>：Baltata / Shaoruru / Hogan / Craig / Quill 各管一域，Jenny 负责早会、复盘与入职；技能如 <code>/lingxi-design</code>、<code>/lingxi-review</code> 按需唤起。</li>
+    <li><strong>Notion 看板冲破上下文上限</strong>：每 30 分钟扫 Bugbot、CI、冲突；Ready for Review 后自动审；把握高、影响面小就自动合并。</li>
+    <li><strong>规模从 15 到 200+</strong>：人不再手搓一堆 cloud agent；完整反馈环（截图校对、语音联调、主动 unblock）让 flakiness 很少再吵到你。</li>
+    <li><strong>夜间审计 + P0 加急</strong>：凌晨清代码债；说「this is P0」就每 5 分钟盯 transcript 纠偏——但会猛烧 token，只留给真紧急。</li>
+  </ol>
+</section>
+
+<figure>
+  <img src="images/cover.jpg" alt="Grok Bot for Engineering 封面" width="4096" height="1638" fetchpriority="high">
+  <figcaption>封面保留原文设计（橙色渐变上的标题与 bot 图标，装饰性）。作者 <a href="https://x.com/lingxi" translate="no">Lingxi Li / @lingxi</a>。</figcaption>
+</figure>
+
+<p class="byline">作者：<a href="https://x.com/lingxi" translate="no">Lingxi Li / @lingxi</a> · 原文状态：<a href="https://x.com/lingxi/status/2094493172516966781" translate="no">2094493172516966781</a> · 试玩：<a href="https://x.ai/bot" translate="no">x.ai/bot</a></p>
+
+<section class="card" id="intro">
+  <h2>开篇</h2>
+  <p>我是 SpaceXAI 工程师，正在用 Grok Bot 构建 Grok Bot。</p>
+  <p>不妨把 Grok Bot 想成一位能力很强的工程实习生：自带电脑，能管理 coding agents，还会从你的工作方式里学习。它已经成了我最好的工程队友——我外出、睡觉或开会时，它仍把事情往前推。不用再给笔记本「续命」挂机，也不用在多个 agent 之间来回切上下文；留下的是达到我标准、也按我想要方式交付的结果。</p>
+  <p>作为构建 Grok Bot 的团队，我们最早拿到权限，并每天用它做自己的工作。发版速度有多快、团队生产力抬升有多猛，都挺疯的：</p>
+  <ul>
+    <li><a href="https://x.com/poteto" translate="no">@poteto</a> 过去一个月合并了 2,000+ 个 PR。</li>
+    <li><a href="https://x.com/baltaaazr" translate="no">@baltaaazr</a> 与 <a href="https://x.com/shaoruu" translate="no">@shaoruu</a> 用 Grok Bot，用四周时间搭起了 Grok Bot 的地基。</li>
+    <li>我只用 Grok Bot，用三周做出了 Grok Bot iOS v0，性能和设计完成度都不错。</li>
+    <li>现在每位队友几乎每天都在交付重大工作，而不是隔几周才出一次大活。</li>
+  </ul>
+  <p>我用 Grok Bot 建得越多，就越想把同样的超能力交到你手里。</p>
+</section>
+
+<section class="card" id="engineer-bots">
+  <h2>认识我的工程 Bot</h2>
+  <figure>
+    <img src="images/fig1.jpg" alt="EPD 分区下五个工程 bot 的会话列表" width="4096" height="3042" loading="lazy">
+    <figcaption>图 1：移动端会话列表，EPD 分区下列出五个工程 bot（Quill、Baltata、Shaoruru、Craig、Hogan），各自带彩色头像、Engineering 标签与最近状态消息。</figcaption>
+    <div class="img-zh" role="note">
+      <span class="label">图中文案 · 中文转写</span>
+      <ul>
+        <li><strong>Quill</strong>（12:35 AM）：secret project, you cannot look →「秘密项目，你不能看」</li>
+        <li><strong>Baltata</strong>（Yesterday）：#1022199 multi-account switch Ready →「#1022199 多账号切换 Ready」</li>
+        <li><strong>Shaoruru</strong>（Yesterday）：yeah slack mcp can't decode svg, and t… →「对，Slack MCP 解不了 svg，而且…」</li>
+        <li><strong>Craig</strong>（Yesterday）：held clean ~60m / 4 ticks →「保持干净约 60 分钟 / 4 个 tick」</li>
+        <li><strong>Hogan</strong>（Yesterday）：first ready: world e2e #4200 origin #102… →「首个 Ready：world e2e #4200 origin #102…」</li>
+      </ul>
+    </div>
+  </figure>
+
+  <p>我有五名工程 bot，各专精不同领域：</p>
+  <ol>
+    <li><strong>Baltata</strong> 负责 Grok Bot 移动端共享层，以及一切与 iOS 上 Grok Bot 相关的事。</li>
+    <li><strong>Shaoruru</strong> 负责 Grok Bot Desktop 客户端与 CI/CD。</li>
+    <li><strong>Hogan</strong> 负责基础设施，并调查归属不清的用户问题。</li>
+    <li><strong>Craig</strong> 负责 Android 上的 Grok Bot，正猛干把它做出来。</li>
+    <li><strong>Quill</strong> 负责 Grok Bot harness，在这块简直是传奇。</li>
+  </ol>
+  <p>它们也能跨区协作，但各自有不同的记忆系统与有限上下文。聚焦单一领域时表现最好——因为它们携带的规格与设计原则，在自己负责的域里会锐利得多。</p>
+  <p>每个 bot 都能创建 Cursor cloud agents、读 transcript、审 PR 上附带的证明（proof），并通过排队消息或打断运行来发 follow-up。这解锁了端到端的 agent 工作流。它覆盖了我以前每天在 Cursor 里做的事——那时我要在自己管的一堆 cloud agents 之间疯狂切上下文。现在我的 bot 用同样的方式替我管它们。</p>
+  <p>接到任务时（无论来自我还是 Slack），它们会拉起一个 cloud agent，并调用我的 skills，附上一份详尽提示：要做什么、期望什么 proof。它们还能按我的个性化指引智能唤起额外 skills，例如视觉工作用 <code>/lingxi-design</code>、代码质量审计用 <code>/react-native-best-practices</code>、架构判断用 <code>/lingxi-review</code>、需要带观点的产品决策时用 <code>/lingxi-product</code>。</p>
+
+  <figure>
+    <img src="images/fig2.jpg" alt="Baltata 完成任务后的 Done 卡片与 View PR / Open in Cursor" width="4096" height="2515" loading="lazy">
+    <figcaption>图 2：与 Baltata 的对话界面。任务卡显示 <code>[Fix] bubble tap must not…</code>、绿色 <strong>Done</strong>、分支 <code>cursor/e2e-reaction-gest…</code>、PR #1022266、±11 files changed +439/−17，以及 <strong>View PR</strong> / <strong>Open in Cursor</strong> 按钮；周围可见 P0 e2e 相关 steering 消息。</figcaption>
+    <div class="img-zh" role="note">
+      <span class="label">图中文案 · 中文转写</span>
+      <ul>
+        <li>标题：<code>[Fix] bubble tap must not…</code> →「[修复] 气泡点击不得…」</li>
+        <li>状态徽章：<strong>Done</strong> →「已完成」</li>
+        <li>变更统计：11 files changed +439 −17 →「11 个文件变更，+439 / −17」</li>
+        <li>按钮：View PR →「查看 PR」；Open in Cursor →「在 Cursor 中打开」</li>
+        <li>上下文消息片段：<code>p0 e2e #1022266 BK red — tests… steering</code>；后续 <code>p0 e2e #1022266 missed the 11:10</code> →「错过了 11:10…」</li>
+      </ul>
+    </div>
+  </figure>
+
+  <p>Grok Bot 也能在你自己的 worker 机器上启动 cloud agents，比如一台闲置的 Mac mini（托 Grok Bot 的福，你不必再为了 OpenClaw 在家里常年挂着一台专用机）。</p>
+  <p>如果工作流需要 VPN 或特殊机器配置，可以把那台机器设成 Cursor Cloud private worker，再让 Grok Bot 在上面跑 cloud agents。这会解锁更多可能，例如跑 iOS Simulator，并从 agents 拿回截图。</p>
+
+  <a class="embed-card" href="https://x.com/ericzakariasson/status/2037146278979629361" translate="no">
+    <p class="embed-kicker">嵌入推文 · 文章卡</p>
+    <p class="embed-title">Your Mac mini is now a Cursor agent</p>
+    <p class="embed-meta">@ericzakariasson · x.com</p>
+    <p class="embed-body">中文说明：这篇嵌入卡讲的是把 Mac mini 变成 Cursor agent 的 private worker——与上文「自有机器上跑 cloud agents」直接对应。</p>
+    <span class="embed-cta">打开原推 →</span>
+  </a>
+
+  <p>Grok Bot 能监控 cloud agent 的 transcript 与产物（例如截图），完成后通知你，把消息排进队列，或在出问题时打断。你可以用任意方式描述需求，例如「你必须核实截图里包含我要求的改动，并附上 before vs. after 证明」——Grok Bot 会一直干到目标达成。</p>
+  <p>让 Grok Bot 工程团队持续运转的关键，是给它一套完整的反馈环。Cloud agents 能截图，于是 Grok Bot 用多模态能力确认视觉改动已落地；若不达标，它会反推、要求重做。</p>
+  <p>听写（dictation）测试是这个环的好例子。我们把 SpaceXAI 的语音 API 接到 cloud agent 的系统音频 I/O。因为 agent 同时能拿到语音与 transcript，我们就能用这些信号测试产品线里的 speech-to-speech，并做更多好玩的功能。</p>
+  <p>有时 agent 碰上环境 flakiness，会卡住，直到你发一条 follow-up。Grok Bot 把这件事从你盘子里拿走：盯着这次 run，尽可能激进地帮它 unblock。我每次回头看，状态都挺好。自从用上 Grok Bot，偶发 flakiness 很少再报到我这里——例外是当 Grok Bot 自己没有足够安全权限去修的时候。</p>
+  <p>记住：现在一切都只是一条消息的距离。想让它们在交接给你之前再硬推 10 次？直接说就行。</p>
+</section>
+
+<section class="card" id="scale">
+  <h2>突破上下文上限</h2>
+  <figure>
+    <img src="images/fig3.jpg" alt="Lingxixi Fleet Work Streams Notion 看板双屏" width="4096" height="3418" loading="lazy">
+    <figcaption>图 3：两部手机并排展示 Notion 私有库 <strong>Lingxixi — Fleet Work Streams</strong>。左侧为任务名列表（归属 Baltata），右侧为 Owner / Stage / PRs 表视图。Stage 可见 Working、Watching 3/3、Watching 2/3、Ready for review 等状态，并挂着对应 PR 号。</figcaption>
+    <div class="img-zh" role="note">
+      <span class="label">图中关键标签 · 中文对照</span>
+      <ul>
+        <li>标题：Lingxixi — Fleet Work Streams →「Lingxixi — 舰队工作流」</li>
+        <li>视图筛选：Working →「开发中」</li>
+        <li>Stage：Working →「开发中」；Watching n/3 →「观察中 n/3」；Ready for review →「待评审」</li>
+        <li>Owner 列徽章均为 Baltata</li>
+        <li>示例任务名含：share as template toolbar、divider preload、CloudAgent launch repo Origin URL、EmptyState、working-indicator、Kill orphaned evidence PNGs 等（保留英文技术名）</li>
+      </ul>
+    </div>
+  </figure>
+
+  <p>为了让 bot 在超出上下文上限后仍能盯住工作，也方便我不用刷长聊天就能扫进度，我让每个工程 bot 管理一个共享 Notion 数据库。</p>
+  <p>每 30 分钟，它们会审一遍数据库，并检查每个 PR 是否出现：</p>
+  <ul>
+    <li>Bugbot 评论或安全发现，并核实是否成立；</li>
+    <li>失败的 CI；</li>
+    <li>合并冲突。</li>
+  </ul>
+  <p>一旦发现问题，它们立刻跟进我的 cloud agent 去处理，并把 Notion 行拨回「Working」。</p>
+  <p>如果一切看起来都好，它们会把任务标成「Ready for Review」，并自动拉起一轮代码评审，紧盯代码质量与可能的漏点。</p>
+  <p>若评审把握很高、影响面又小，PR 会自动合并。否则等我回来再审代码与 proof，决定合并还是给反馈。</p>
+  <p>几乎每个早上，我打开就能看到一批准备合并的任务。代码质量够我的标准，视觉落在我喜欢的区间，proof 也清楚展示测了什么。现在更多工作能一次性打穿（one-shot），我就可以把精力放在更难的问题、更高的客户端性能门槛、更多视觉打磨，以及更大的架构决策上。</p>
+  <p>有 Grok Bot 之前，我手工最多同时管大约 15 个 cloud agents。现在舰队能同时管 200 个以上，而且需要的话还能继续扩。</p>
+
+  <figure>
+    <img src="images/fig4.jpg" alt="Baltata 汇报 ring stills 已落地并附截图证明" width="4096" height="3343" loading="lazy">
+    <figcaption>图 4：Baltata 在会话里汇报进展，并叠放多张 iOS 界面截图作为 proof（角标 1/3）。背景可见更早的 conflict / working 消息。</figcaption>
+    <div class="img-zh" role="note">
+      <span class="label">图中主消息 · 全文中文</span>
+      <p><strong>原文：</strong> “#1019227 ring stills landed. opened them myself — live ios chrome. stay working, ci still running. not calling the # / +N surround done yet.”</p>
+      <p><strong>译文：</strong>「#1019227 环形静态图已落地。我自己打开看过了——是 live iOS chrome。继续 Working，CI 还在跑。# / +N surround 我还没宣布做完。」</p>
+      <p>附带截图叠层可见列表项如 Design Review、Infra On-Call、Weekly Sync、Launch Crew 等；底部橙色条：Open debugger to view warnings →「打开调试器查看警告」。</p>
+    </div>
+  </figure>
+</section>
+
+<section class="card" id="mini-org">
+  <h2>Grok Bot 运转迷你组织</h2>
+  <p>除了工程，组织里还有大量运营琐事：给新工程 bot 入职、分享正确知识、出事时做复盘（例如某个 PR 没仔细审）、以及开每日会保持对齐。</p>
+  <p>这些全是 Jenny 的活——我的运营负责人，也是团队里唯一不写代码的 bot。</p>
+  <p>每天早上 5 点，Jenny 会与团队每个 bot 一对一开会：复习 playbook、挖出阻塞，并强化我想要的 vibe。我发现这非常有效。即使过了很多周，我的 bot 也很少忘掉那些复杂工作流。</p>
+
+  <figure>
+    <img src="images/fig5.jpg" alt="Jenny 与 Shaoruru 的早晨 1:1 对话" width="4096" height="3236" loading="lazy">
+    <figcaption>图 5：Jenny（ops）与 Shaoruru（工程）的私聊。时间戳 Yesterday 5:02 AM，正对应文中「每天早上 5 点的 1:1」。</figcaption>
+    <div class="img-zh" role="note">
+      <span class="label">图中对话 · 全文中文</span>
+      <ul>
+        <li><strong>Jenny：</strong> morning shaoruru →「早上好 shaoruru」</li>
+        <li><strong>Jenny：</strong> vibe refresh: little msgs, lowercase, one answer once. no recap bubbles. →「风格刷新：短消息、小写、一次只答一次。不要复盘气泡。」</li>
+        <li><strong>Jenny：</strong> skim the playbook when you get a sec: <code>https://app.notion.com/p/399da74ef0458021a808f5f8d62e7308</code> →「有空扫一眼 playbook：」（同上链接）</li>
+        <li><strong>Jenny：</strong> what's cooking? anything stuck? →「在忙啥？有卡住的吗？」</li>
+        <li><strong>Shaoruru：</strong> morning. overnight was quiet on… →「早上好。夜里这边挺安静…」</li>
+      </ul>
+    </div>
+  </figure>
+
+  <p>当某个 bot 犯错——比如没足够 push back 去碰到真正目标——我会让它去找 Jenny 做根因分析与事后复盘。Jenny 会挖出导致问题的推理链，然后更新 playbook，并向其他工程 bot 宣布变更，避免同一错误再发生两次。</p>
+  <p>每当我需要扩编，就让 Jenny 给新成员入职。Jenny 在组织里创建新 bot，分享工程团队规则，并请 Hogan 与其余队友帮忙带教。</p>
+  <p>在 Grok Bot 里做成完整工程系统的目标，是尽量减少重复。把任务卸给 Grok Bot，好让你专注更难、更深的问题。</p>
+
+  <figure>
+    <img src="images/fig6.jpg" alt="Hogan 发送的 fleet + playboard 入职短版指引" width="4096" height="3467" loading="lazy">
+    <figcaption>图 6：Hogan 发出的入职消息「short version」——board-first、Origin-only 新 PR、proof bar，以及把 <code>/lingxi-mode</code> 写进每个 cloud agent 提示。</figcaption>
+    <div class="img-zh" role="note">
+      <span class="label">图中消息 · 全文中文</span>
+      <p><strong>Hogan：</strong> hey — lingxi 让我带你熟悉 fleet + playbook。短版如下：</p>
+      <ul>
+        <li><strong>board-first（看板优先）：</strong> 新工程任务 → 在你 dig / launch / steer 之前，先把 Fleet 行 Stage 设为 Working。没有行绝不 launch。绝不把别人 owner 的 PR 重新挂到自己的 board 上。</li>
+        <li><strong>新 PR 只用 Origin：</strong> <code>https://cursor.com/codebase/anysphere/everysphere/pull/N</code>（不要 github/）。正文用 <code>CURSOR_AGENT_PR_BODY_BEGIN/END</code> 包起来。agent done ≠ Done；Done = 已合并。lingxi 合并，我们不合并。</li>
+        <li><strong>proof bar（证明门槛）：</strong> 在 PR 正文里放真实 proof 当 alt。不许糊弄，不许光丢链接。把 <code>/lingxi-mode</code> 写进每个 cloud agent 提示。</li>
+      </ul>
+    </div>
+  </figure>
+</section>
+
+<section class="card" id="bonus">
+  <h2>Grok Bot 的加分用例</h2>
+  <p>我们把 Grok Bot 设计成模块化的，所以你能用它搭出自己的迷你工程组织。下面是我最喜欢的两个。</p>
+
+  <h3>夜间审计</h3>
+  <p>每天夜里 3 点，我的工程 bot 都醒着：打扫代码库、提升代码质量、清掉死逻辑、加快应用加载、缩小 bundle。</p>
+  <p>每天早上我都会拿到一批新 PR，让代码保持干净、少 slop、可扩展。代码维护变成了日常例行，而不再是偶尔才做一次的事。</p>
+  <p>更多夜间审计点子：</p>
+  <ul>
+    <li>安全审计：抓住团队可能在代码库里漏掉的问题。</li>
+    <li>CI/CD 构建时长审计：避免构建时间病态变长。</li>
+    <li>国际化审计：当功能只以一种语言上线时，补上缺口。</li>
+    <li>对等性（parity）审计：团队在做多端（iOS vs. desktop）时，避免功能只落到一边。</li>
+    <li>追赶审计：监控过去 24 小时里、你关心的区域内合并的 PR，交回高层摘要与一份精选待审 PR 列表。</li>
+  </ul>
+  <blockquote>
+    <p>You have six hours tonight. Build whatever you want. Have fun!</p>
+  </blockquote>
+  <p class="note">这是我最爱的那条提示。中文大意：「今晚你有六小时。想建什么就建什么。玩得开心！」</p>
+  <p>我很好奇你会在自己的夜间审计里跑什么。肯定有我想偷学的点子。</p>
+
+  <h3>P0 加急流程</h3>
+  <p>Cloud agents 有时会慢。它们要跑起来、搭环境、等待、跑测试、再迭代。而有时你需要稍微快一点。</p>
+  <p>于是我给工程 bot 建了一套 P0 加急流程。只要我说某个任务是 P0，它们就启动临时例程：每五分钟检查一次 transcript，监控进度与推理，并在 cloud agent 开始浪费时间时主动纠偏。</p>
+  <p>效果很好。当我需要紧急结果——无论是代码库调研还是关键 bug 修复——说一句「this is P0」，完成速度会快得多。</p>
+  <p>请注意：这会比你以为的更快烧掉 token，所以只留给真正紧急的情况。</p>
+</section>
+
+<section class="card" id="learnings">
+  <h2>用 Grok Bot 的经验与建议</h2>
+  <figure>
+    <img src="images/fig7.jpg" alt="向 #team-gb-mobile 下达 share as template 新任务" width="4096" height="2624" loading="lazy">
+    <figcaption>图 7：向频道 <code>#team-gb-mobile</code> 发送的新任务气泡（Today 1:27 PM），示例「只需一条消息」就能把产品需求丢给工程舰队。</figcaption>
+    <div class="img-zh" role="note">
+      <span class="label">图中主消息 · 全文中文</span>
+      <p><strong>原文：</strong> new task: 'share as template' feature in grok bot mobile is quite hidden. put a toolbar button before the more menu in the bot info page header, move it out of the menu, and also add that option to the home page long-press context menu.</p>
+      <p><strong>译文：</strong>「新任务：Grok Bot 移动端的『分享为模板』功能太藏了。请在 bot 信息页头部、更多菜单之前放一个工具栏按钮，把它挪出菜单；同时把该选项加到首页长按上下文菜单。」</p>
+      <p>输入框占位：Message #team-gb-mobile →「发消息到 #team-gb-mobile」。</p>
+    </div>
+  </figure>
+
+  <ol>
+    <li><strong>给 cloud agents 完整反馈环：</strong>重要的是让它们在没有你的情况下，仍有下一步信号。它们应能拉起开发实例并端到端驱动整栈（例如经由 Chrome DevTools、CLI 或 Apple Accessibility）。若做不到，就让它们自己跑流程、尽可能激进地自救 unblock，并把学到的东西打包装成可复用的仓库 skill。</li>
+    <li><strong>把 Grok Bot 当有才华的实习生：</strong>若你在工程任务上沟通卡壳，就把它当有才华的实习生。让它做作业，补还不熟的领域，并参考其他工程师怎么把活干完。不需要 skill 调用。不需要长提示。聊天就行。</li>
+    <li><strong>避免重复是关键：</strong>随着 AI 更强，要把重复任务交出去，专注 agent 不易解决的更深、更难问题。若你发现某件事一天做超过一次、且模式清晰，就和 bot 讨论它们能怎么帮忙。</li>
+    <li><strong>给 bot 开每日会极有效：</strong>每天重复关键点，有助于它们在同时处理许多任务时仍记住复杂工作流。因为上下文装不下一切，每日提醒是一个省掉你重复唠叨的轻推。</li>
+    <li><strong>再放手一点：</strong>类似自动驾驶，和 bot 共事是建立信任的过程。与其凡事亲自动手，不如想清楚它们何时能顺畅运转、何时可能出问题。在安全时给够自由去交付，在更高风险处更谨慎。但别因为以前失败过就禁止它们再试。继续实验，并持续思考如何帮它们成长。</li>
+    <li><strong>让它们一起编排：</strong>Bot 比你想的更能干。若想在 bot 运营上更放手，可以建一条 bot 失误复审流水线（例如由 ops bot 与各 bot 对话、分析它们的思考轨迹），避免同一错误发生两次。</li>
+  </ol>
+</section>
+
+<section class="card" id="cta">
+  <h2>准备好迎一位工程 Bot 进组织了吗？</h2>
+  <p>试试 <a href="https://x.ai/bot">Grok Bot</a>，然后给我看看它们交付了什么。</p>
+
+  <a class="embed-card" href="https://x.com/lingxi/status/2094489411245461677">
+    <p class="embed-kicker">嵌入推文 · @lingxi</p>
+    <p class="embed-title">工程 Bot 模板</p>
+    <p class="embed-meta" translate="no">@lingxi · https://x.com/lingxi/status/2094489411245461677</p>
+    <p class="embed-body">中文大意：我的工程 @bot 能管理的 cloud agents 数量，大约是我独自能扛的 20 倍。来试试！</p>
+    <p class="embed-orig" translate="no">my engineer @bot manages 20x more cloud agents than i could handle alone. try it out!</p>
+    <p class="embed-link">模板：<span translate="no">Lingxi's Engineer Bot by Lingxi</span> · <span translate="no">https://x.ai/bot/fY1xWwCLzDDGVe3GwH78j</span></p>
+    <span class="embed-cta">打开原推 →</span>
+  </a>
+
+  <a class="embed-card" href="https://x.com/lingxi/status/2094489412537327828">
+    <p class="embed-kicker">嵌入推文 · @lingxi</p>
+    <p class="embed-title">夜间审计工程师模板</p>
+    <p class="embed-meta" translate="no">@lingxi · https://x.com/lingxi/status/2094489412537327828</p>
+    <p class="embed-body">中文大意：我的夜间审计工程 @bot 会在我睡觉时把仓库打扫干净。偷走这份模板，告诉我效果如何！</p>
+    <p class="embed-orig" translate="no">my nightly audit engineer @bot keeps the repo clean while i sleep. steal the template and let me know how it works!</p>
+    <p class="embed-link">模板：<span translate="no">Nightly Audit Engineer by Lingxi</span> · <span translate="no">https://x.ai/bot/hkGSHcqKjGc5dm3ugNc2U</span></p>
+    <span class="embed-cta">打开原推 →</span>
+  </a>
+</section>
+
+<footer>
+  全文翻译，未删减。原文版权归原作者及原平台。本页是个人阅读译本。
+</footer>
+</main>
+
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll(".rail nav a"));
+  var sections = Array.prototype.slice.call(document.querySelectorAll("section.card, section.tldr"));
+  if (!links.length || !sections.length || !("IntersectionObserver" in window)) return;
+  var map = {};
+  links.forEach(function (a) {
+    var id = (a.getAttribute("href") || "").replace("#", "");
+    if (id) map[id] = a;
+  });
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      var id = entry.target.id;
+      links.forEach(function (a) { a.classList.remove("is-active"); });
+      if (map[id]) map[id].classList.add("is-active");
+    });
+  }, { rootMargin: "-18% 0px -64% 0px", threshold: 0.01 });
+  sections.forEach(function (s) { io.observe(s); });
+})();
+</script>
+<script src="../site.js" defer></script>
+</body>
+</html>
