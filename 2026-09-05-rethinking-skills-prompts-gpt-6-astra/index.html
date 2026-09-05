@@ -437,6 +437,125 @@ footer {
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
 }
+
+/* Chinese redraw of text-heavy comparison slides */
+.slide-zh {
+  margin: 22px 0 10px;
+  padding: 28px 28px 22px;
+  background: #0B0E14;
+  color: #E8EAED;
+  border-radius: 18px;
+  border: 1px solid #1c2430;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+}
+.slide-zh .slide-kicker {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin: 0 0 14px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8B93A7;
+  font-family: var(--sans);
+}
+.slide-zh .slide-kicker .num {
+  font-variant-numeric: tabular-nums;
+  font-family: var(--serif);
+  color: #A8B0C2;
+}
+.slide-zh h3.slide-title {
+  font-family: var(--serif);
+  font-size: clamp(22px, 3vw, 28px);
+  line-height: 1.25;
+  margin: 0 0 22px;
+  color: #F4F6FA;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.slide-zh .pair {
+  display: grid;
+  gap: 14px;
+}
+.slide-zh .ex {
+  position: relative;
+  padding: 18px 18px 16px;
+  border-radius: 14px;
+  background: #121722;
+  border: 1px solid #2A3344;
+}
+.slide-zh .ex.good {
+  border-color: #5B8DEF;
+  box-shadow: 0 0 0 1px rgba(91,141,239,0.25), 0 0 24px rgba(91,141,239,0.12);
+}
+.slide-zh .badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 3px 8px;
+  border-radius: 6px;
+  margin: 0 0 10px;
+  font-family: var(--sans);
+}
+.slide-zh .badge.bad {
+  background: #C96442;
+  color: #141413;
+}
+.slide-zh .badge.good {
+  background: #3A5FBF;
+  color: #F4F6FA;
+}
+.slide-zh .ex p {
+  margin: 0;
+  font-size: 15.5px;
+  line-height: 1.65;
+  color: #D7DCE6;
+}
+.slide-zh .ex code {
+  font-size: 0.9em;
+  background: rgba(255,255,255,0.08);
+  color: #EEF2FF;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+.slide-zh .slide-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 20px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid #1c2430;
+  font-size: 12px;
+  color: #7A8499;
+}
+.slide-zh + figcaption,
+figure .slide-zh + figcaption {
+  margin-top: 10px;
+}
+details.orig-fig {
+  margin: 8px 0 18px;
+  font-size: 13px;
+  color: var(--muted);
+}
+details.orig-fig summary {
+  cursor: pointer;
+  color: var(--muted);
+  list-style: none;
+}
+details.orig-fig summary::-webkit-details-marker { display: none; }
+details.orig-fig summary:hover { color: var(--ink); }
+details.orig-fig img {
+  margin-top: 10px;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid var(--rule);
+}
+@media (max-width: 980px) {
+  .slide-zh { padding: 22px 18px 18px; }
+}
 </style>
 <link rel="stylesheet" href="../site.css">
 </head>
@@ -488,7 +607,7 @@ footer {
 
 <figure>
   <img src="images/cover.jpg" alt="Rethinking skills and prompts for GPT-6 Astra 封面" width="1983" height="793" fetchpriority="high">
-  <figcaption>@pvncher《Rethinking skills and prompts for GPT-6 Astra》封面。作者 <a href="https://x.com/pvncher" translate="no">eric provencher / @pvncher</a>。</figcaption>
+  <figcaption>封面保留原文设计（装饰性标题图）。作者 <a href="https://x.com/pvncher" translate="no">eric provencher / @pvncher</a>。文内对照卡已改中文重绘。</figcaption>
 </figure>
 
 <p class="byline">作者：<a href="https://x.com/pvncher" translate="no">eric provencher / @pvncher</a> · 原文状态：<a href="https://x.com/pvncher/status/2095991462416490862" translate="no">2095991462416490862</a></p>
@@ -508,9 +627,27 @@ footer {
   <p>如果你曾让 Codex 创建 skill，它多半用过 <code>$skill-creator</code> skill。我们最近更新了它的指导，从几个方向缓解实践中常见的失败模式。</p>
   <p>第一，skill 描述应尽可能短，同时仍能说清模型何时该用它。</p>
   <figure>
-    <img src="images/fig1-skill-description.jpg" alt="Skill 描述对比：BAD 过宽 vs GOOD 收窄到迁移场景" width="1440" height="1276">
-    <figcaption>图 1：Skill 描述好坏对比。BAD 把「数据库 / 查询 / 模型 / 持久化」都写进触发条件，容易一碰库就调用；GOOD 收窄到「添加或修改迁移，或审查上线」。</figcaption>
+    <div class="slide-zh" role="img" aria-label="Skill 描述对比：坏例子过宽，好例子收窄到迁移场景">
+      <div class="slide-kicker"><span>Skill 描述</span><span class="num">01</span></div>
+      <h3 class="slide-title">说清楚它何时适用</h3>
+      <div class="pair">
+        <div class="ex bad">
+          <span class="badge bad">不好</span>
+          <p>创建并校验 Postgres schema 迁移。在处理数据库、查询、模型或持久化时使用。</p>
+        </div>
+        <div class="ex good">
+          <span class="badge good">更好</span>
+          <p>创建并校验 Postgres schema 迁移。在添加或修改迁移，或审查其上线时使用。</p>
+        </div>
+      </div>
+      <div class="slide-foot"><span translate="no">GPT-6 Astra</span><span>Skills 与提示</span></div>
+    </div>
+    <figcaption>图 1（中文重绘）：Skill 描述好坏对比。不好的例子把「数据库 / 查询 / 模型 / 持久化」都写进触发条件，容易一碰库就调用；更好的例子收窄到「添加或修改迁移，或审查上线」。</figcaption>
   </figure>
+  <details class="orig-fig">
+    <summary>查看原文英文图</summary>
+    <img src="images/fig1-skill-description.jpg" alt="Original English: Skill descriptions BAD vs GOOD" width="1440" height="1276" loading="lazy">
+  </details>
   <p>这里，坏的 skill 描述会把模型推向：只要碰到任何和数据库相关的事就用它；而好的描述只在真要处理迁移时才触发。</p>
   <p>第二，有用 skill 的一个关键标记是 progressive disclosure（渐进披露）。读一个 skill 会占用上下文，让你更接近压缩（compaction），还会引入此刻未必适用的指导。对含多种工作流的 skill，把根文档做成最小路由器，指向配套文档和脚本。给模型足够线索，让它知道该往哪看，而不是强迫它读当下无关的内容。</p>
   <p>第三，许多 skill 被写成详尽行程表或菜谱。模型现在更擅长理解细微差别和模糊性，于是过细的指导反而可能拖后腿——以前它们曾帮过忙。</p>
@@ -522,9 +659,27 @@ footer {
   <p>因为 <code>AGENTS.md</code> 会在模型于你的仓库工作时一律生效，请逐条回头看：这项任务是否仍需要这条指令。</p>
   <p>要求在每次编辑前先读一摞文档或完整仓库地图，对修 typo 来说太过分。GPT-6 Astra 能自己想清楚该读什么，不必被推着在每次改动前把整个项目翻一遍。</p>
   <figure>
-    <img src="images/fig2-agents-md.jpg" alt="AGENTS.md 对比：BAD 每次编辑前全读 vs GOOD 按任务指向文档" width="1440" height="1201">
-    <figcaption>图 2：<code>AGENTS.md</code> 上下文引导对比。BAD 要求每次编辑前都读 architecture / database / deployment；GOOD 按任务类型指向对应文档，避免无谓烧上下文、拖慢工作。</figcaption>
+    <div class="slide-zh" role="img" aria-label="AGENTS.md 对比：坏例子每次全读，好例子按任务指向文档">
+      <div class="slide-kicker"><span translate="no">AGENTS.md</span> · 上下文<span class="num">02</span></div>
+      <h3 class="slide-title">只读任务需要的内容</h3>
+      <div class="pair">
+        <div class="ex bad">
+          <span class="badge bad">不好</span>
+          <p>每次编辑前，都先读 <code>architecture.md</code>、<code>database.md</code> 和 <code>deployment.md</code>。</p>
+        </div>
+        <div class="ex good">
+          <span class="badge good">更好</span>
+          <p>看服务边界时用 <code>architecture.md</code>，改 schema 时用 <code>database.md</code>，准备部署时用 <code>deployment.md</code>。</p>
+        </div>
+      </div>
+      <div class="slide-foot"><span translate="no">GPT-6 Astra</span><span>Skills 与提示</span></div>
+    </div>
+    <figcaption>图 2（中文重绘）：<code>AGENTS.md</code> 上下文引导对比。不好的例子要求每次编辑前都读 architecture / database / deployment；更好的例子按任务类型指向对应文档，避免无谓烧上下文、拖慢工作。</figcaption>
   </figure>
+  <details class="orig-fig">
+    <summary>查看原文英文图</summary>
+    <img src="images/fig2-agents-md.jpg" alt="Original English: AGENTS.md BAD vs GOOD" width="1440" height="1201" loading="lazy">
+  </details>
   <p>逼模型在每次编辑前读文件，是烧掉上下文、拖慢工作的好办法。指向一些文档仍然有用，只要它是按情境来的。也别忘了把文档本身保持更新！</p>
   <p>以前的模型需要鼓励才会跑测试、检查自己的工作。GPT-6 Astra 自己就会做，所以同一套指令反而可能导致不必要的测试。</p>
   <p>GPT-6 Astra 很彻底，但在「任务该推到多远」上可能更犹豫。有时它需要一点推力才能继续。你可以用 <code>AGENTS.md</code> 给某个你知道安全的工作流开许可，例如本地测试套件：</p>
