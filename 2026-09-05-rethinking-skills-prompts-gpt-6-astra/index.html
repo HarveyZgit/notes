@@ -455,7 +455,7 @@ footer {
         <li><a href="#agents-md">AGENTS.md</a></li>
         <li><a href="#decision-boundaries">决策边界</a></li>
         <li><a href="#persistence">坚持做完</a></li>
-        <li><a href="#vs-fable">对照 Fable 5.1</a></li>
+        <li><a href="#vs-fable">三方对照</a></li>
       </ol>
     </nav>
   </details>
@@ -482,7 +482,7 @@ footer {
     <li>Skill 描述要尽量短、只说清何时启用；装太多 skill 会让 Codex 截断描述，还容易互相抢戏（「pick me」）。</li>
     <li>有用的 skill 靠 progressive disclosure：根文档当最小路由器，按需指向配套文档和脚本，别一次塞满上下文。</li>
     <li><code>AGENTS.md</code> 别要求每次改动前读全仓库；旧模型那套「多跑测」指令会变噪音；边界要按 Astra 更好的判断力重写，并在开工前写清完成态——Astra 更 tentative，容易早停。</li>
-    <li>文末有译者对照：本篇 vs 站内 <a href="../2026-09-02-prompting-claude-fable-5-1/">Claude Fable 5.1 提示文档</a>——一个审仓库脚手架，一个调 API/harness。</li>
+    <li>文末有译者三方对照：本篇 vs <a href="../2026-09-02-prompting-claude-fable-5-1/">Fable 5.1 提示文档</a> vs <a href="../2026-08-23-context-engineering-claude-5/">Claude 5 上下文工程</a>——仓库脚手架、API/harness、以及 Claude 侧「规则变判断 / 渐进披露」。</li>
   </ol>
 </section>
 
@@ -549,27 +549,35 @@ footer {
 </section>
 
 <section class="card" id="vs-fable">
-  <h2>对照：和 Claude Fable 5.1 提示文档差在哪</h2>
+  <h2>三方对照：Astra · Fable 5.1 · Claude 5 上下文工程</h2>
   <p class="tldr-note" style="margin-top:0">译者补充，不是原文。</p>
-  <p>站内另有全文译本：<a href="../2026-09-02-prompting-claude-fable-5-1/">Prompting Claude Fable 5.1</a>（Anthropic 官方提示工程文档）。两篇都谈「怎么让编码智能体更好用」，但旋钮、体裁和假设不同。下面按五块对照。</p>
+  <p>站内相关笔记：</p>
+  <ul>
+    <li><a href="../2026-09-02-prompting-claude-fable-5-1/">Prompting Claude Fable 5.1</a> — Anthropic 官方提示工程 / API 症状索引</li>
+    <li><a href="../2026-08-23-context-engineering-claude-5/">The new rules of context engineering for Claude 5 models</a> — Thariq（@trq212）谈 Claude 5 的上下文工程新规则</li>
+  </ul>
+  <p>三篇都谈「怎么让编码智能体更好用」，但层不同：一个审仓库脚手架（Codex / Astra），一个调 Claude API/harness（Fable），一个讲 Claude 侧上下文怎么从「规则堆」换成「判断 + 渐进披露」。下面按六块对照。</p>
 
   <h3>1. 体裁与受众</h3>
   <ul>
     <li><strong>本篇（pvncher）</strong>：Codex DX 实践短文，面向仓库里已经堆起来的 Skills、<code>AGENTS.md</code> 和任务提示——读者是在项目里「打扫脚手架」的人。</li>
     <li><strong>Fable 5.1</strong>：Anthropic 官方 API / harness 症状索引长文档——读者是按「看到的行为」对号入座改系统提示、工具循环与历史拼接的人。</li>
+    <li><strong>Claude 5 上下文工程</strong>：X 长文阅读笔记，面向 Claude Code / 自建 harness 的上下文设计——系统提示、Skills、<code>CLAUDE.md</code>、memory 怎么拼，而不是单次 prompt 怎么写。</li>
   </ul>
 
   <h3>2. 主旋钮不同</h3>
   <ul>
     <li><strong>Astra 文</strong>：减负。短 skill 描述、progressive disclosure、少脚手架、别每次全读仓库、别把旧测例指令留成噪音。</li>
     <li><strong>Fable 文</strong>：API 行为旋钮。<code>effort</code> 档位扫描、<code>thinking.display</code> 进度更新、append-only 对话历史、同回合批量独立工具调用、回合级 system（<code>clear_at</code>）等。</li>
+    <li><strong>Claude 5 上下文工程</strong>：把旧「最佳实践」翻成新默认——规则 → 判断；例子 → 接口；一次性堆齐 → 渐进披露；重复叮嘱 → 写进工具描述；手写记忆 → 自动记忆；简单 spec → 富引用。内部甚至删掉 80%+ Claude Code 系统提示仍无明显编码评测损失。</li>
   </ul>
 
   <h3>3. 重叠主题（措辞与模型假设不同）</h3>
   <ul>
-    <li><strong>别在工作做完前收工 / persistence</strong>：两边都强调把整件任务做完。Astra 更 tentative，容易第一版就回来等审，需要你写清完成态；Fable 5.1 有时会停下来问许可、或只做计划，文档教你显式要求做完。</li>
-    <li><strong>边界 / 许可</strong>：Astra 文提醒——强硬的「先问」边界可能让好判断力的模型过早停；Fable 文则在「任务已授权仍再问」时给出 persistence 类补丁。</li>
-    <li><strong>别多做任务没要求的事</strong>：Fable 有专章限制未经请求的修复/扩展与多余测试文件；Astra 文从反面说——旧模型需要的「多跑测」指令，在 Astra 上反而可能变成多余测试。</li>
+    <li><strong>渐进披露 / progressive disclosure</strong>：本篇与 Claude 5 文高度同频——skill / 验证 / review 别一次塞满窗口，根文档当路由器，需要时再展开。Fable 文较少谈仓库文件结构，更多谈回合内工具与历史。</li>
+    <li><strong>别在工作做完前收工 / persistence</strong>：Astra 更 tentative，容易第一版就回来等审，需要你写清完成态；Fable 5.1 有时会停下来问许可、或只做计划，文档教你显式要求做完。Claude 5 文侧重点不同：少用强护栏逼停，多给判断力。</li>
+    <li><strong>边界 / 许可</strong>：Astra 文提醒——强硬的「先问」边界可能让好判断力的模型过早停；Fable 文在「任务已授权仍再问」时给 persistence 补丁；Claude 5 文则说冲突指令（如「适当留文档」vs「不要加注释」）会逼模型多想一轮，该清打架而不是再叠规则。</li>
+    <li><strong>别多做 / 别过约束</strong>：Fable 有专章限制未经请求的修复与多余测试；Astra 从反面说旧「多跑测」指令会变噪音；Claude 5 文用「给判断、匹配周围代码习惯」替代「默认不写注释」类硬规则，并用 <code>/doctor</code> 给 Skills / <code>CLAUDE.md</code> 瘦身。</li>
   </ul>
 
   <h3>4. 独有内容</h3>
@@ -577,8 +585,7 @@ footer {
   <ul>
     <li>Skill 数量膨胀与描述截断；描述互相矛盾或过强「pick me」。</li>
     <li><code>$skill-creator</code> 指导更新：短描述、根文档当路由器、别写过细菜谱。</li>
-    <li><code>AGENTS.md</code> 别要求每次编辑前读全仓库文档。</li>
-    <li>旧模型测例 / 自检指令变成噪音；跨模型仓库技能可能过约束 Astra（Sol / Luna 适用 ≠ Astra 适用）。</li>
+    <li><code>AGENTS.md</code> 别要求每次编辑前读全仓库文档；跨模型仓库技能可能过约束 Astra（Sol / Luna 适用 ≠ Astra 适用）。</li>
   </ul>
   <p><strong>仅 Fable 5.1：</strong></p>
   <ul>
@@ -586,13 +593,27 @@ footer {
     <li>安全分类器 <code>refusal</code>；压缩摘要必须保留的约束/决策；优先针对性编辑、避免整文件重写。</li>
     <li>视觉任务的 crop / zoom 工具；主智能体在子智能体运行时继续干活等并行编排。</li>
   </ul>
+  <p><strong>仅 Claude 5 上下文工程：</strong></p>
+  <ul>
+    <li>明确区分 prompt vs context engineering：跨请求复用的那一层才是重点。</li>
+    <li>Then/now 对照表（规则→判断、例子→接口、堆齐→渐进披露等）；冲突指令的成本。</li>
+    <li>落地分层：system prompt 管产品身份、<code>CLAUDE.md</code> 保持轻、Skills 作按需指南、<code>@</code> 富引用；瘦身收进 <code>claude doctor</code> / <code>/doctor</code>。</li>
+  </ul>
 
-  <h3>5. 怎么一起用</h3>
+  <h3>5. Astra 文 vs Claude 5 文：同题异栈</h3>
+  <ul>
+    <li>两边都说「模型变强了，旧脚手架在帮倒忙」和「progressive disclosure」——本篇落在 Codex 的 Skills / <code>AGENTS.md</code>；Claude 5 文落在 Claude Code 的 Skills / <code>CLAUDE.md</code> / memory / artifacts。</li>
+    <li>本篇更具体到 skill 描述截断、「pick me」、完成态与 tentative 停点；Claude 5 文更系统到上下文分层与「删规则换判断」的原则。</li>
+    <li>读法：清 Codex 仓库脚手架用本篇；清 Claude 侧上下文用 Claude 5 文；两边原则可互相借鉴，文件名与工具不同。</li>
+  </ul>
+
+  <h3>6. 怎么一起用</h3>
   <ul>
     <li>用 <a href="../2026-09-02-prompting-claude-fable-5-1/">Fable 5.1 文档</a> 调 harness / API：effort、历史只追加、工具批处理、进度更新、拒绝与压缩。</li>
-    <li>用<strong>本篇</strong>审计仓库里的 Skills + <code>AGENTS.md</code>：砍长描述、拆路由器、按情境指向文档、重写边界与完成态，别把旧模型脚手架原样留给 Astra。</li>
+    <li>用 <a href="../2026-08-23-context-engineering-claude-5/">Claude 5 上下文工程</a> 设计 Claude 侧上下文：砍冲突规则、Skills 渐进披露、<code>CLAUDE.md</code> 瘦身、富引用，必要时跑 <code>/doctor</code>。</li>
+    <li>用<strong>本篇</strong>审计 Codex 仓库里的 Skills + <code>AGENTS.md</code>：砍长描述、拆路由器、按情境指向文档、重写边界与完成态，别把旧模型脚手架原样留给 Astra。</li>
   </ul>
-  <p class="note">两篇互补，不是互斥。仓库脚手架过重时先读本篇；客户端 / API 行为对不上时先读 Fable。</p>
+  <p class="note">三篇互补，不是互斥。仓库脚手架过重时先读本篇或 Claude 5 文（看你用的是哪一栈）；客户端 / API 行为对不上时先读 Fable。</p>
 </section>
 
 <footer>
