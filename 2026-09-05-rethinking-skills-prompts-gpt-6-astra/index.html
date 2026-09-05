@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>重新思考 GPT-6 Astra 的 Skills 与提示 · Rethinking skills and prompts for GPT-6 Astra</title>
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="icon" href="../logo.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<style>
+:root {
+  --paper: #F4EFE6;
+  --card: #FBF7F0;
+  --ink: #191918;
+  --muted: #6B6459;
+  --rule: #E4D9C8;
+  --accent: #C96442;
+  --accent-soft: #D97757;
+  --wash: rgba(201, 100, 66, 0.14);
+  --wash-strong: rgba(201, 100, 66, 0.22);
+  --serif: "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", "Noto Serif SC", Georgia, "Times New Roman", serif;
+  --sans: "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Noto Sans Mono CJK SC", monospace;
+  --rail: 248px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 32px; color-scheme: light; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.75;
+}
+.skip {
+  position: absolute;
+  left: 16px;
+  top: 12px;
+  z-index: 10;
+  padding: 8px 12px;
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  font-size: 13px;
+  transform: translateY(-160%);
+}
+.skip:focus,
+.skip:focus-visible { transform: none; }
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+h1, h2 { text-wrap: balance; }
+section[id], h1, h2, h3 { scroll-margin-top: 32px; }
+
+.rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--rail);
+  height: 100vh;
+  overflow-y: auto;
+  padding: 28px 22px 36px;
+  background: #F5F0E8;
+  border-right: 1px solid var(--rule);
+  z-index: 4;
+}
+.rail-home {
+  display: inline-block;
+  margin: 0 0 16px;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+.rail-home:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.rail-title {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.35;
+  margin: 0 0 18px;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.rail summary {
+  display: none;
+  list-style: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.rail summary::-webkit-details-marker { display: none; }
+.rail nav ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: toc;
+}
+.rail nav li {
+  counter-increment: toc;
+  margin: 0;
+  border-top: 1px solid var(--rule);
+}
+.rail nav li:last-child { border-bottom: 1px solid var(--rule); }
+.rail nav a {
+  display: block;
+  position: relative;
+  padding: 9px 2px 9px 2.2em;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.rail nav a::before {
+  content: counter(toc, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 9px;
+  font-family: var(--serif);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--rule);
+  font-variant-numeric: tabular-nums;
+}
+.rail nav a:hover,
+.rail nav a.is-active { color: var(--ink); }
+.rail nav a:hover::before,
+.rail nav a.is-active::before { color: var(--accent); }
+.rail nav a.is-active { font-weight: 600; }
+
+.deck {
+  width: min(760px, calc(100% - var(--rail) - 64px));
+  max-width: 760px;
+  padding: 56px 0 96px;
+  margin-right: auto;
+  margin-left: calc(var(--rail) + max(40px, (100% - var(--rail) - 760px) / 2));
+  counter-reset: slide;
+}
+header.hero { padding: 8px 0 8px; }
+h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(32px, 5vw, 46px);
+  line-height: 1.18;
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.subtitle {
+  font-family: var(--serif);
+  font-size: 22px;
+  color: var(--muted);
+  margin: 0 0 8px;
+  font-style: italic;
+}
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin: 22px 0 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.facts .fact {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+.facts dt {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.facts dd {
+  margin: 0;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.facts a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.facts a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 40px 42px 36px;
+  margin: 36px 0;
+  counter-increment: slide;
+}
+.card h2 {
+  font-family: var(--serif);
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 8px;
+  letter-spacing: -0.015em;
+}
+.card h2::after {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 1px;
+  background: var(--accent);
+  margin: 16px 0 22px;
+}
+.card h3 {
+  font-family: var(--serif);
+  font-size: 20px;
+  line-height: 1.35;
+  margin: 28px 0 10px;
+  letter-spacing: -0.01em;
+}
+.card a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.card a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+p { margin: 0 0 14px; }
+p:last-child { margin-bottom: 0; }
+ul, ol { margin: 0 0 14px; padding-left: 22px; }
+li { margin: 0 0 6px; }
+
+.byline {
+  margin: 22px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+}
+.byline a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.byline a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+blockquote,
+blockquote.hl-quote {
+  margin: 22px 0;
+  padding: 18px 22px 18px 24px;
+  background: rgba(201, 100, 66, 0.08);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  font-family: var(--serif);
+  font-size: 19px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+blockquote p { margin: 0; }
+
+figure { margin: 22px 0 10px; }
+figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
+  border: 1px solid var(--rule);
+  background: #EFE6D8;
+}
+figcaption {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 10px;
+  line-height: 1.55;
+}
+figcaption a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+figcaption a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+.note {
+  font-size: 14px;
+  color: var(--ink);
+  background: rgba(201, 100, 66, 0.08);
+  border-radius: 0;
+  padding: 12px 14px;
+  margin: 16px 0 0;
+  border-left: 2px solid var(--accent);
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.92em;
+}
+p code, li code, td code, dd code, figcaption code, .note code {
+  font-size: 0.88em;
+  background: rgba(20, 20, 19, 0.07);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+pre {
+  display: block;
+  overflow-x: auto;
+  background: #2b2b2b;
+  color: #f8f8f2;
+  padding: 14px 16px;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.55;
+  border-radius: 2px;
+  margin: 12px 0 16px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+}
+.prompt-gloss {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 16px 0 6px;
+}
+
+footer {
+  margin-top: 48px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.tldr {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  padding: 36px 42px 32px;
+  margin: 24px 0 32px;
+}
+.tldr h2 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 10px;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+.tldr-note {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 16px;
+}
+.tldr ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: tldr;
+}
+.tldr li {
+  counter-increment: tldr;
+  display: block;
+  position: relative;
+  margin: 0;
+  padding: 16px 0 16px 2.6em;
+  border-top: 1px solid var(--rule);
+  line-height: 1.65;
+}
+.tldr li:last-child { padding-bottom: 0; }
+.tldr li::before {
+  content: counter(tldr, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 16px;
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.tldr li strong {
+  font-family: var(--serif);
+  color: var(--ink);
+}
+
+@media (max-width: 980px) {
+  .rail {
+    position: relative;
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 16px 20px 14px;
+  }
+  .rail-title { display: none; }
+  .rail summary { display: block; padding: 6px 0; }
+  .rail details:not([open]) nav { display: none; }
+  .rail details[open] nav { display: block; margin-top: 8px; }
+  .rail nav ol {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 12px;
+  }
+  .rail nav li:last-child { border-bottom: none; }
+  .deck {
+    width: calc(100% - 36px);
+    max-width: none;
+    margin: 0 auto;
+    padding: 32px 0 64px;
+  }
+  .card { padding: 26px 20px 22px; margin: 22px 0; }
+  .tldr { padding: 26px 20px 22px; }
+  body { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+</style>
+<link rel="stylesheet" href="../site.css">
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+<aside class="rail">
+  <a class="rail-home" href="../">全部笔记</a>
+  <p class="rail-title" translate="no">Rethinking skills and prompts for GPT-6 Astra</p>
+  <details class="toc-wrap" open>
+    <summary>目录</summary>
+    <nav aria-label="目录">
+      <ol>
+        <li><a href="#highlights">Highlights</a></li>
+        <li><a href="#intro">开篇</a></li>
+        <li><a href="#skill-files">Skill 文件</a></li>
+        <li><a href="#agents-md">AGENTS.md</a></li>
+        <li><a href="#decision-boundaries">决策边界</a></li>
+        <li><a href="#persistence">坚持做完</a></li>
+        <li><a href="#vs-fable">对照 Fable 5.1</a></li>
+      </ol>
+    </nav>
+  </details>
+</aside>
+<main class="deck" id="main">
+<header class="hero">
+  <h1 translate="no">Rethinking skills and prompts for GPT-6 Astra</h1>
+  <p class="subtitle">重新思考 GPT-6 Astra 的 Skills 与提示</p>
+  <dl class="facts">
+    <div class="fact"><dt>分类</dt><dd translate="no">AI</dd></div>
+    <div class="fact"><dt>来源</dt><dd>X · <a href="https://x.com/pvncher" translate="no">@pvncher</a></dd></div>
+    <div class="fact"><dt>原文</dt><dd><time datetime="2026-09-04">2026-09-04</time></dd></div>
+    <div class="fact"><dt>整理</dt><dd><time datetime="2026-09-05">2026-09-05</time></dd></div>
+    <div class="fact"><dt>作者</dt><dd>eric provencher / <a href="https://x.com/pvncher" translate="no">@pvncher</a></dd></div>
+    <div class="fact"><dt>原文链接</dt><dd><a href="https://x.com/i/article/2095989703967125509" translate="no">原文</a></dd></div>
+  </dl>
+</header>
+
+<section class="tldr" id="highlights">
+  <h2>先看这五句 / Highlights</h2>
+  <p class="tldr-note">译者补充，不是原文。</p>
+  <ol>
+    <li>编码智能体进步很快；过去一年堆起来的 Skills、<code>AGENTS.md</code> 和任务提示，对 GPT-6 Astra 来说往往是多余脚手架，该减负了。</li>
+    <li>Skill 描述要尽量短、只说清何时启用；装太多 skill 会让 Codex 截断描述，还容易互相抢戏（「pick me」）。</li>
+    <li>有用的 skill 靠 progressive disclosure：根文档当最小路由器，按需指向配套文档和脚本，别一次塞满上下文。</li>
+    <li><code>AGENTS.md</code> 别要求每次改动前读全仓库；旧模型那套「多跑测」指令会变噪音；边界要按 Astra 更好的判断力重写，并在开工前写清完成态——Astra 更 tentative，容易早停。</li>
+    <li>文末有译者对照：本篇 vs 站内 <a href="../2026-09-02-prompting-claude-fable-5-1/">Claude Fable 5.1 提示文档</a>——一个审仓库脚手架，一个调 API/harness。</li>
+  </ol>
+</section>
+
+<figure>
+  <img src="images/cover.jpg" alt="Rethinking skills and prompts for GPT-6 Astra 封面" width="1983" height="793" fetchpriority="high">
+  <figcaption>@pvncher《Rethinking skills and prompts for GPT-6 Astra》封面。作者 <a href="https://x.com/pvncher" translate="no">eric provencher / @pvncher</a>。</figcaption>
+</figure>
+
+<p class="byline">作者：<a href="https://x.com/pvncher" translate="no">eric provencher / @pvncher</a> · 原文状态：<a href="https://x.com/pvncher/status/2095991462416490862" translate="no">2095991462416490862</a></p>
+
+<section class="card" id="intro">
+  <h2>开篇</h2>
+  <p>编码智能体已经走了很长一段路，最佳实践也变得很快。以前需要大量手把手引导和脚手架的事，现在往往不再需要。</p>
+  <p>如果你过去一年一直在项目里用智能体，很可能已经堆出了一大堆臃肿指令——为了把模型往好结果上推。每次发版都值得回头审视这些假设；而到了 GPT-6 Astra，这件事比以往任何时候都更重要。</p>
+  <p>这些指令可以有很多形态：Skills、<code>AGENTS.md</code>，以及你的任务提示，都会塑造模型如何把活干完。</p>
+</section>
+
+<section class="card" id="skill-files">
+  <h2>Skill 文件</h2>
+  <p>指令的一种形态，是 skill 文件：本质上是存成 markdown 的提示，有时还会附带脚本。它们通常最适合给模型只在某些任务上才需要的工作流指导，或插件使用说明。</p>
+  <p>很多人默认往项目里下载一堆 skill，但这是错的。每个 skill 都有名称和描述，会加载进模型的上下文，好让它知道何时使用。许多描述太长；skill 一多，Codex 就会开始缩短描述以塞进上下文。模型看到的每个描述变少，更难判断该选哪个 skill。</p>
+  <p>更糟的是，描述之间可能互相矛盾，或带着过强的「选我 / pick me」气场，导致模型加载了其实帮不上当前任务的指令。</p>
+  <p>如果你曾让 Codex 创建 skill，它多半用过 <code>$skill-creator</code> skill。我们最近更新了它的指导，从几个方向缓解实践中常见的失败模式。</p>
+  <p>第一，skill 描述应尽可能短，同时仍能说清模型何时该用它。</p>
+  <figure>
+    <img src="images/fig1-skill-description.jpg" alt="Skill 描述对比：BAD 过宽 vs GOOD 收窄到迁移场景" width="1440" height="1276">
+    <figcaption>图 1：Skill 描述好坏对比。BAD 把「数据库 / 查询 / 模型 / 持久化」都写进触发条件，容易一碰库就调用；GOOD 收窄到「添加或修改迁移，或审查上线」。</figcaption>
+  </figure>
+  <p>这里，坏的 skill 描述会把模型推向：只要碰到任何和数据库相关的事就用它；而好的描述只在真要处理迁移时才触发。</p>
+  <p>第二，有用 skill 的一个关键标记是 progressive disclosure（渐进披露）。读一个 skill 会占用上下文，让你更接近压缩（compaction），还会引入此刻未必适用的指导。对含多种工作流的 skill，把根文档做成最小路由器，指向配套文档和脚本。给模型足够线索，让它知道该往哪看，而不是强迫它读当下无关的内容。</p>
+  <p>第三，许多 skill 被写成详尽行程表或菜谱。模型现在更擅长理解细微差别和模糊性，于是过细的指导反而可能拖后腿——以前它们曾帮过忙。</p>
+  <p>仓库级 skill 也会引导其他贡献者的智能体，而对方可能用不同模型。对 Sol 或 Luna 有帮助的指导，可能过度约束 GPT-6 Astra，所以要想清楚：你留下的指令，会被哪些模型用到。</p>
+</section>
+
+<section class="card" id="agents-md">
+  <h2>AGENTS.md</h2>
+  <p>因为 <code>AGENTS.md</code> 会在模型于你的仓库工作时一律生效，请逐条回头看：这项任务是否仍需要这条指令。</p>
+  <p>要求在每次编辑前先读一摞文档或完整仓库地图，对修 typo 来说太过分。GPT-6 Astra 能自己想清楚该读什么，不必被推着在每次改动前把整个项目翻一遍。</p>
+  <figure>
+    <img src="images/fig2-agents-md.jpg" alt="AGENTS.md 对比：BAD 每次编辑前全读 vs GOOD 按任务指向文档" width="1440" height="1201">
+    <figcaption>图 2：<code>AGENTS.md</code> 上下文引导对比。BAD 要求每次编辑前都读 architecture / database / deployment；GOOD 按任务类型指向对应文档，避免无谓烧上下文、拖慢工作。</figcaption>
+  </figure>
+  <p>逼模型在每次编辑前读文件，是烧掉上下文、拖慢工作的好办法。指向一些文档仍然有用，只要它是按情境来的。也别忘了把文档本身保持更新！</p>
+  <p>以前的模型需要鼓励才会跑测试、检查自己的工作。GPT-6 Astra 自己就会做，所以同一套指令反而可能导致不必要的测试。</p>
+  <p>GPT-6 Astra 很彻底，但在「任务该推到多远」上可能更犹豫。有时它需要一点推力才能继续。你可以用 <code>AGENTS.md</code> 给某个你知道安全的工作流开许可，例如本地测试套件：</p>
+  <blockquote>
+    <p>本地测试使用一次性 fixture，没有生产访问权限。请运行它们，修复由本次请求变更引起的失败，并重跑受影响的测试，无需在每一步再征求批准。</p>
+  </blockquote>
+  <p class="prompt-gloss">原文英文（便于直接粘贴到 <code>AGENTS.md</code>）：</p>
+<pre><code>The local tests use disposable fixtures and have no production access. Run them, fix failures caused by the requested change, and rerun affected tests without asking for approval at each step.</code></pre>
+</section>
+
+<section class="card" id="decision-boundaries">
+  <h2>决策边界</h2>
+  <p>请特别留意你如何描述边界。如果以前的模型未经许可就替你做事，你可能加过很强硬的措辞，逼它先问。这仍然有用，但 GPT-6 Astra 的判断力好得多，你也该按这个标准对待它。它会认真对待你的边界，并可能在你其实乐意它继续的地方停下来。</p>
+</section>
+
+<section class="card" id="persistence">
+  <h2>坚持做完</h2>
+  <p>如果你习惯 GPT-5.6 Sol 接到请求后能连续干很久，GPT-6 Astra 在「何时该停」上会显得更犹豫。它可能做到第一版实现就回来等你审，而后面其实还有活要干。</p>
+  <p>这时，开工前定义完成态会有帮助。如果任务包含把实现跑起来、检查结果、修失败项，就把这些写进请求。要求「第一版实现后必须停下来等审」会把模型往更早的停点拉，所以先确认那是不是你真正需要的决策。</p>
+  <p>如果你希望它在第一遍之后继续探索，说清楚你想探索什么、以及该停在哪里。</p>
+  <p>换新模型是打扫房子的好时机。让 GPT-6 Astra 按本文讨论的内容做一次审计，然后去建你以前不敢尝试的东西！</p>
+</section>
+
+<section class="card" id="vs-fable">
+  <h2>对照：和 Claude Fable 5.1 提示文档差在哪</h2>
+  <p class="tldr-note" style="margin-top:0">译者补充，不是原文。</p>
+  <p>站内另有全文译本：<a href="../2026-09-02-prompting-claude-fable-5-1/">Prompting Claude Fable 5.1</a>（Anthropic 官方提示工程文档）。两篇都谈「怎么让编码智能体更好用」，但旋钮、体裁和假设不同。下面按五块对照。</p>
+
+  <h3>1. 体裁与受众</h3>
+  <ul>
+    <li><strong>本篇（pvncher）</strong>：Codex DX 实践短文，面向仓库里已经堆起来的 Skills、<code>AGENTS.md</code> 和任务提示——读者是在项目里「打扫脚手架」的人。</li>
+    <li><strong>Fable 5.1</strong>：Anthropic 官方 API / harness 症状索引长文档——读者是按「看到的行为」对号入座改系统提示、工具循环与历史拼接的人。</li>
+  </ul>
+
+  <h3>2. 主旋钮不同</h3>
+  <ul>
+    <li><strong>Astra 文</strong>：减负。短 skill 描述、progressive disclosure、少脚手架、别每次全读仓库、别把旧测例指令留成噪音。</li>
+    <li><strong>Fable 文</strong>：API 行为旋钮。<code>effort</code> 档位扫描、<code>thinking.display</code> 进度更新、append-only 对话历史、同回合批量独立工具调用、回合级 system（<code>clear_at</code>）等。</li>
+  </ul>
+
+  <h3>3. 重叠主题（措辞与模型假设不同）</h3>
+  <ul>
+    <li><strong>别在工作做完前收工 / persistence</strong>：两边都强调把整件任务做完。Astra 更 tentative，容易第一版就回来等审，需要你写清完成态；Fable 5.1 有时会停下来问许可、或只做计划，文档教你显式要求做完。</li>
+    <li><strong>边界 / 许可</strong>：Astra 文提醒——强硬的「先问」边界可能让好判断力的模型过早停；Fable 文则在「任务已授权仍再问」时给出 persistence 类补丁。</li>
+    <li><strong>别多做任务没要求的事</strong>：Fable 有专章限制未经请求的修复/扩展与多余测试文件；Astra 文从反面说——旧模型需要的「多跑测」指令，在 Astra 上反而可能变成多余测试。</li>
+  </ul>
+
+  <h3>4. 独有内容</h3>
+  <p><strong>仅本篇（pvncher / Astra）：</strong></p>
+  <ul>
+    <li>Skill 数量膨胀与描述截断；描述互相矛盾或过强「pick me」。</li>
+    <li><code>$skill-creator</code> 指导更新：短描述、根文档当路由器、别写过细菜谱。</li>
+    <li><code>AGENTS.md</code> 别要求每次编辑前读全仓库文档。</li>
+    <li>旧模型测例 / 自检指令变成噪音；跨模型仓库技能可能过约束 Astra（Sol / Luna 适用 ≠ Astra 适用）。</li>
+  </ul>
+  <p><strong>仅 Fable 5.1：</strong></p>
+  <ul>
+    <li><code>effort</code> 全档扫描；面向用户的进度 <code>thinking.display</code>；turn-scoped system。</li>
+    <li>安全分类器 <code>refusal</code>；压缩摘要必须保留的约束/决策；优先针对性编辑、避免整文件重写。</li>
+    <li>视觉任务的 crop / zoom 工具；主智能体在子智能体运行时继续干活等并行编排。</li>
+  </ul>
+
+  <h3>5. 怎么一起用</h3>
+  <ul>
+    <li>用 <a href="../2026-09-02-prompting-claude-fable-5-1/">Fable 5.1 文档</a> 调 harness / API：effort、历史只追加、工具批处理、进度更新、拒绝与压缩。</li>
+    <li>用<strong>本篇</strong>审计仓库里的 Skills + <code>AGENTS.md</code>：砍长描述、拆路由器、按情境指向文档、重写边界与完成态，别把旧模型脚手架原样留给 Astra。</li>
+  </ul>
+  <p class="note">两篇互补，不是互斥。仓库脚手架过重时先读本篇；客户端 / API 行为对不上时先读 Fable。</p>
+</section>
+
+<footer>
+  全文翻译，未删减。原文版权归原作者及原平台。本页是个人阅读译本。
+</footer>
+</main>
+
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll(".rail nav a"));
+  var sections = Array.prototype.slice.call(document.querySelectorAll("section.card, section.tldr"));
+  if (!links.length || !sections.length || !("IntersectionObserver" in window)) return;
+  var map = {};
+  links.forEach(function (a) {
+    var id = (a.getAttribute("href") || "").replace("#", "");
+    if (id) map[id] = a;
+  });
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      var id = entry.target.id;
+      links.forEach(function (a) { a.classList.remove("is-active"); });
+      if (map[id]) map[id].classList.add("is-active");
+    });
+  }, { rootMargin: "-18% 0px -64% 0px", threshold: 0.01 });
+  sections.forEach(function (s) { io.observe(s); });
+})();
+</script>
+<script src="../site.js" defer></script>
+</body>
+</html>
