@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stanford CS153 · Sam Altman：规模、AGI 与代币时代</title>
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="icon" href="../logo.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<style>
+
+:root {
+  --paper: #F4EFE6;
+  --card: #FBF7F0;
+  --ink: #191918;
+  --muted: #6B6459;
+  --rule: #E4D9C8;
+  --accent: #C96442;
+  --accent-soft: #D97757;
+  --wash: rgba(201, 100, 66, 0.14);
+  --wash-strong: rgba(201, 100, 66, 0.22);
+  --serif: "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", "Noto Serif SC", Georgia, "Times New Roman", serif;
+  --sans: "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Noto Sans Mono CJK SC", monospace;
+  --rail: 248px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 32px; color-scheme: light; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.75;
+}
+
+.skip {
+  position: absolute;
+  left: 16px;
+  top: 12px;
+  z-index: 10;
+  padding: 8px 12px;
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  font-size: 13px;
+  transform: translateY(-160%);
+}
+.skip:focus,
+.skip:focus-visible { transform: none; }
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+h1, h2 { text-wrap: balance; }
+section[id], h1, h2 { scroll-margin-top: 32px; }
+
+.rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--rail);
+  height: 100vh;
+  overflow-y: auto;
+  padding: 28px 22px 36px;
+  background: #F5F0E8;
+  border-right: 1px solid var(--rule);
+  z-index: 4;
+}
+.rail-home {
+  display: inline-block;
+  margin: 0 0 16px;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+.rail-home:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.rail-title {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.35;
+  margin: 0 0 18px;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.rail summary {
+  display: none;
+  list-style: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.rail summary::-webkit-details-marker { display: none; }
+.rail nav ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: toc;
+}
+.rail nav li {
+  counter-increment: toc;
+  margin: 0;
+  border-top: 1px solid var(--rule);
+}
+.rail nav li:last-child { border-bottom: 1px solid var(--rule); }
+.rail nav a {
+  display: block;
+  position: relative;
+  padding: 9px 2px 9px 2.2em;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.rail nav a::before {
+  content: counter(toc, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 9px;
+  font-family: var(--serif);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--rule);
+  font-variant-numeric: tabular-nums;
+}
+.rail nav a:hover,
+.rail nav a.is-active {
+  color: var(--ink);
+}
+.rail nav a:hover::before,
+.rail nav a.is-active::before {
+  color: var(--accent);
+}
+.rail nav a.is-active { font-weight: 600; }
+
+.deck {
+  width: min(760px, calc(100% - var(--rail) - 64px));
+  max-width: 760px;
+  padding: 56px 0 96px;
+  margin-right: auto;
+  margin-left: calc(var(--rail) + max(40px, (100% - var(--rail) - 760px) / 2));
+}
+header.hero { padding: 8px 0 8px; }
+h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(32px, 5vw, 46px);
+  line-height: 1.18;
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.subtitle {
+  font-family: var(--serif);
+  font-size: 22px;
+  color: var(--muted);
+  margin: 0 0 8px;
+  font-style: italic;
+}
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin: 22px 0 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.facts .fact {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+.facts dt {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.facts dd {
+  margin: 0;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.facts a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.facts a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.lead {
+  color: var(--ink);
+  margin: 28px 0 8px;
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 40px 42px 36px;
+  margin: 36px 0;
+  counter-increment: slide;
+}
+.deck { counter-reset: slide; }
+.card h2 {
+  font-family: var(--serif);
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 8px;
+  letter-spacing: -0.015em;
+}
+.card h2::after {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 1px;
+  background: var(--accent);
+  margin: 16px 0 22px;
+}
+.card h3 {
+  font-family: var(--serif);
+  font-size: 20px;
+  margin: 28px 0 10px;
+}
+p { margin: 0 0 14px; }
+p:last-child { margin-bottom: 0; }
+ul, ol { margin: 0 0 14px; padding-left: 22px; }
+li { margin: 0 0 6px; }
+
+blockquote,
+blockquote.hl-quote {
+  margin: 22px 0;
+  padding: 18px 22px 18px 24px;
+  background: rgba(201, 100, 66, 0.08);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  font-family: var(--serif);
+  font-size: 21px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+blockquote p { margin: 0; }
+blockquote .en {
+  display: block;
+  margin-top: 12px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--muted);
+  font-style: normal;
+  white-space: pre-wrap;
+}
+
+figure { margin: 22px 0 10px; }
+figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
+  border: 1px solid var(--rule);
+  background: #EFE6D8;
+}
+figcaption {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 10px;
+  line-height: 1.55;
+}
+
+.note {
+  font-size: 14px;
+  color: var(--ink);
+  background: rgba(201, 100, 66, 0.08);
+  border-radius: 0;
+  padding: 12px 14px;
+  margin: 16px 0 0;
+  border-left: 2px solid var(--accent);
+}
+
+mark.hl, .hl {
+  background: linear-gradient(transparent 58%, rgba(201, 100, 66, 0.28) 58%);
+  color: inherit;
+  padding: 0 .12em;
+}
+
+.takeaways { display: grid; gap: 14px; margin-top: 12px; }
+.take {
+  background: linear-gradient(180deg, rgba(201, 100, 66, 0.16), rgba(201, 100, 66, 0.08));
+  border: 1px solid rgba(201, 100, 66, 0.35);
+  border-left: 3px solid var(--accent);
+  border-radius: 0;
+  padding: 16px 18px;
+  color: var(--ink);
+}
+.take strong {
+  color: var(--accent);
+  font-family: var(--serif);
+  font-size: 1.08em;
+}
+
+footer {
+  margin-top: 48px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+@media (max-width: 980px) {
+  .rail {
+    position: relative;
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 16px 20px 14px;
+  }
+  .rail-title { display: none; }
+  .rail summary {
+    display: block;
+    padding: 6px 0;
+  }
+  .rail details:not([open]) nav { display: none; }
+  .rail details[open] nav { display: block; margin-top: 8px; }
+  .rail nav ol {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 12px;
+  }
+  .rail nav li:last-child { border-bottom: none; }
+  .deck {
+    width: calc(100% - 36px);
+    max-width: none;
+    margin: 0 auto;
+    padding: 32px 0 64px;
+  }
+  .card { padding: 26px 20px 22px; margin: 22px 0; }
+  .tldr { padding: 26px 20px 22px; }
+  body { font-size: 16px; }
+}
+
+.tldr {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  padding: 36px 42px 32px;
+  margin: 24px 0 32px;
+}
+.tldr h2 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 18px;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+.tldr ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: tldr;
+}
+.tldr li {
+  counter-increment: tldr;
+  display: block;
+  position: relative;
+  margin: 0;
+  padding: 16px 0 16px 2.6em;
+  border-top: 1px solid var(--rule);
+  line-height: 1.65;
+}
+.tldr li:last-child { padding-bottom: 0; }
+.tldr li::before {
+  content: counter(tldr, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 16px;
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.tldr li strong {
+  font-family: var(--serif);
+  color: var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+</style>
+<link rel="stylesheet" href="../site.css">
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+<aside class="rail">
+  <a class="rail-home" href="../">全部笔记</a>
+  <p class="rail-title" translate="no">Sam Altman · Stanford CS153</p>
+  <details class="toc-wrap" open>
+    <summary>目录</summary>
+    <nav aria-label="目录">
+<ol>
+        <li><a href="#highlights">先看这五句</a></li>
+        <li><a href="#framing">说明：推文 vs 内容</a></li>
+        <li><a href="#tokens">代币 ≈ 百人工程队</a></li>
+        <li><a href="#scale">规模：涌现与直觉失灵</a></li>
+        <li><a href="#chatgpt">ChatGPT 怎么来的</a></li>
+        <li><a href="#codex">Codex 与研究实习生</a></li>
+        <li><a href="#utility">智能公用事业</a></li>
+        <li><a href="#advice">给学生的建议</a></li>
+        <li><a href="#qa">问答：死路与身份</a></li>
+        <li><a href="#omitted">完整版后续（未收录）</a></li>
+      </ol>
+    </nav>
+  </details>
+</aside>
+<main class="deck" id="main">
+<header class="hero">
+  <h1 translate="no">Stanford CS153 Frontier Systems</h1>
+  <p class="subtitle">Scale, AGI, and the Future of Everything · Sam Altman</p>
+  <dl class="facts">
+    <div class="fact"><dt>分类</dt><dd translate="no">AI</dd></div>
+    <div class="fact"><dt>来源</dt><dd translate="no">X · @laobaishare</dd></div>
+    <div class="fact"><dt>原文</dt><dd><time datetime="2026-05-21">2026-05-21</time></dd></div>
+    <div class="fact"><dt>整理</dt><dd><time datetime="2026-09-10">2026-09-10</time></dd></div>
+    <div class="fact"><dt>嘉宾</dt><dd><span translate="no">Sam Altman</span></dd></div>
+    <div class="fact"><dt>主持</dt><dd><span translate="no">Anjney Midha</span></dd></div>
+    <div class="fact"><dt>场合</dt><dd translate="no">Stanford CS153</dd></div>
+    <div class="fact"><dt>片长</dt><dd>约 26.5 分钟（完整版约 41 分钟）</dd></div>
+    <div class="fact"><dt>推文</dt><dd><a href="https://x.com/laobaishare/status/2097600201662062795" translate="no">X 原帖</a></dd></div>
+    <div class="fact"><dt>完整版</dt><dd><a href="https://www.youtube.com/watch?v=F_7M4Hc-usM" translate="no">YouTube</a></dd></div>
+  </dl>
+</header>
+
+<section class="tldr" id="highlights">
+  <h2>先看这五句</h2>
+  <ol>
+    <li><strong>代币能顶百人工程队。</strong>花得起的 token 预算，就能干出过去百人顶尖工程团队才能干的事；创业能接的盘子、速度、并行度都变了。</li>
+    <li><strong>规模会自己长出新东西。</strong>YC 批次网络效应、缩放定律都是例子：共识以为「够了」，往往还远没到头；人脑不擅长指数。</li>
+    <li><strong>ChatGPT 是用户需求倒逼出来的。</strong>API 卖不动 → 开发者拿密钥聊天 → 按 YC 原则做聊天产品 → 研究 demo 爆红 → 五天内紧急建公司与产品。</li>
+    <li><strong>代码是数字世界的执行器。</strong>Codex 路线：写代码操控电脑，机器人操控物理世界；目标是把算力当「AI 研究实习生」，再升级成架构研究员。</li>
+    <li><strong>卖「夜间的光」，别硬卖「电」。</strong>智能要成为公用事业，需要找对消费者听得懂的类比；对学生：去做推理栈，让廉价智能铺开。</li>
+  </ol>
+</section>
+
+<figure>
+  <img src="images/cover.jpg" alt="Sam Altman 在 Stanford CS153 对话现场" width="1280" height="720" fetchpriority="high">
+  <figcaption>封面。Stanford CS153 Frontier Systems：嘉宾 Sam Altman，主持 Anjney Midha。本笔记对应 X 上约 26.5 分钟剪辑版。</figcaption>
+</figure>
+
+<section class="card" id="framing">
+  <h2>说明：推文包装 vs 实际内容</h2>
+  <p class="note"><strong>译者注：</strong>推文包装与内容不符。原帖常被写成「Sam Altman 说你不用再写提示词 / ChatGPT 隐藏用法」一类标题党。实际视频是 Stanford CS153 对话剪辑：从「可负担代币 ≈ 百人工程队」切入，到 LLM 怀疑论与身份讨论结束。本笔记按视频实际演讲/对话整理，不是提示词技巧文。</p>
+  <figure>
+    <img src="images/14-classroom.jpg" alt="斯坦福课堂对话现场" width="1280" height="720" loading="lazy">
+    <figcaption>约课堂全景。系统课语境下谈规模、产品发现与公用事业隐喻，不是「不用写 prompt」教程。</figcaption>
+  </figure>
+  <ul>
+    <li><strong>本片起点：</strong>对话中途——代币预算能顶百人工程队。</li>
+    <li><strong>本片终点：</strong>LLM 是否死路、身份与教条（LeCun / 怀疑论相关问答）。</li>
+    <li><strong>完整版约 41 分钟</strong>（Stanford Online）：后续还有教育重设计、民主化 vs 集中、UBI / 公民财富基金、算力短缺等 Q&amp;A，本剪辑未收录。</li>
+  </ul>
+</section>
+
+<section class="card" id="tokens">
+  <h2>代币 ≈ 百人工程队：创业经济学变了</h2>
+  <figure>
+    <img src="images/01-tokens-100-engineers.jpg" alt="Altman 谈可负担代币与工程团队" width="1280" height="720" loading="lazy">
+    <figcaption>约 0:01–0:27。开场即切入：可负担的 token 支出，能顶过去百人顶尖工程团队。</figcaption>
+  </figure>
+  <blockquote class="hl-quote">
+    <p>花得起的一笔代币预算，你就能干出<strong>百人级顶尖工程团队</strong>在创业公司里能干的事——这在过去根本不在可选集合里。</p>
+    <span class="en">With like an affordable amount of spend on tokens / You can do what a hundred person / Incredibly great engineering team would do as a startup</span>
+  </blockquote>
+  <p>能接的问题层级、野心、推进速度、同时并行的事情，都完全不同。主持追问：那期末作业该不该改成「分配问题让学生攻」？Altman 不买账——</p>
+  <ul>
+    <li>若他能想出「显然很棒」的创业点子，多半很多人也想得到。</li>
+    <li>OpenAI 起步时全球认真做 AGI 的团队屈指可数；要找的是那种<strong>自动化编程时代之前根本不可能</strong>、又不显然、却可能很快变成多万亿美元市场、目前只有几家在做的事。</li>
+    <li>他更可能不知道那是什么；学生更可能知道。别人「布置」给你的想法，大概不是你真正该追的。</li>
+  </ul>
+</section>
+
+<section class="card" id="scale">
+  <h2>规模 / Scale：涌现与指数直觉失灵</h2>
+  <figure>
+    <img src="images/02-scale-emergent.jpg" alt="讨论规模与涌现" width="1280" height="720" loading="lazy">
+    <figcaption>约 1:50–3:00。主持把 scale 拉回系统课主线：十年后再怎么拆解「规模」。</figcaption>
+  </figure>
+  <p>Altman 承认：他说不出一个令自己满意的理论，解释为什么「继续把已经有趣的东西推到共识以为到头的规模」常常是最有意思的事——但这是经验事实。</p>
+  <figure>
+    <img src="images/03-yc-batch-scale.jpg" alt="YC 批次规模与网络效应" width="1280" height="720" loading="lazy">
+    <figcaption>约 3:30–4:20。YC 案例：有人说批次太大该缩小；真正魔法却是批次内网络效应——在更大尺度才涌现。</figcaption>
+  </figure>
+  <ul>
+    <li><strong>AI 缩放定律</strong>是一例；把更多聪明人聚到一个问题上、公司的规模经济，也都是。</li>
+    <li>YC：聪明人说「最好的公司总是显而易见的，批次大了没用」；但他看到的是，<mark class="hl">批次内网络效应是涌现属性</mark>——以前没人这样规模化投早期公司，也就撞不上这个现象。</li>
+    <li>方向上：找到「小规模已有趣、还能继续推」的杠杆，多半值得推；而大多数人推得不够。</li>
+  </ul>
+  <p>系统侧为何难：规模化时东西以<strong>加速且不可预测</strong>的方式坏掉；总会有聪明人说别太野心、别太大。拆成系统问题，他举例缩放模型时要同时对付：技术上能否跨上万/十万 GPU、资本与商业风险、研究者文化（「为何不全砸一个项目，不如拆开学」）。几乎每个领域做规模，都要把「不该做」的理由逐条拆开对付。</p>
+  <figure>
+    <img src="images/15-dialogue.jpg" alt="对话中谈人与指数" width="1280" height="720" loading="lazy">
+    <figcaption>约 7:50–9:00。组织人参与「不像旧系统」的新系统：清晰目标、清晰路径、清晰决策方式；人天生不擅长指数思维。</figcaption>
+  </figure>
+  <p>关于人：清晰目标、清晰到达计划、清晰的决策方式很重要。决定「押注缩放深度学习，错了就失败」之后，信念本身就有力量。人类没进化出好的指数直觉——缩放定律继续指数、收入指数、组织能扛指数复杂度——都要花很多时间用第一性原理跟人对齐。</p>
+</section>
+
+<section class="card" id="chatgpt">
+  <h2>ChatGPT 怎么来的：API → 聊天 → 紧急建产品</h2>
+  <figure>
+    <img src="images/04-chatgpt-origin.jpg" alt="讲述 GPT-3 API 与产品探索" width="1280" height="720" loading="lazy">
+    <figcaption>约 10:10–11:00。有了 GPT-3，需要赚钱去扩更大算力，却想不出产品——于是先开 API，指望别人做出产品。</figcaption>
+  </figure>
+  <p>时间线（按他口述压缩）：</p>
+  <ol>
+    <li>GPT-3 有趣、演示酷，但产品想不出来；试过几样不行。</li>
+    <li>2020 夏左右上线 GPT-3 API；起初几乎没起色，约一个月后同一天几个开发者做出酷东西发到 Twitter，病毒式扩散。</li>
+    <li>回头看，当时模型相对兴奋度<strong>差得令人震惊</strong>；真正跑通的大生意主要是文案（copywriting），也不算特别激动人心。</li>
+    <li>开发者却发现：塞提示词就能聊天。很多人业务用不起来，却拿 API key 聊天。</li>
+    <li>按 YC 原则「看用户爱什么就做什么」：新模型（准备叫 3.5）+ 更好的指令跟随后训练 → 做聊天产品。本意是<strong>研究 demo</strong>，说服别人去做聊天类产品、再买 API。</li>
+  </ol>
+  <figure>
+    <img src="images/05-chatgpt-viral.jpg" alt="ChatGPT 病毒增长与紧急建公司" width="1280" height="720" loading="lazy">
+    <figcaption>约 12:40–13:40。连续几天流量冲高又回落，有人喊泡沫；到第四五天他认出「保证会火」的曲线——然后紧急建公司与产品。</figcaption>
+  </figure>
+  <blockquote class="hl-quote">
+    <p>当一样东西开始疯长、而它其实还不怎么样时——你手里就是<strong>必火产品</strong>的潜质。</p>
+    <span class="en">when something really starts growing and it's not very good / You have like a guaranteed hit on your hands</span>
+  </blockquote>
+  <p>第五天召集所有人：这是好的紧急情况——必须同时建公司和产品。随后约两个月疯狂扩容；商业模式以后再说，先收费以免算力账单爆掉——结果收费也成了。大量效用其实一直在，只是用户过不了激活能。</p>
+</section>
+
+<section class="card" id="codex">
+  <h2>Codex：代码作为执行器；研究实习生路线图</h2>
+  <figure>
+    <img src="images/06-codex-actuator.jpg" alt="Codex 与代码执行器隐喻" width="1280" height="720" loading="lazy">
+    <figcaption>约 14:00–14:50。ChatGPT 之前原计划是全力做代码：代码操控数字世界，机器人操控物理世界。</figcaption>
+  </figure>
+  <p>内部信念：模型够聪明 + 写代码当执行器 + 驱动机器人，智能才能在世界里真正办事。Codex 今年初已很强，大约到「5.5」出现真正拐点，人们开始用它干出惊人的事。</p>
+  <p>关于能力管线（预训练 / mid-training / 后训练 + RL 与监督反馈）：他认为这是当前管线，也预期会有一次大改写——「像流水线」略怪，未必最优；最优解交给 AI 自己去研究。</p>
+  <figure>
+    <img src="images/07-ai-research-intern.jpg" alt="AI 研究实习生与架构研究员目标" width="1280" height="720" loading="lazy">
+    <figcaption>约 15:50–16:10。目标：今年 9 月用约 50 万 A100 等价算力当 AI 研究实习生；2028 年 3 月做出能发现全新架构的端到端研究员。</figcaption>
+  </figure>
+  <blockquote class="hl-quote">
+    <p>目标：今年九月，用大约<strong>五十万块 A100 等价算力</strong>当「AI 研究实习生」；到 <strong>2028 年 3 月</strong>，做出能端到端发现全新架构的顶尖研究员。</p>
+    <span class="en">by September of this year / We will use / 500,000 a 100 equivalent GPUs ... as an AI research intern and by March of / 2028 ... very talented researcher like figuring out complete new architectures</span>
+  </blockquote>
+  <p>他认为用现有管线与架构，也能跨过「AI 能干出极其惊人工作」那条线。</p>
+</section>
+
+<section class="card" id="utility">
+  <h2>智能公用事业：「夜间的光」；token 层 vs 芯片层</h2>
+  <figure>
+    <img src="images/08-utility-light-at-night.jpg" alt="电力公用事业与夜间照明类比" width="1280" height="720" loading="lazy">
+    <figcaption>约 17:50–18:40。电成公用事业时，公司卖的不是「电」——而是「夜间有光」。</figcaption>
+  </figure>
+  <p>他们在创造一种新公用事业：电、互联网、水——这类东西很少，好隐喻不多。电起初很吓人（进你家、能电死人）；直接卖「电」不行。于是卖<strong>夜间的光</strong>：顺便说同一套东西以后还能洗衣……但那对用户跳太远。</p>
+  <blockquote class="hl-quote">
+    <p>即便智能真会成为每家公司、每个用户、每个政府都要接的公用事业——你有一条 OpenAI token 订阅插进一切——我也不觉得现在该硬卖「我们在卖智能」。我们还没找到自己的「夜间的光」。</p>
+    <span class="en">I kind of don't think ... the right way for us to analogize that is we're selling intelligence ... I don't know what our equivalent of / We're selling you light at night is going to be</span>
+  </blockquote>
+  <figure>
+    <img src="images/09-tokens-vs-chips.jpg" alt="讨论 tokens 与 chips 两层公用事业" width="1280" height="720" loading="lazy">
+    <figcaption>约 20:10–21:20。Jensen 等把算力/芯片当公用事业；Altman 把「智能」当公用事业。消费者更贴近 token（甚至再上一层）。</figcaption>
+  </figure>
+  <p>对企业和个人：你会想的是接近 token、甚至比 token 再上一层的东西——便宜吗、好用吗、能不能多用。硬件在哪、什么芯片、怎么供电，会被抽象掉。以后若是常驻 agent 一直帮你办事，计费心智可能更像「买整套系统的接入权」，就像手机账单买的是通话与流量，而不是基站硬件。</p>
+</section>
+
+<section class="card" id="advice">
+  <h2>给学生的建议：做推理栈 / 一人前沿实验室</h2>
+  <figure>
+    <img src="images/11-one-person-frontier-lab.jpg" alt="一人前沿实验室项目讨论" width="1280" height="720" loading="lazy">
+    <figcaption>约 21:40–22:20。期末项目是「一人前沿实验室」：云积分、OpenAI token 等工具在手，你会做什么？</figcaption>
+  </figure>
+  <figure>
+    <img src="images/10-inference-stack.jpg" alt="建议投入推理栈" width="1280" height="720" loading="lazy">
+    <figcaption>约 22:30–23:00。训练侧聪明人已经很多；欠投资的是大规模、廉价地交付智能——推理栈。</figcaption>
+  </figure>
+  <figure>
+    <img src="images/17-advice.jpg" alt="面向学生的建议瞬间" width="1280" height="720" loading="lazy">
+    <figcaption>约建议段落。所有前沿实验室都得在相当程度上变成「推理公司」。</figcaption>
+  </figure>
+  <p>模型侧他打包票会很快变得极强；真正欠账的是：如何把惊人智能变得<strong>便宜且充裕</strong>。若他来上课，会去做推理栈那一段。主持打趣：改题或许晚了——但迟做总比不做好，做你想做的。</p>
+</section>
+
+<section class="card" id="qa">
+  <h2>问答：LLM 是否死路；身份与教条</h2>
+  <figure>
+    <img src="images/16-qa.jpg" alt="课堂问答环节" width="1280" height="720" loading="lazy">
+    <figcaption>约 23:20。开始收问题；主持提醒保持建设性。</figcaption>
+  </figure>
+  <figure>
+    <img src="images/12-llm-skepticism.jpg" alt="回应 LLM 死路怀疑论" width="1280" height="720" loading="lazy">
+    <figcaption>约 23:30–24:40。已在某些维度远超人类，在长程高判断任务上仍远弱；模型刚证伪一道 Erdős 相关猜想。</figcaption>
+  </figure>
+  <p>对「LLM 是死路」类观点：</p>
+  <ul>
+    <li>在部分智能任务上已远超人类；在长程、高判断的任务上又远弱于人。</li>
+    <li>前一天某个模型证伪了一道聪明人数年攻关的 Erdős 类问题——不久前还有人说这不会发生；现在数学家在问「数学完了吗」。</li>
+    <li>LLM 能产生新知识，能做一些人类做不到的智能任务；还会继续缩放。世界模型对机器人等很重要，但<strong>此时再赌 LLM 缩放会停</strong>，他觉得相当误导。</li>
+  </ul>
+  <figure>
+    <img src="images/13-identity-belief.jpg" alt="身份与信念教条" width="1280" height="720" loading="lazy">
+    <figcaption>约 25:40–26:20。收束：把身份绑在「某条路线必成/必败」上，经验结果打脸时就看不见真相。</figcaption>
+  </figure>
+  <figure>
+    <img src="images/18-closing-beat.jpg" alt="对话收束" width="1280" height="720" loading="lazy">
+    <figcaption>约片尾。数据已很强；「我早就说过」并不好玩——双方都要警惕身份绑架信念。</figcaption>
+  </figure>
+  <blockquote class="hl-quote">
+    <p>若你把身份绑在「某件事会成或不会成」上，科学或经验结果已经打脸，你却放不下身份——你就看不见真相。两边都要记住。</p>
+    <span class="en">if you make your identity about a particular / thing is going to work or not work and / ... You're like too hung up on your identity. You can't let it go. You can't see the truth</span>
+  </blockquote>
+  <p>他曾被「永远不会成功、这是骗局」的网络喷子困扰，现在连「我早就说过」的快感都没有了：对方从未真正站在数据这边，还在原地重复。领域一度被「过于确信缩放产不出什么」的一代科学家拖慢；另一些人则是看曲线还在漂亮地走，就继续推。</p>
+</section>
+
+<section class="card" id="omitted">
+  <h2>完整版后续（本片未收录）</h2>
+  <p class="note">以下仅作索引，<strong>不在本剪辑字幕范围内</strong>。完整版约 41 分钟：<a href="https://www.youtube.com/watch?v=F_7M4Hc-usM">YouTube · Stanford Online</a>。</p>
+  <ul>
+    <li>教育如何重设计</li>
+    <li>民主化 vs 能力集中</li>
+    <li>UBI / 公民财富基金一类分配讨论</li>
+    <li>算力短缺与相关经济直觉（如 Jevons）</li>
+  </ul>
+  <div class="takeaways">
+    <div class="take"><strong>带走 1。</strong>创业杠杆从「雇得起多少人」转向「买得起多少智能」；真正的点子往往还不显然。</div>
+    <div class="take"><strong>带走 2。</strong>规模与涌现是经验策略；人与系统都会在指数面前失真，要用清晰信念拆开阻力。</div>
+    <div class="take"><strong>带走 3。</strong>产品发现靠盯用户真爱什么；公用事业叙事要找「夜间的光」；基建欠账在推理与廉价交付。</div>
+  </div>
+</section>
+
+<footer>
+  按全量字幕与视频截图整理，不是逐字稿。原文版权归原作者及原平台。本页是个人阅读笔记。<br>
+  剪辑来源 <span translate="no">X · @laobaishare</span>；完整对话 Stanford CS153 / Stanford Online · Sam Altman × Anjney Midha。
+</footer>
+</main>
+<script>
+
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll(".rail nav a"));
+  var sections = Array.prototype.slice.call(document.querySelectorAll("section.card, section.tldr"));
+  if (!links.length || !sections.length || !("IntersectionObserver" in window)) return;
+  var map = {};
+  links.forEach(function (a) {
+    var id = (a.getAttribute("href") || "").replace("#", "");
+    if (id) map[id] = a;
+  });
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      var id = entry.target.id;
+      links.forEach(function (a) { a.classList.remove("is-active"); });
+      if (map[id]) map[id].classList.add("is-active");
+    });
+  }, { rootMargin: "-18% 0px -64% 0px", threshold: 0.01 });
+  sections.forEach(function (s) { io.observe(s); });
+})();
+
+</script>
+<script src="../site.js" defer></script>
+</body>
+</html>

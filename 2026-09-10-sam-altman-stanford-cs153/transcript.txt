@@ -1,0 +1,351 @@
+[    0.0-    1.2] you
+[    1.2-    4.4] With like an affordable amount of spend on tokens
+[    5.0-    7.4] You can do what a hundred person?
+[    8.0-   14.7] Incredibly great engineering team would do as a startup and that was just totally impossible. That was like not in this set of
+[   15.7-   19.6] Options for a startup and now it is so so I think what you can take on
+[   20.0-   24.4] The level and ambition you can have the speed of which you can move the amount of stuff you can do at once
+[   25.4-   27.4] it's just totally different and
+[   27.6-   33.7] Does that change the shape of the problems you feel like you'd assign at the end of the class for people to attack
+[   34.0-   37.0] You know at the end of that quarter if you were teaching it again. I
+[   37.7-   39.4] don't think assigning
+[   39.4-   41.6] Problems to attack ever works because if you like
+[   42.2-   47.6] If I can think of a problem if I can think of like a really great startup idea if it's like obvious enough to me
+[   48.1-   53.3] Then it's probably obvious to a lot of people when we started open AI we were we were like the
+[   54.0-   55.7] You know one of maybe
+[   55.7-   60.3] Generously speaking for a GI efforts in the world right and you want to find something like that
+[   60.3-   65.1] And I'm sure that there exists something today that just wasn't possible at all pre
+[   65.5-   67.5] like automated coding era
+[   68.2-   70.6] That is totally not obvious that will be you know
+[   72.1-   75.7] Multi-trillion-dollar market soon and that only four companies are working on right now
+[   75.7-   78.8] But I don't know what that is as much more likely you all know what that is
+[   78.8-   82.1] Then I know what that is. I just you know my brain is like taking over I open AI
+[   83.1-   88.7] But you know the kind of idea someone can assign you to work on this probably know what you want. Yep
+[   90.0-   92.0] Okay, so that that's fair
+[   92.0-   95.4] But I think it'd be helpful since this is a systems class to maybe
+[   96.4-  101.4] Reason about a particular problem that you have to reason through so that they can then apply
+[  101.8-  107.2] The shape of the techniques used to break down from a systems perspective that problem into solutions to their own problems
+[  107.2-  109.2] Yeah, and a concept that
+[  109.9-  113.4] You had started a tease in the class, you know back in 2014 and then
+[  114.0-  117.4] Clearly you've talked about publicly over the years is scale
+[  118.2-  122.4] Right scale is its own beast. It's it's it's you know quantities its own quality
+[  122.4-  126.8] You know whatever scale as a concept has been something it seems like you've
+[  128.4-  131.6] Empirically investigated in all kinds of ways over the last ten years
+[  131.6-  137.0] So could you help on help us first unpack like what you mean by scale now ten years later?
+[  137.0-  139.4] How would you deconstruct that as a systems design?
+[  140.2-  142.6] Attributes to apply whether that's it as a tool
+[  143.7-  145.7] Can we start there?
+[  145.7-  147.4] Yes
+[  147.4-  152.8] So I don't know why the following observation is true. I offer no
+[  153.5-  155.5] theory that
+[  155.5-  160.1] I find satisfying to explain it and that makes me a little bit nervous to
+[  161.1-  165.4] Suggest you follow it, but I'm going to anyway because empirically it does seem to be true
+[  165.4-  171.3] Which is all of the most interesting things I have observed in my career in watching other
+[  172.0-  174.3] Things happen all of the most interesting ones
+[  175.8-  178.5] Have had something to do with
+[  179.1-  186.3] Immersion scale or scale continuing to provide returns far beyond what the consensus thinks will work and
+[  186.9-  190.0] This obviously happens with like scaling loss for AI models
+[  191.0-  193.0] but this happens with
+[  194.0-  200.8] You know getting more smart people together to think about one problem this in a research setting this happens with
+[  202.4-  206.0] Companies and the sort of economy of scale you can get all the in all these different ways I
+[  206.6-  210.9] Really learned this at Y Combinator when it became clear to me
+[  211.2-  215.7] That everybody was saying oh why commenters gotten too big it should shrink which if I'm less companies per batch
+[  215.7-  222.4] You know the best times of Y Combinator when it was like 10 companies per batch and a lot of like very smart people were saying this
+[  223.1-  224.6] and
+[  224.6-  227.4] And it was like tempting because it would have been like much less work
+[  227.4-  233.0] And the theory was that you know the best companies are always kind of obvious and then you fund the rest and it's not as helpful
+[  233.5-  237.2] But a huge part of the magic of what made YC work were
+[  238.0-  243.1] Was the sort of the network effects inside of the batch and that was an emergent property at scale
+[  243.1-  246.8] They just hadn't been discovered before no one had tried to fund startups
+[  247.5-  250.4] At scale in the same way and and thus no one had ever
+[  251.2-  253.7] Happened upon this observation of when you do that
+[  254.8-  256.8] there's
+[  256.8-  261.8] There's something important that happens that just didn't exist at all at the one hand the one hundredth of the scale
+[  263.0-  265.5] There's a bunch of other examples like this. I
+[  267.5-  272.2] I'll skip them in the interest of time, but I
+[  272.8-  274.2] Would say again
+[  274.2-  279.8] I offer no explanation for why but empirically speaking when you find a time that you can push on
+[  280.8-  286.9] You can push something to a scale people have not tried before and it's already working in some interesting way at the smaller scale
+[  287.1-  292.1] More often than not that seems to be a good idea and it also seems to be something that
+[  293.9-  300.4] Most people don't do enough and I don't offer an explanation for this either but like in you know
+[  300.4-  302.6] When we were like we're really gonna scale a our models
+[  303.6-  307.6] All of the like geniuses in the field most of them were all this isn't really working
+[  307.6-  311.2] You know, that's something that's barely a scientific result. It's not interesting that it gets better at scale
+[  311.2-  316.7] You've already shown that why keep scaling it. So I mentioned the YC example. I've seen a lot of
+[  318.5-  323.5] Startup founders where they're like, well, you know, there might be something interesting that happened if I scaled this up
+[  323.5-  329.3] But I'm a little worried about it for nonspecific reasons and again looking back at like a huge
+[  330.3-  332.3] data set of people that have scaled
+[  332.9-  336.2] Their companies and all these different ways. There's almost always interesting stuff there
+[  336.2-  341.3] So I think directionally that's like an interesting thing to push on and
+[  342.8-  344.8] Severely underexplored
+[  345.3-  353.5] On the systems design part of that. I think one reason people don't do it as much is
+[  355.0-  362.9] Stuff breaks at an accelerating rate and in an unpredictable way as you scale it and if you are gonna really scale something
+[  363.9-  371.0] It's always like a little bit broken. There are always like very smart people who say why you shouldn't do this
+[  371.0-  374.1] You know, don't get too ambitious. Don't get too big. Let's try this smaller and
+[  375.1-  380.3] So breaking that down as a systems problem. I use the thing of when we were like scaling up AI models
+[  380.3-  381.5] There was
+[  381.5-  383.4] Technically, can we do this at all? This seems crazy
+[  383.4-  389.5] Like no one had ever thought about trying to do around across 10,000 or 100,000 GPUs and that was gonna require stacks of engineering talent
+[  390.1-  396.0] There was the capital requirements and what was going to take to do this and like how is there ever gonna be a business?
+[  396.0-  398.0] How can you think about taking this risk?
+[  398.0-  401.7] There was this sort of like cultural stuff of researchers saying well if we're gonna get all this compute
+[  401.7-  406.9] Why do we put it all into this one project? We're not gonna learn something. Why not divide it up among all these all these projects and
+[  407.5-  414.5] This also happens in kind of every area. I've looked at almost every area for scale and breaking it down into the
+[  415.1-  416.6] sort of
+[  416.6-  422.3] Each difficult area or each reason not to do it and trying to address them one at a time. Yeah, that's been really important
+[  424.5-  426.5] I'm gonna push on that a little bit because
+[  427.4-  429.4] there's very few people who've been able to
+[  430.4-  435.6] Repeatedly scale new products and systems the way the open AI team has over the years
+[  435.6-  440.8] But it seems like one of the issues is that there are all these prior conditioning
+[  441.4-  448.6] Sort of mental models and expectations humans have and you said things break and one of the things it seems often breaks
+[  449.1-  455.1] That's hard. The hardest to refactor is is human the human side of the the systems design
+[  455.5-  457.5] wherever there's human implementers or there's
+[  458.2-  464.9] Human participants in that and so what have you learned about humans at scale like organizing humans at scale to participate in a system that may not be
+[  465.9-  472.5] Like just a redo of some past system that they they get naively on at a prior year on first blush
+[  473.5-  475.5] um, I
+[  475.5-  480.7] Think like clear a clear goal a clear plan to get there
+[  481.1-  483.1] and like a clear
+[  486.7-  490.4] Answer to the way that you're gonna get there and kind of how you're gonna make decisions along the way
+[  490.4-  492.4] That's that's very important. So um
+[  493.6-  496.8] You know if we go back to the example of when we decided to scale up models
+[  497.0-  501.0] There were a lot of people who were like, ah, this isn't really gonna work. It's gonna have these problems
+[  501.0-  503.6] It's also not you know, we need a more diversified portfolio
+[  503.6-  508.1] But once we say no, we're gonna make a bet on scaling deep learning like that's our thing if we're wrong
+[  508.1-  511.1] We'll fail, but we're gonna do that. Here's why we're gonna do that
+[  511.1-  514.0] Here's what we believe about what the state of the world can be like if we get there
+[  514.8-  518.0] that's very powerful and then
+[  519.7-  524.2] For whatever reason we did not evolve to be good at
+[  525.1-  527.1] Thinking about exponentials
+[  527.3-  529.7] people have a hard time imagining that
+[  530.6-  537.3] Scaling laws are going to continue exponentially that revenue will grow exponentially that an organization can take on exponential complexity and
+[  538.6-  540.9] In my experience it takes a lot of time
+[  541.5-  545.3] To really reason through first principles with people about what why that can happen
+[  545.7-  551.9] Can we take two examples to walk through that the first being chat GPT and the second being codex, you know
+[  551.9-  553.9] Both of these have transformed
+[  554.1-  557.0] Can everyone here I'm gonna try a project to yeah, okay
+[  558.1-  563.3] So let me put in a frame and you can challenge both the assumption and then we can hopefully reason to
+[  563.6-  569.9] Example what happened in the case of chat you be you know for a long time in scaling of models a big mental block that
+[  570.7-  574.4] Seem to be prevalent the space is what are these things going to be useful for you?
+[  574.6-  576.6] This is you know, it's a research
+[  576.7-  581.8] Sort of solution solution chasing a problem research first approach. It's not a product
+[  582.3-  585.5] And then you know chat GPT came out and it proved to the world that
+[  585.5-  591.5] That can you know that chat experience was a killer app for general models at scale
+[  592.0-  598.5] For consumers and then a couple of years later. Yes, it's clear that coding has been a killer enterprise app
+[  598.8-  604.5] So what how would you compare in contrast the systems you guys used to discover those use cases ship them?
+[  604.9-  610.4] Scale them monetize them any any salient learnings from those two systems. Yes. Um, I
+[  611.9-  612.2] So, so
+[  612.2-  619.3] so
+[  622.2-  622.8] , we, we had made GPT 3 and we need to make money because we wanted to go scale up to you know a billion and multi-billion dollar computers and we had GPT 3 and it was kind of interesting
+[  622.8-  626.3] It was a cool demo, but we couldn't figure out a product to build around it
+[  626.3-  629.8] And we have been thinking thinking we just couldn't do it. We had tried a few things
+[  629.8-  633.3] They they hadn't worked and so we knew the models were gonna get better
+[  633.3-  636.7] but we also wanted to like start a revenue engine sooner and
+[  637.7-  640.3] We said well since we can't figure out what product to build
+[  640.3-  645.1] We're just gonna put this into an API and we're gonna hope that somebody else can figure out what product to build
+[  645.1-  651.4] and so we launched in like I don't know something in the summer of 2020 the GPT 3 API and
+[  653.3-  658.7] Initially it kind of got no traction at all and then about a month later
+[  659.7-  667.3] Randomly as far as we can tell it went viral on Twitter on the same day a few different developers kind of found got it to do something cool
+[  667.3-  669.3] posted it other people started trying and
+[  669.8-  673.2] And then like a lot of people started trying the API
+[  674.3-  679.0] But it was shockingly bad if you go back and use GPT 3 or 3.5
+[  680.7-  687.0] You will be astonished at how bad the models were then relative to the amount of excitement they generated at the time
+[  688.0-  692.1] So people tried all these things and really the only business that people got to work
+[  692.7-  695.8] In a significant way with GPT 3 was copyrighted
+[  696.5-  701.0] And that was like not that great and not that exciting and we were kind of like, you know
+[  701.0-  703.3] It's just enough to wait for a better model, but
+[  704.6-  707.1] Although no that was the only business that was working
+[  707.6-  711.9] Divers had figured out how to like put in a prompt and get and be able to chat with it
+[  711.9-  716.4] And we saw this a lot like more people were using
+[  717.1-  721.8] They could get the API to work for their business, but they were using their API key to just chat
+[  721.8-  724.9] we said well we can build a good chat box people clearly want that and
+[  726.1-  729.4] We had a new model. We actually had you before done the new model
+[  729.4-  734.3] We were ready to be called 3.5 and we had figured out a new kind of post training
+[  734.3-  739.0] where we could get the models to do like a good job with instruction following so to make it easier to chat with and
+[  739.9-  741.8] We said well, you know
+[  742.1-  747.8] The API is not working great. Maybe it was like a 10 or a 20 million dollar run rate kind of business
+[  748.1-  750.7] but there is this thing that people love and
+[  751.5-  754.5] Under the YC principle of see what your users love and do that
+[  754.5-  759.2] We said we'll build a chat bot around it and we put that out and we still didn't think it was gonna do that
+[  759.2-  762.4] Well, there was it was really meant as like a research demo
+[  763.1-  767.1] To convince other people so they should build chat like products and pay us for the API
+[  768.1-  775.8] But that one like crazy viral and another thing I had learned from YC is when something really starts growing and it's not very good
+[  776.0-  781.8] You have like a guaranteed hit on your hands. And so we had like five days where the traffic would shoot up
+[  782.3-  784.9] Fall off and everybody be like well, that was just a hype cycle
+[  784.9-  789.3] But then the next day it would get to a higher peak fall off again later in the day people would say that's a hype cycle
+[  789.7-  792.6] By the fourth or fifth day. I was like, I know how this works
+[  792.6-  796.7] I know what's gonna happen like we have the potential here at a killer
+[  797.1-  799.1] product and
+[  799.4-  804.6] We knew we could make it much better. We knew we could we knew we had GPT for we knew we could keep scaling
+[  805.9-  807.3] but
+[  807.3-  811.9] By that fifth day we got everybody together and said this is an emergency
+[  811.9-  816.9] This is the good kind of emergency, but we have to build a company and a product all at once
+[  818.1-  821.3] We then had like two months of crazy scaling
+[  821.9-  825.6] Now we said, you know, we have to figure out a business model later for now
+[  825.6-  829.0] We're just gonna charge people so that we don't like run out our compute bills
+[  829.1-  832.5] But that's obviously not the long-term answer. That also turned out just to work
+[  833.1-  836.6] And that was the story of Chatchity and then there was so much utility
+[  837.2-  841.7] That people just had not gotten over the activation energy to find that that has worked
+[  842.3-  845.0] really well and then codex
+[  846.1-  852.1] Actually the plan before Chatchity was that we were gonna go all in on code. Hmm. We knew these models could write code
+[  852.5-  857.1] We knew that they could be really and we knew that that would be like a valuable area
+[  857.1-  859.5] But then we had this incredibly exciting thing happen
+[  859.9-  862.7] but our kind of internal belief at the time was that
+[  863.5-  864.6] coding
+[  864.6-  869.4] Was how these models would control things on computers and robots were how these models would
+[  870.1-  871.4] Control things in the physical world
+[  871.4-  877.8] And if you made a smart enough model that had sort of the actuators of writing code and robot and driving a robot
+[  878.0-  882.3] You could then kind of actually get this intelligence to do stuff for you in the world
+[  882.5-  885.8] so then it took us a while to get there and then I
+[  886.2-  889.4] Think codex got really good by early this year
+[  889.5-  893.8] But with 5.5 is when we saw this real inflection point where people are now like
+[  894.7-  897.0] doing just incredible things with it and
+[  898.2-  902.8] You know that early in the class we've talked about how the capabilities pipeline
+[  903.5-  905.0] Is starting to look
+[  905.0-  909.4] It's starting to become somewhat more legibly standard across different research groups
+[  909.4-  912.7] You've got you know pre-training mid-training post-training
+[  912.7-  917.6] Then you've got the RL and supervised feedback loop is do you think that's roughly like the shape of the
+[  918.0-  923.2] Pipeline that allowed codex to you know go through a capability jump and that will basically stay stable now and consistent
+[  923.2-  925.8] Or are we gonna go through a major rewrite of that pipeline?
+[  925.8-  929.9] I think that is definitely the current pipeline. I expect we will go through a major rewrite
+[  929.9-  931.9] I don't know when it'll happen or exactly how
+[  932.5-  934.2] but
+[  934.2-  936.3] It is a little odd to me that it's so
+[  937.7-  943.0] Happens as a pipeline and doesn't quite feel like the optimal solution
+[  943.9-  948.9] What would be an optimal solution in your head? I think that's a research problem for the AIs to figure out
+[  948.9-  953.7] I think we're at a point where and we've set this goal that by September of this year
+[  953.9-  955.2] We will use
+[  955.2-  961.1] 500,000 a 100 equivalent GPUs like a lot of computing power as an AI research intern and by March of
+[  961.2-  967.4] 2028 that we will have a full end-to-end very talented researcher like figuring out complete new architectures
+[  969.2-  973.4] So I think we are gonna get like with the current pipeline the current architectures
+[  973.4-  977.8] I think we're gonna get over the line of when AIs can do incredible incredible work
+[  979.2-  983.4] You know what one of the things that you just described there
+[  984.4-  986.4] Is you you
+[  986.7-  990.4] We've been talking a lot in the class about systems frameworks and analogies to make
+[  990.7-  998.4] Concepts from one domain legible to other people who may not have all the context in another and that's sometimes because of the translation problem
+[  998.8- 1002.7] You know reasoning by analogy is not helpful because then errors compound. Yeah
+[ 1003.4- 1006.9] Right there. You said, you know our goal is to try to use it as an AI intern
+[ 1007.0- 1010.9] Which obviously is a very useful metaphor within the context of you know
+[ 1010.9- 1017.0] Silicon Valley a class that understands how these pipelines work and so on and then as as you scale actually that metaphor globally
+[ 1017.0- 1024.0] People who might not have all that context go start analogizing these models in ways that they shouldn't be like how should we think about the limits of
+[ 1024.6- 1027.4] of that of what are the limits to scale of
+[ 1028.6- 1032.4] What are the product analogies the research analogies you find most useful
+[ 1032.8- 1038.5] Within the valley and which one of the what have you found about found about the limits of those analogies scaling
+[ 1038.9- 1046.0] And now how do you navigate between those two problems? I've been very interested in studying how
+[ 1046.4- 1048.4] but I I
+[ 1048.6- 1052.0] Think what is happening is we are we are in the process of creating new utility
+[ 1052.1- 1058.0] This doesn't happen very often, you know electricity is utility Internet's utility. There's water. I guess there's not a lot of these
+[ 1058.4- 1064.3] And so there are not a lot of examples that we can study for good metaphors or learnings about how to
+[ 1065.1- 1066.9] explain this to the world
+[ 1066.9- 1068.9] But I was recently
+[ 1068.9- 1072.8] Looking at what happened when electricity became a utility and
+[ 1073.6- 1076.9] It's a good analogy for many reasons. It's imperfect, of course, too
+[ 1076.9- 1082.7] But the electricity companies at least the ones I could find information about they didn't talk about selling electricity
+[ 1082.7- 1085.5] Because no one knew what that was or why they wanted it sounds like very scary
+[ 1085.5- 1090.5] It's this thing that's like gonna come into your house and it can kill you and it's like through some way and you know
+[ 1090.5- 1094.5] it feels sort of like very different than the world before and
+[ 1095.5- 1101.9] Maybe they tried to sell electricity or market electricity first. I don't know but in any case that didn't work and then what they started
+[ 1103.1- 1109.6] Marketing selling to people was light at night, you know, we are gonna what you are getting from us is not electricity
+[ 1109.6- 1114.0] It's light at night. By the way, you can use the same thing that lets you get light for all these other things
+[ 1114.0- 1116.0] But people are like, well, why would I want that now?
+[ 1116.0- 1121.3] Like well, you know, it'll wash your clothes for you someday and I don't know it won't I can't that's too far of a jump for me
+[ 1121.3- 1123.3] right um so I
+[ 1123.6- 1125.6] Don't know what our analogy
+[ 1126.1- 1128.1] for this should be
+[ 1128.4- 1130.4] But I suspect that even if
+[ 1131.1- 1133.1] even if we're totally right and
+[ 1133.1- 1139.0] Intelligence is gonna become this new utility that every company every customer every government just
+[ 1139.6- 1142.8] Needs access to and is gonna use and all sorts of incredible ways
+[ 1142.8- 1148.0] And you will have like a open AI token subscription that you will plug into everything and use to access everything
+[ 1148.0- 1150.8] And you have running for you all the time and doing this amazing stuff
+[ 1151.7- 1158.3] I kind of don't think at least right now the right way for us to analogize that is we're selling intelligence because people are just like
+[ 1159.1- 1162.4] Somehow not resonating. I don't know what our equivalent of
+[ 1163.1- 1167.7] We're selling you light at night is going to be but I think if we're gonna become a new utility
+[ 1168.0- 1172.0] We need to find a way to explain to the world what it means to have this like
+[ 1172.6- 1176.0] Intelligence pike that you can just do whatever you'd like with it. So
+[ 1177.4- 1179.4] one
+[ 1179.4- 1186.8] Question that has emerged an emergent property of this class as of having a diversity of different speakers is that the utility analogy has come up
+[ 1186.8- 1191.8] Several times but in reference to different things. So Jensen at like and you like compute
+[ 1192.3- 1194.1] to a utility
+[ 1194.1- 1197.2] And why there should be access and so on and talk about how Stanford should pull
+[ 1197.6- 1201.3] budget and so on and and and procure that as a utility for everybody on campus
+[ 1201.7- 1206.6] Whereas you just likened the intelligence part to you till it are both of these things true is one of them
+[ 1207.6- 1214.7] How should people reason about compute as a utility tokens as utility and my computer I mean here chips versus tokens
+[ 1214.7- 1220.3] Does that make sense? I think as a consumer as like a business or an individual
+[ 1221.7- 1226.3] You will think in something closer to tokens or probably even one level up from tokens
+[ 1226.3- 1232.6] I don't think you'll care very much a lot. You know where the hardware is chip it is
+[ 1232.6- 1239.7] What's power in it? I think that stuff will be abstracted out and what you will care about is when you're interacting with the system
+[ 1241.7- 1244.1] Can you use it a lot is it cheap is it doing a good job?
+[ 1244.8- 1253.0] So right now it's like tokens it may get as we move into a world where we all just have like this constant agent running for us
+[ 1253.0- 1259.3] Being useful to us all the time you may think about it is even one level up. But yeah, my guess is is you
+[ 1260.1- 1262.1] When you like pay for your cell phone bill
+[ 1262.6- 1267.6] You're like, all right, I'm buying access to airtime and some number of gigabytes
+[ 1267.6- 1270.6] And you know, it's gonna do all these things and I'll use all these apps and whatever else
+[ 1270.6- 1275.6] But like what you think about paying for the kind of internet utility in this case is just like
+[ 1276.3- 1278.3] access to the whole system and
+[ 1279.1- 1281.1] The particular hardware at the base station
+[ 1281.6- 1283.9] Now it connects to the internet. You don't think about that as much
+[ 1284.6- 1288.4] I know I could nerd out about utility infrastructure for a long time
+[ 1288.4- 1291.6] But I want to make sure we switch a little bit to being relevant for the students
+[ 1291.6- 1298.6] Usually we have questions where we're not doing those today. Well, unless you're comfortable. Oh, okay. Great. How about that improv? Okay
+[ 1300.2- 1305.2] So one final question start getting the creative juices flowing is the final project for this class
+[ 1305.8- 1313.5] Partly in private 183 is the one person frontier lab. So everybody here is working on projects where they're simulating being an individual
+[ 1314.0- 1318.8] As a lab with access to all the right tools. They've got hundreds of thousands of dollars of credits from cloudflare
+[ 1318.8- 1323.3] I think we've got some open AI tokens. Maybe but there's a bunch of compute at their disposal
+[ 1324.2- 1329.6] What would you if you were in the class? What would you be working on for your one person frontier lab project?
+[ 1330.3- 1332.3] First of all, I can get some awesome project. I
+[ 1334.9- 1336.9] think this is top of mind because
+[ 1338.0- 1341.9] You we were just like talking about utility frame frameworks
+[ 1341.9- 1345.2] I think there's a lot of very smart people working on
+[ 1346.2- 1352.9] Great training ideas and we're gonna have incredible models no matter what you all do we're gonna have incredible models
+[ 1352.9- 1354.9] I promise you're like pretty quickly
+[ 1355.4- 1357.4] but I
+[ 1357.5- 1363.3] Think we have not invested enough in being able to deliver at scale huge amounts of cheap intelligence
+[ 1363.5- 1370.2] So maybe I would go work on like the inference part of the stack and how are we going to get this incredible intelligence to be
+[ 1370.4- 1376.5] Cheap and abundant. I think that's under invested in and and I think all of the frontier labs are going to have to become
+[ 1377.0- 1379.0] Inference companies to a senior thing degree
+[ 1380.4- 1382.2] Okay
+[ 1382.2- 1386.6] Might be too late to pivot your projects, but better late than never work on whatever you want to work up
+[ 1388.4- 1394.6] Okay, let's start taking questions and I'm gonna moderate and try to be not you know, please try to be productive and not spicy etc
+[ 1395.1- 1398.5] Remember, it's a CS class, but up to you, Sam. I'm gonna spider is fine
+[ 1399.2- 1401.7] Oh, we've got questions. Oh, perfect. All right first one
+[ 1402.1- 1406.3] There are questions about your views on the only ones view that elements are dead-end
+[ 1406.9- 1409.7] um
+[ 1409.7- 1414.1] First of all in terms of achieving human level intelligence these models have already
+[ 1414.6- 1420.1] Far surpassed human intelligence in some ways and then they're wildly worse than others like for example
+[ 1420.1- 1425.0] They seem much worse than people are at very long horizon
+[ 1426.3- 1428.3] kind of high judgment
+[ 1429.1- 1431.1] Signal and tasks
+[ 1431.2- 1435.2] On the other hand yesterday, we had one of our models
+[ 1436.0- 1439.8] discover disprove a conjecture one of the air dish problems that had
+[ 1440.6- 1442.6] smart people had worked on for a long time and
+[ 1443.0- 1447.0] A lot of people a lot of smart scientists. I don't know if Lacuna's one of them or not had
+[ 1447.7- 1450.4] Even quite recently says something like that was not going to happen
+[ 1450.9- 1456.7] And then like the model just did it and you know now you have all these mathematicians saying like is math over
+[ 1456.7- 1461.0] What does this mean for our field? So clearly LLMs are capable of
+[ 1462.3- 1468.9] Figuring out new knowledge and clearly they are capable of doing some things that some intelligence tasks that humans just can't do
+[ 1469.8- 1474.8] They are going to scale much further. So how much better and what distribution of the tasks they can do better than humans
+[ 1475.0- 1479.8] We'll find out but I suspect it's a lot and the you know in terms of this like
+[ 1480.3- 1483.2] Lack of a belief in the exponential we were talking about earlier
+[ 1483.6- 1487.2] I think the field was honestly held back by a
+[ 1488.0- 1494.3] Generation of scientists who just were way too certain on what wouldn't what what scaling was not going to produce and then
+[ 1494.3- 1498.0] Some people just looked at the graphs and said well, it looks like it's continuing beautifully. Let's keep going
+[ 1500.6- 1504.6] I think world models are clearly important and to
+[ 1505.7- 1507.7] Will need that for things like robotics
+[ 1508.2- 1510.2] but betting
+[ 1510.9- 1513.3] Against LLM scaling at this point
+[ 1515.2- 1517.2] Feels quite misguided to me
+[ 1518.8- 1522.1] It doesn't get annoying to be the I told you so guy. No, I mean
+[ 1524.4- 1529.0] There are these like Twitter trolls that you know for years have just been like it's not gonna work
+[ 1529.0- 1531.7] It's not gonna work. This is so dumb like you know, this is a fraud
+[ 1531.7- 1535.8] This company is gonna fail this research approach is gonna fail and I used to get more bothered by them
+[ 1535.9- 1538.4] But I don't even like feel the I told you so at this point
+[ 1538.5- 1543.4] It's like you were just here like she was never on you're still going on about it like the data is
+[ 1544.7- 1547.0] Right quite strong on our side
+[ 1547.6- 1552.4] In I don't think be that fun to say I told you so and also the fact that you're like still saying we're wrong
+[ 1552.4- 1554.9] Doesn't really bother me. I think there's that kind of move on
+[ 1554.9- 1559.7] There's that saying that like insanity is doing the same thing over and over again when presented with data
+[ 1559.7- 1564.6] That is not working and they keep repeating that and in a sense. It's it's it's a form of insanity
+[ 1564.6- 1570.2] I think I I think there's something that happens, which is if you make your identity about a particular
+[ 1571.1- 1573.1] thing is going to work or not work and
+[ 1574.7- 1580.4] You associate yourself with that belief and then the science or the empirical results disprove you and
+[ 1580.9- 1585.3] You're like too hung up on your identity. You can't let it go. You can't see the truth
+[ 1585.3- 1589.8] Yeah, and I think this is like an important reminder in both directions. Yeah
