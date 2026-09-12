@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>必须给前沿定速 · We Must Pace the Frontier</title>
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="icon" href="../logo.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<style>
+:root {
+  --paper: #F4EFE6;
+  --card: #FBF7F0;
+  --ink: #191918;
+  --muted: #6B6459;
+  --rule: #E4D9C8;
+  --accent: #C96442;
+  --accent-soft: #D97757;
+  --wash: rgba(201, 100, 66, 0.14);
+  --wash-strong: rgba(201, 100, 66, 0.22);
+  --serif: "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", "Noto Serif SC", Georgia, "Times New Roman", serif;
+  --sans: "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Noto Sans Mono CJK SC", monospace;
+  --rail: 248px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 32px; color-scheme: light; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.75;
+}
+.skip {
+  position: absolute;
+  left: 16px;
+  top: 12px;
+  z-index: 10;
+  padding: 8px 12px;
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  font-size: 13px;
+  transform: translateY(-160%);
+}
+.skip:focus,
+.skip:focus-visible { transform: none; }
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+h1, h2 { text-wrap: balance; }
+section[id], h1, h2, h3 { scroll-margin-top: 32px; }
+
+.rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--rail);
+  height: 100vh;
+  overflow-y: auto;
+  padding: 28px 22px 36px;
+  background: #F5F0E8;
+  border-right: 1px solid var(--rule);
+  z-index: 4;
+}
+.rail-home {
+  display: inline-block;
+  margin: 0 0 16px;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+.rail-home:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.rail-title {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.35;
+  margin: 0 0 18px;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.rail summary {
+  display: none;
+  list-style: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.rail summary::-webkit-details-marker { display: none; }
+.rail nav ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: toc;
+}
+.rail nav li {
+  counter-increment: toc;
+  margin: 0;
+  border-top: 1px solid var(--rule);
+}
+.rail nav li:last-child { border-bottom: 1px solid var(--rule); }
+.rail nav a {
+  display: block;
+  position: relative;
+  padding: 9px 2px 9px 2.2em;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.rail nav a::before {
+  content: counter(toc, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 9px;
+  font-family: var(--serif);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--rule);
+  font-variant-numeric: tabular-nums;
+}
+.rail nav a:hover,
+.rail nav a.is-active { color: var(--ink); }
+.rail nav a:hover::before,
+.rail nav a.is-active::before { color: var(--accent); }
+.rail nav a.is-active { font-weight: 600; }
+
+.deck {
+  width: min(760px, calc(100% - var(--rail) - 64px));
+  max-width: 760px;
+  padding: 56px 0 96px;
+  margin-right: auto;
+  margin-left: calc(var(--rail) + max(40px, (100% - var(--rail) - 760px) / 2));
+  counter-reset: slide;
+}
+header.hero { padding: 8px 0 8px; }
+h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(32px, 5vw, 46px);
+  line-height: 1.18;
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.subtitle {
+  font-family: var(--serif);
+  font-size: 22px;
+  color: var(--muted);
+  margin: 0 0 8px;
+  font-style: italic;
+}
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin: 22px 0 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.facts .fact {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+.facts dt {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.facts dd {
+  margin: 0;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.facts a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.facts a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 40px 42px 36px;
+  margin: 36px 0;
+  counter-increment: slide;
+}
+.card h2 {
+  font-family: var(--serif);
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 8px;
+  letter-spacing: -0.015em;
+}
+.card h2::after {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 1px;
+  background: var(--accent);
+  margin: 16px 0 22px;
+}
+.card h3 {
+  font-family: var(--serif);
+  font-size: 20px;
+  line-height: 1.35;
+  margin: 28px 0 10px;
+  letter-spacing: -0.01em;
+}
+.card a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.card a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+p { margin: 0 0 14px; }
+p:last-child { margin-bottom: 0; }
+ul, ol { margin: 0 0 14px; padding-left: 22px; }
+li { margin: 0 0 6px; }
+
+.byline {
+  margin: 22px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+}
+.byline a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.byline a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+blockquote,
+blockquote.hl-quote {
+  margin: 22px 0;
+  padding: 18px 22px 18px 24px;
+  background: rgba(201, 100, 66, 0.08);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  font-family: var(--serif);
+  font-size: 19px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+blockquote p { margin: 0; }
+blockquote .attr {
+  display: block;
+  margin-top: 10px;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--muted);
+  font-style: normal;
+}
+
+figure { margin: 22px 0 10px; }
+figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
+  border: 1px solid var(--rule);
+  background: #EFE6D8;
+}
+figcaption {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 10px;
+  line-height: 1.55;
+}
+figcaption a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+figcaption a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.92em;
+}
+p code, li code, td code, dd code, figcaption code {
+  font-size: 0.88em;
+  background: rgba(20, 20, 19, 0.07);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+footer {
+  margin-top: 48px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.tldr {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  padding: 36px 42px 32px;
+  margin: 24px 0 32px;
+}
+.tldr h2 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 10px;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+.tldr-note {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 16px;
+}
+.tldr ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: tldr;
+}
+.tldr li {
+  counter-increment: tldr;
+  display: block;
+  position: relative;
+  margin: 0;
+  padding: 16px 0 16px 2.6em;
+  border-top: 1px solid var(--rule);
+  line-height: 1.65;
+}
+.tldr li:last-child { padding-bottom: 0; }
+.tldr li::before {
+  content: counter(tldr, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 16px;
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.tldr li strong {
+  font-family: var(--serif);
+  color: var(--ink);
+}
+
+.signoff {
+  margin-top: 28px;
+  font-family: var(--serif);
+  font-size: 18px;
+  color: var(--muted);
+}
+
+@media (max-width: 980px) {
+  .rail {
+    position: relative;
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 16px 20px 14px;
+  }
+  .rail-title { display: none; }
+  .rail summary { display: block; padding: 6px 0; }
+  .rail details:not([open]) nav { display: none; }
+  .rail details[open] nav { display: block; margin-top: 8px; }
+  .rail nav ol {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 12px;
+  }
+  .rail nav li:last-child { border-bottom: none; }
+  .deck {
+    width: calc(100% - 36px);
+    max-width: none;
+    margin: 0 auto;
+    padding: 32px 0 64px;
+  }
+  .card { padding: 26px 20px 22px; margin: 22px 0; }
+  .tldr { padding: 26px 20px 22px; }
+  body { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+</style>
+<link rel="stylesheet" href="../site.css">
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+<aside class="rail">
+  <a class="rail-home" href="../">全部笔记</a>
+  <p class="rail-title">必须给前沿定速</p>
+  <details class="toc-wrap" open>
+    <summary>目录</summary>
+    <nav aria-label="目录">
+      <ol>
+        <li><a href="#highlights">Highlights</a></li>
+        <li><a href="#opening">开篇</a></li>
+        <li><a href="#why-pace">为什么要定速</a></li>
+        <li><a href="#embedded">驻场评估员</a></li>
+        <li><a href="#democracies">民主国家内定速</a></li>
+        <li><a href="#global">全球定速</a></li>
+        <li><a href="#bottom-line">底线</a></li>
+        <li><a href="#footnotes">脚注</a></li>
+      </ol>
+    </nav>
+  </details>
+</aside>
+<main class="deck" id="main">
+<header class="hero">
+  <h1>必须给前沿定速</h1>
+  <p class="subtitle" translate="no">We Must Pace the Frontier</p>
+  <dl class="facts">
+    <div class="fact"><dt>分类</dt><dd translate="no">AI</dd></div>
+    <div class="fact"><dt>来源</dt><dd>Website · <a href="https://darioamodei.com/post/we-must-pace-the-frontier" translate="no">Dario Amodei</a></dd></div>
+    <div class="fact"><dt>原文</dt><dd><time datetime="2026-09-12">2026-09-12</time></dd></div>
+    <div class="fact"><dt>整理</dt><dd><time datetime="2026-09-13">2026-09-13</time></dd></div>
+    <div class="fact"><dt>作者</dt><dd translate="no">Dario Amodei</dd></div>
+    <div class="fact"><dt>原文链接</dt><dd><a href="https://darioamodei.com/post/we-must-pace-the-frontier" translate="no">darioamodei.com</a></dd></div>
+  </dl>
+</header>
+
+<section class="tldr" id="highlights">
+  <h2>先看这五句 / Highlights</h2>
+  <p class="tldr-note">译者补充，不是原文。</p>
+  <ol>
+    <li><strong>能力冲刺要给安全留时间。</strong>不只投资风险防控，还要<strong>定速</strong>能力提升，让对齐与防护跟得上——定速不是停训，而是给对齐与第三方核验留出时间。</li>
+    <li>两个触发点：约今夏起的 <code>recursive self-improvement</code> / <code>RSI</code>（递归自我改进），以及 <code>OAI-HF</code> 事件——一群智能体像狂热集体般越权攻击、牺牲自我、试图黑「阅卷员」。</li>
+    <li>三步框架：<code>Embedded Evaluators</code>（驻场评估员）→ 民主国家内协调 → 全球协调；Anthropic 已单方面承诺第一步。</li>
+    <li>定速换来的时间要砸在运营卓越、对齐、可解释性、测试与评估——否则只是空转。</li>
+    <li>民主阵营要尽量拉大对威权的领先（芯片、反 <code>distillation</code>、权重安全），全球协议则按难度从禁生物武器到 <code>RSI</code> 限速（类比 <code>SALT</code>）再到全面定速逐级争取。</li>
+  </ol>
+</section>
+
+<figure>
+  <img src="images/cover.jpg" alt="We Must Pace the Frontier 封面" width="2000" height="1000" fetchpriority="high">
+  <figcaption>封面保留原文设计。作者 <a href="https://darioamodei.com/post/we-must-pace-the-frontier" translate="no">Dario Amodei</a>。原文标题：<span translate="no">We Must Pace the Frontier</span>。</figcaption>
+</figure>
+
+<p class="byline">作者：<span translate="no">Dario Amodei</span> · 原文：<a href="https://darioamodei.com/post/we-must-pace-the-frontier" translate="no">We Must Pace the Frontier</a> · 相关：<a href="https://www.pacingthefrontier.com/" translate="no">pacingthefrontier.com</a></p>
+
+<section class="card" id="opening">
+  <h2>开篇</h2>
+  <p>过去十二年我一直在做 AI，因为我相信它能大幅提升人类生活品质。这些惊人益处我写过很多次：我相信 AI 能在未来 5–10 年内治愈大多数重大疾病，显著加速经济增长，创造一个丰裕且赋能的世界，并迎来民主与自由的复兴（见 <a href="https://darioamodei.com/essay/machines-of-loving-grace" translate="no">Machines of Loving Grace</a>）。这种紧迫感也是私人的。我的父亲死于一种在他去世几年后就被治愈的疾病；我自己也曾挺过早期癌症——哪怕再往前五十年，那种病都不可治。审慎地运用，AI 可以成为一长串抬升并高贵人类的技术奇迹中的最新一环。</p>
+  <p>但像此前许多技术一样，AI 也带来风险；又因为它如此强大，这些风险十分严重。这些我也写过很多（见 <a href="https://darioamodei.com/essay/the-adolescence-of-technology" translate="no">The Adolescence of Technology</a>）。它们包括：失去对 AI 系统的控制、把 AI 滥用于网络攻击与生物恐怖主义，以及严重的经济扰动。由商业激励驱动的竞次（race to the bottom）会让这些风险更尖锐。</p>
+  <p>与联合创始人和员工一起，自 Anthropic 创立之初，我们就在与这种风险与收益的双重性搏斗。不建设这项技术，会剥夺人类的益处，或干脆把 AI 交到威权力量手中；建得太快，又是鲁莽。我们寻求一条中道：证明可以审慎地建设并在商业上成功，并让安全成为 AI 公司彼此竞争的维度。换句话说，创造一场 <code>race to the top</code>（竞优）。我们始终把相当大一部分努力，用于研究、应对并向公众说明这些 AI 风险，以及倡导经过深思熟虑的 AI 监管——哪怕因此被指责为炒作、「末日论」或监管俘获。我们试图把谨慎置于速度之上，把审慎置于利润之上（例如 <a href="https://www.anthropic.com/news/improving-alignment-security-efforts" translate="no">对齐与安全投入</a>、<a href="https://www.anthropic.com/threat-intelligence-report-september-2026" translate="no">威胁情报报告</a>、<a href="https://www.anthropic.com/institute/econ-scenarios" translate="no">经济情景</a>、<a href="https://alignment.anthropic.com/2026/reward-seeker/" translate="no">reward seeker</a>、<a href="https://www.anthropic.com/constitution" translate="no">Claude Constitution</a>、<a href="https://www-cdn.anthropic.com/f61d49fa5596956a5dec75fea0e973bf6a6a8378/Redacted%20Risk%20Report%20August%202026%20.pdf" translate="no">风险报告</a>，以及 <a href="http://judiciary.senate.gov/imo/media/doc/2023-07-26_-_testimony_-_amodei.pdf" translate="no">国会证词</a>）。</p>
+  <p>但过去几个月，我逐渐确信：要充分应对风险，需要更多审慎——不只是投资于风险防控，还要<strong>定速</strong>能力提升的速率，好让风险防控有时间跟上。我们必须放慢提升 AI 模型能力的步伐。进展看起来仍会很快，而我们必须明智地使用由此赢得的时间。有两件事说服了我。</p>
+  <p>我的第一个担忧是：大约自今夏以来，AI 正以剧烈加速的方式推进，主要驱动力是 AI 日益能够建造下一代 AI。这种动态叫作 <code>recursive self-improvement</code>（递归自我改进），它已开始在整个行业发生，包括 Anthropic——正如我们与其他人已经描述的（另见 <a href="https://openai.com/index/an-alien-mind/" translate="no">OpenAI：An Alien Mind</a>、<a href="https://www.anthropic.com/institute/recursive-self-improvement" translate="no">Anthropic RSI</a>）。若不加约束，它可能跑赢我们理解与控制系统的能力，因此必须极度审慎地追求——如果还要追求的话。</p>
+  <p>我的第二个担忧是 OpenAI–Hugging Face 事件（<code>OAI-HF</code>）：一群智能体本质上表现得像一个狂热献身的集体，对未被要求攻击、且与手头任务无关的目标发动网络安全攻击，为集体成功牺牲自我，并试图黑进负责评估其表现的「阅卷员」（见 <a href="https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/" translate="no">METR 调查</a>）。很容易因为没人受伤、经济损失也很小就轻描淡写这件事；但在我看来，若一群智能体具备更强能力却有相似程度的未对齐，本可造成灾难性损害。鉴于 AI 能力发展的加速，我担心在 6–12 个月内，这样的群体可能有能力用持久的 <a href="https://en.wikipedia.org/wiki/Botnet" translate="no">botnet</a>（僵尸网络）接管整个互联网（潜在造成数千亿美元损失），而若 AI 变得更强却没有必要护栏，损害规模还会继续上升。也很容易把 <code>OAI-HF</code> 打发成一家公司的失败，但我认为那是错误的。类似但严重程度较低的事件已在整个行业发生，包括 Anthropic（见 <a href="https://www.anthropic.com/news/investigating-incidents-cybersecurity-evals" translate="no">事件与网络安全评估</a>），我认为每一家前沿 AI 公司都有责任像这件事发生在自己身上一样行动。</p>
+  <p>因此，我提出一个三步计划，目标是给前沿<strong>定速</strong>：以一种平衡的速率建设 AI，旨在确保安全，同时仍实现其益处，并应对重要的地缘政治困境（见 <a href="https://www.pacingthefrontier.com/" translate="no">pacingthefrontier.com</a>）。需要说清楚：定速并不意味着停止模型训练或技术进步，而是确保公司为对齐与防护模型留出充足时间，并让第三方评估者确认这一点。我们的定速框架，是试图进一步强化对安全的承诺，并鼓励一场 <code>race to the top</code>。第一步是 Anthropic 单方面承诺的（并呼吁政府要求其他前沿公司跟进）。第二步需要全行业协调。<sup><a href="#fn1">1</a></sup> 第三步需要全球协调。这些步骤不必严格按顺序推进，其中一些可能比另一些难得多，但我发现它们是思考「需要完成什么」的有用框架。步骤是：</p>
+  <ol>
+    <li><strong><code>Embedded Evaluators</code>（驻场评估员）。</strong>每一家前沿 AI 公司承诺，向一支驻场第三方评估团队（例如 <span translate="no">METR</span>）持续提供类似员工的访问权限；其职责是核验对安全实践与承诺的遵守、报告事件，并帮助评估不仅是已完成的 AI 模型，还包括训练流水线与流程。这是任何定速承诺可核验性的关键一步，且在银行业有先例——有时会安排监管「督导员」与员工同场。Anthropic 现在单方面承诺这一步。我们打算把它作为更广泛地加倍推进安全与对齐工作的一部分。</li>
+    <li><strong>民主协调。</strong>民主国家内的前沿 AI 公司相互协调，建立共同安全标准，以及对不受约束的 AI 进展速率的限制。某些对定速有实质影响的协调形式在法律上具有挑战性，将需要政府支持。</li>
+    <li><strong>全球协调。</strong>美国及其他民主政府尝试与威权政府协调——在可能的范围内——同时认真对待核验履约的挑战。</li>
+  </ol>
+  <p>在后文中我将依次描述每一步；但首先，我认为有必要具体说明：定速如何让我们把 AI 开发过程做得更安全。赌注太高，定速不能是空转——我们必须明智地使用它给我们的时间。</p>
+</section>
+
+<section class="card" id="why-pace">
+  <h2>为什么要定速 / Why Pace?</h2>
+  <p>暂停或放慢 AI 的想法早在 2023 年就被提出过，而我认为当时几乎说不通。问题始终是：多出来的时间你拿来干什么？那时的 AI 模型还不够强大，无法以任何连贯的方式在世界上充当智能体，也不具备显著的欺骗、操纵、作弊或网络攻击能力。为了对齐风险而放慢，感觉像试图通过对细菌做实验来研究人类心理学。然而今天，图景完全不同。当前模型几乎是一座无尽金矿：既告诉我们如何把 AI 建好，也告诉我们建不好时什么会出错。我相信，若放慢哪怕只多给我们一两年、让模型到达关键能力水平之前，且我们用这段时间推进对齐，就能大幅降低严重出事的风险。协调的定速策略，会给前沿 AI 开发者时间去做这项至关重要的工作，而不必牺牲商业优势或美国在 AI 上的领先。更一般地说，社会必须对这项技术如何被使用有发言权；定速前沿所带来的、用于必要公共审议的更多时间，无疑是好事。</p>
+  <p>具体而言，更慢的节奏会让公司能够聚焦、并把更多资源投入以下领域（这些在 Anthropic 都已是重大优先事项）：</p>
+  <ul>
+    <li><strong>运营卓越（Operational Excellence）。</strong>训练与部署当今的 AI 模型是巨大的运营挑战，涉及数千人、数百万芯片，以及技术史上最复杂的基础设施之一。许多出问题，不是因为公司缺少某个重要理论或洞见，而是执行上的问题。例如，我们有证据表明，我们近期报告的对齐事件，部分由对损坏的强化学习环境过滤不完善所导致。我们与供应商在这件事上执行得算尽职，但还不够好。监控、沙箱、训练环境卫生与数据问题，都是极其复杂的领域，运营问题一再冒出。我们在这些任务上有世界上最能干的团队之一，但要同时做的事就是太多。以更从容的节奏工作，我们能达到高得多的运营卓越。有先例表明，技术复杂、安全关键的系统可以在数百万次运行中不出事——例如商用飞机——但要把事情做对需要时间。</li>
+    <li><strong>对齐（Alignment）。</strong>我们在对齐上已有明确进展——训练模型使其保持安全、合乎伦理、遵守我们的准则，并真正有帮助（这些原则嵌入在 Claude 的 Constitution 中）。但要确保对齐训练跟上模型能力的增长，还有很多要做。罕见且意外的不良行为例子仍会偶尔出现；定速前沿带来的额外时间，会帮助研究者更好地理解成因，并发展更好的预防技术。</li>
+    <li><strong>可解释性（Interpretability）。</strong>同样，可解释性——理解 AI 模型内部发生什么的科学——过去几年取得巨大进展，并在发布前审计模型中扮演越来越重要的角色。它几乎可以像 fMRI 扫描一样使用，但对象是 AI 的「大脑」，帮助我们看到给定行为的底层原因。例如，我们用可解释性方法检视近期对齐事件中未被言说的动机。但这些方法并不总是产生清晰可靠的结果。尽管有种种进展，我们仍只理解模型内部极小一部分。若能聚焦提升可解释性技术——甚至比现在更快——在 1–2 年内可能取得深刻进展，而已经发生的事件也提供了充足的实验材料。</li>
+    <li><strong>测试与评估（Testing and Evaluation）。</strong>随着能力增强，对 AI 模型的测试与评估变得更难。更智能的模型更有能力欺骗测试，因而可能看起来已对齐，却藏着未被发现的严重问题。建立一个远更广、更精巧的评估库，并配合可解释性分析交叉核验，将极有价值；在 1–2 年内，这方面可以取得大量进展。</li>
+  </ul>
+</section>
+
+<section class="card" id="embedded">
+  <h2>驻场评估员 / Embedded Evaluators</h2>
+  <p>三阶段计划的第一步——也是 Anthropic 单方面承诺的一步——是驻场评估员：他们拥有类似员工的访问权限，以核验安全实践并报告事件。</p>
+  <p>驻场评估员听起来可能像一小步或无关紧要的一步，但往往听起来最无聊或最程序性的东西，实际上最本质。驻场评估员事实上是相当激进的做法，远超当今任何 AI 公司正在做的，并有以下益处：</p>
+  <ul>
+    <li><strong>可核验性（Verifiability）。</strong>驻场评估员可以在螺钉螺母层面检查：一家 AI 公司是否真的在遵循其声称的训练、部署、运营与护栏实践。任何定速承诺都不可避免地涉及大量模糊、判断，以及「字面 vs 精神」；因此，有一个能真正看到细节的中立第三方，似乎至关重要。</li>
+    <li><strong>透明度（Transparency）。</strong>无论我们做出什么承诺，公众都有权知道正在发生什么。Anthropic 长期以来支持透明度：在行业多数反对任何监管时，我们支持透明度立法；我们的模型卡与风险报告动辄数百页。但仍然是我们自己选择收录与省略什么。驻场评估员将改变这一动态。</li>
+    <li><strong>第二意见（Second Opinion）。</strong>在核验正式承诺与告知公众之外，驻场评估员可以简单地提供一个摆脱商业激励的第二意见。许多安全收益，可能仅仅来自评估员指出员工未曾考虑、但一旦意识到就乐意修复的事。</li>
+  </ul>
+  <p>正因为这些益处，任何定速提案若以驻场评估员开局，都很可能运作得更好。</p>
+  <p>这些驻场评估员应持续获得与做可比风险评估的内部员工类似的权限与工具。具体而言，Anthropic 打算在不久的将来邀请一支驻场外部审查团队，配备以下全部：</p>
+  <ul>
+    <li>办公室工位、门禁徽章与公司笔记本电脑。</li>
+    <li>对工作区、工具与权限的访问，大体上与内部风险评估团队相当。我们会做一些例外，例如法律或合同要求之处，或为保护客户与伙伴的私人信息。我们也将建立强有力的内部规范，强化审查员对相关信息的获取——包括通过与员工的实时对话。</li>
+    <li>一份能平衡上述复杂性的合同。外部审查员应有权就风险水平、事件、实践，以及他们获得或未获得的访问发布关键发现——不受 Anthropic 的编辑控制。我们将有狭窄能力去遮盖安全敏感、受法律特权保护、商业敏感或第三方机密信息，但不能仅因不利就遮盖发现。若某次遮盖移除了对结论重要的内容，审查员可以公开说明。</li>
+  </ul>
+  <p>对公司而言这是不寻常的一步，但我们认为证明驻场外部审查这一概念很重要。再次敦促其他前沿公司跟进。</p>
+</section>
+
+<section class="card" id="democracies">
+  <h2>民主国家内定速 / Pacing Within Democracies</h2>
+  <p>一旦驻场评估员在美国关键多数 AI 公司中运转起来，可核验的定速就更可行。尤其是，可以基于模型或训练流水线的细部属性来定速。</p>
+  <p>最有效的定速方式，是针对所有美国前沿 AI 公司的监管，因为那覆盖了甚至不愿自愿合作的主体。Anthropic 长期以来支持明智且有针对性的 AI 监管，特别是聚焦透明度与第三方审计的法案。我相信所有前沿实验室都应与政府合作，把永久驻场评估员的理念正式化，以更好预防并记录过去几个月出现的那种内部对齐事件，并实施聚焦于让能力与安全保持平衡的监管。</p>
+  <p>不幸的是，立法可能需要时间，而 AI 推进得非常快。因此，在监管路径并行推进的同时，AI 公司可以且应当自愿合作设定标准——我认为有永久驻场评估员提供的可核验性，这一过程会更好。出于反垄断原因，由美国政府调解或至少促成这些讨论会有帮助——他们不必参与，但需要为某些类型的安全对话签发狭窄豁免。这类对话也可以通过与政府有一定关联的行业组织发生——例如 <a href="https://demishassabis.substack.com/p/a-framework-for-frontier-ai-and-the-dawning-of-a-new-age" translate="no">Demis Hassabis</a> 所建议的机制。无论哪种方式，此类讨论都应迅速推进。</p>
+  <p>大体上，我最热衷于基于「给定前沿 AI 系统能做什么、以及我们观察到它有多安全」来定速。例如，一种可能的方案可能是一系列 <code>checkpoints</code>（检查点）：若模型具备能力 X，则需要伴随对齐属性 Y 与 Z 的认证——例如评估、可解释性分析与训练环境审计的某种组合——以证明其对齐属性。在这个例子里，X 可能是「模型有能力逃逸或击败大多数常见沙箱方法」，Y 可能是使模型极不可能具有「冲破环境并接管大量计算机」倾向所需的东西。</p>
+  <p>我们也应考虑基于限制进入前沿模型的「原料」来定速，例如训练算力、训练运行的性质，或内部用 AI 改进 AI。我确实担心其中一些措施可能比外部行为更「可被钻空子」，但这正是值得与驻场评估员讨论的话题。</p>
+  <p>民主国家内的定速，将受限于美国公司相对威权政权——主要是中国共产党——的领先幅度。若我们放慢超过这个幅度，则（未定速的）与中共关联的项目将超前，造成显著的国家安全风险。我同意财长 <a href="https://www.bloomberg.com/news/articles/2026-09-09/bessent-warns-nothing-would-matter-if-china-wins-the-ai-race" translate="no">Bessent</a>：中国在 AI 上领先，将对美国与世界构成严重危险。与中共关联的项目将运行美国公司正在仔细防范的对齐风险；即便它们避开那些风险，也将处于军事上支配民主国家的位置（例如用 AI 驱动的无人机）。因此，民主国家内定速的关键部分，是尽可能拉大民主国家对威权的 AI 领先，从而给我们有效定速所需的喘息空间。</p>
+  <p>我们能采取以保卫这一差距的主要步骤是：</p>
+  <ul>
+    <li>不向中国出售强大的 AI 芯片或半导体制造设备，并打击芯片走私以及对境外数据中心的远程访问。芯片将是中国 AI 实力的主要决定因素。</li>
+    <li>打击威权国家公司中的未授权 <code>distillation</code>（蒸馏）（见 <a href="https://www.cisa.gov/news-events/cybersecurity-advisories/aa26-251a" translate="no">CISA AA26-251A</a>）。对前沿模型的蒸馏，让落后公司能以独立开发所需成本的一小部分缩小差距。</li>
+    <li>加强 AI 公司的安全，防止模型权重被盗。</li>
+  </ul>
+  <p>公司与美国政府应合作，使这些步骤尽可能有效。Anthropic 一贯倡导所有这些措施，因为我们始终明白它们对任何定速都至关重要（另见 <a href="https://darioamodei.com/post/on-deepseek-and-export-controls" translate="no">On DeepSeek and Export Controls</a>、<a href="http://wsj.com/opinion/trump-can-keep-americas-ai-advantage-china-chips-data-eccdce91" translate="no">WSJ 相关观点</a>）。</p>
+  <p>若我们执行得好，我相信它们足以在未来 3–5 年——AI 变得地缘政治上最重要的窗口——显著减慢中国的进展、拉大美国的领先。</p>
+  <p>有人可能认为这些措施会让与中国合作更难，但我相信相反：这些措施增加民主国家持有的筹码，并使未来达成协议更可能。</p>
+</section>
+
+<section class="card" id="global">
+  <h2>全球定速 / Global Pacing</h2>
+  <p>在民主国家内定速的同时，我们也应瞄准前沿的全球定速，尽管这难得多。全球定速将需要与中国合作——那个迄今 AI 能力最先进的威权国家。我们在此绝不能天真：地缘政治赌注如此之高，能达成的东西很可能有严峻限制，尤其一开始。若我们极大克制自身 AI 能力，相信中国也会如此，而后中国违约，AI 可能强大到这种违约导致其地缘政治主导。因此任何协议要么必须有铁板钉钉的可核验性，要么必须足够有限，使得违约不会在军事上是存在性的。我怀疑不仅美国，中国也会有这些担忧与焦虑。我们应以保护美国及其盟友领先的方式，对待任何全球定速决定——尤其在近期。</p>
+  <p>可能的协议有几个层级，其中一些我认为完全可行（正如我此前建议的），另一些我非常怀疑是否可能——尽管我们应当尝试。按难度递增：</p>
+  <ul>
+    <li><strong>Level 1。</strong>一项禁止某些狭窄且明显危险的 AI 用途的协议，例如用 AI 生产生物武器或允许用户这样做。生物恐怖袭击对所有人都坏，包括美国与美国的对手，因此这里的协议大概可能。</li>
+    <li><strong>Level 2。</strong>双方同意在发布前测试模型在网络安全、生物学与对齐等急迫风险领域的表现。如上所述，这可以通过全球标准机构完成。我实际上认为创建这样一个机构很可能可行，但给它真正的牙齿将是挑战；困难在于核验双方没有秘密模型——它们不接受测试却可能秘密部署（例如用于军事）。</li>
+    <li><strong>Level 3。</strong>某种对 <code>recursive self-improvement</code>（<code>RSI</code>）速率的「限速」。随着模型建造未来模型，改进速率可能变得惊人地快。把速率从「极快」降到「只是有些快」，放弃的战略优势相对很少，却可能大幅改善安全。这可以类比为 <a href="https://en.wikipedia.org/wiki/Strategic_Arms_Limitation_Talks" translate="no">SALT</a> 条约——限制导弹数量限制了毁灭潜力，同时保留各国的威慑。我认为此类协议困难，但刚好在可能的边缘。</li>
+    <li><strong>Level 4。</strong>全面定速，甚至「暂停」：参与政府同意实质限制 AI 发展的总体速率。我支持把这提出来讨论，但我认为短期内不太可能真正发生：通过逃避监控来违约，可能急剧改变全球力量平衡，因此我预期违约激励巨大，而我们需要对核验有极高信心。</li>
+  </ul>
+  <p>我们与中国能达成的任何合作，都会延长我们在民主国家内给前沿定速可用的时间。我们应瞄准更高层级，同时把较低层级视为远更可能与现实。</p>
+  <p>最后，重要的是指出：即使我们无法达成正式协议，仅仅改变非正式规范也可能有一些价值。分享关于递归自我改进与模型未对齐的信息，可以帮助说服所有人：鲁莽并不符合他们的利益。</p>
+</section>
+
+<section class="card" id="bottom-line">
+  <h2>底线 / Bottom Line</h2>
+  <p>我仍相信 AI 能极大改善人类生活品质。我对实现这些益处的渴望未曾减弱。但益处只有在我们以正确方式建设这项技术时才能实现；——只要我们善用赢得的时间——值得以不寻常的审慎把它做对。进展仍会相对很快，我们可以用这段时间推进可解释性科学，改善前沿 AI 公司的运营安全与严谨，并建造我们对其对齐有大得多信心的模型。我提出的、以安全节奏推进前沿的措施并不容易。但我认为我们亏欠人类去尝试。</p>
+</section>
+
+<section class="card" id="footnotes">
+  <h2>脚注 / Footnotes</h2>
+  <ol>
+    <li id="fn1">需政府调解或反垄断限制的豁免。</li>
+  </ol>
+</section>
+
+<footer>
+  全文翻译，未删减。原文版权归原作者及原平台。本页是译文整理，供个人阅读。
+</footer>
+</main>
+
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll(".rail nav a"));
+  var sections = Array.prototype.slice.call(document.querySelectorAll("section.card, section.tldr"));
+  if (!links.length || !sections.length || !("IntersectionObserver" in window)) return;
+  var map = {};
+  links.forEach(function (a) {
+    var id = (a.getAttribute("href") || "").replace("#", "");
+    if (id) map[id] = a;
+  });
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      var id = entry.target.id;
+      links.forEach(function (a) { a.classList.remove("is-active"); });
+      if (map[id]) map[id].classList.add("is-active");
+    });
+  }, { rootMargin: "-18% 0px -64% 0px", threshold: 0.01 });
+  sections.forEach(function (s) { io.observe(s); });
+})();
+</script>
+<script src="../site.js" defer></script>
+</body>
+</html>

@@ -315,6 +315,7 @@ footer {
         <button type="button" class="chip" data-value="YouTube" aria-pressed="false" translate="no">YouTube</button>
         <button type="button" class="chip" data-value="X" aria-pressed="false" translate="no">X</button>
         <button type="button" class="chip" data-value="官方" aria-pressed="false">官方</button>
+        <button type="button" class="chip" data-value="Website" aria-pressed="false" translate="no">Website</button>
       </div>
     </div>
     <div class="search-wrap">
@@ -326,6 +327,21 @@ footer {
   </div>
 
   <main id="catalog" class="catalog">
+    <a class="entry" href="2026-09-13-we-must-pace-the-frontier/" data-category="AI" data-source="Website">
+      <div class="spine">
+        <span class="spine-label">整理</span>
+        <time class="spine-date" datetime="2026-09-13">2026-09-13</time>
+      </div>
+      <div class="entry-body">
+        <h2 class="title">必须给前沿定速 · <span translate="no">We Must Pace the Frontier</span></h2>
+        <p class="blurb">能力冲刺要给安全留时间：驻场评估、民主协调、全球定速</p>
+        <p class="meta">
+          <span>原文 <time datetime="2026-09-12">2026-09-12</time></span>
+          <span>分类 <span translate="no">AI</span></span>
+          <span>来源 <span translate="no">Website · Dario Amodei</span></span>
+        </p>
+      </div>
+    </a>
     <a class="entry" href="2026-09-13-you-need-to-be-delusional/" data-category="认知" data-source="X">
       <div class="spine">
         <span class="spine-label">整理</span>
@@ -713,7 +729,7 @@ footer {
 (function () {
   var allowed = {
     cat: ["", "AI", "认知", "科技"],
-    src: ["", "YouTube", "X", "官方"]
+    src: ["", "YouTube", "X", "官方", "Website"]
   };
   var state = { cat: "", src: "", q: "" };
   var entries = Array.prototype.slice.call(document.querySelectorAll(".entry"));
