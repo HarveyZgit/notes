@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>想要成功，你得够妄想 · You need to be delusional if you want to succeed</title>
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="icon" href="../logo.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<style>
+:root {
+  --paper: #F4EFE6;
+  --card: #FBF7F0;
+  --ink: #191918;
+  --muted: #6B6459;
+  --rule: #E4D9C8;
+  --accent: #C96442;
+  --accent-soft: #D97757;
+  --wash: rgba(201, 100, 66, 0.14);
+  --wash-strong: rgba(201, 100, 66, 0.22);
+  --serif: "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", "Noto Serif SC", Georgia, "Times New Roman", serif;
+  --sans: "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Noto Sans Mono CJK SC", monospace;
+  --rail: 248px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 32px; color-scheme: light; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.75;
+}
+.skip {
+  position: absolute;
+  left: 16px;
+  top: 12px;
+  z-index: 10;
+  padding: 8px 12px;
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  font-size: 13px;
+  transform: translateY(-160%);
+}
+.skip:focus,
+.skip:focus-visible { transform: none; }
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+h1, h2 { text-wrap: balance; }
+section[id], h1, h2, h3 { scroll-margin-top: 32px; }
+
+.rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--rail);
+  height: 100vh;
+  overflow-y: auto;
+  padding: 28px 22px 36px;
+  background: #F5F0E8;
+  border-right: 1px solid var(--rule);
+  z-index: 4;
+}
+.rail-home {
+  display: inline-block;
+  margin: 0 0 16px;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+.rail-home:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.rail-title {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.35;
+  margin: 0 0 18px;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.rail summary {
+  display: none;
+  list-style: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.rail summary::-webkit-details-marker { display: none; }
+.rail nav ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: toc;
+}
+.rail nav li {
+  counter-increment: toc;
+  margin: 0;
+  border-top: 1px solid var(--rule);
+}
+.rail nav li:last-child { border-bottom: 1px solid var(--rule); }
+.rail nav a {
+  display: block;
+  position: relative;
+  padding: 9px 2px 9px 2.2em;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.rail nav a::before {
+  content: counter(toc, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 9px;
+  font-family: var(--serif);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--rule);
+  font-variant-numeric: tabular-nums;
+}
+.rail nav a:hover,
+.rail nav a.is-active { color: var(--ink); }
+.rail nav a:hover::before,
+.rail nav a.is-active::before { color: var(--accent); }
+.rail nav a.is-active { font-weight: 600; }
+
+.deck {
+  width: min(760px, calc(100% - var(--rail) - 64px));
+  max-width: 760px;
+  padding: 56px 0 96px;
+  margin-right: auto;
+  margin-left: calc(var(--rail) + max(40px, (100% - var(--rail) - 760px) / 2));
+  counter-reset: slide;
+}
+header.hero { padding: 8px 0 8px; }
+h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(32px, 5vw, 46px);
+  line-height: 1.18;
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.subtitle {
+  font-family: var(--serif);
+  font-size: 22px;
+  color: var(--muted);
+  margin: 0 0 8px;
+  font-style: italic;
+}
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin: 22px 0 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.facts .fact {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+.facts dt {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.facts dd {
+  margin: 0;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.facts a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.facts a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 40px 42px 36px;
+  margin: 36px 0;
+  counter-increment: slide;
+}
+.card h2 {
+  font-family: var(--serif);
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 8px;
+  letter-spacing: -0.015em;
+}
+.card h2::after {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 1px;
+  background: var(--accent);
+  margin: 16px 0 22px;
+}
+.card h3 {
+  font-family: var(--serif);
+  font-size: 20px;
+  line-height: 1.35;
+  margin: 28px 0 10px;
+  letter-spacing: -0.01em;
+}
+.card a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.card a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+p { margin: 0 0 14px; }
+p:last-child { margin-bottom: 0; }
+ul, ol { margin: 0 0 14px; padding-left: 22px; }
+li { margin: 0 0 6px; }
+
+.byline {
+  margin: 22px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+}
+.byline a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.byline a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+blockquote,
+blockquote.hl-quote {
+  margin: 22px 0;
+  padding: 18px 22px 18px 24px;
+  background: rgba(201, 100, 66, 0.08);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  font-family: var(--serif);
+  font-size: 19px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+blockquote p { margin: 0; }
+blockquote .attr {
+  display: block;
+  margin-top: 10px;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--muted);
+  font-style: normal;
+}
+
+figure { margin: 22px 0 10px; }
+figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
+  border: 1px solid var(--rule);
+  background: #EFE6D8;
+}
+figcaption {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 10px;
+  line-height: 1.55;
+}
+figcaption a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+figcaption a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.92em;
+}
+p code, li code, td code, dd code, figcaption code {
+  font-size: 0.88em;
+  background: rgba(20, 20, 19, 0.07);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+footer {
+  margin-top: 48px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.tldr {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  padding: 36px 42px 32px;
+  margin: 24px 0 32px;
+}
+.tldr h2 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 10px;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+.tldr-note {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 16px;
+}
+.tldr ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: tldr;
+}
+.tldr li {
+  counter-increment: tldr;
+  display: block;
+  position: relative;
+  margin: 0;
+  padding: 16px 0 16px 2.6em;
+  border-top: 1px solid var(--rule);
+  line-height: 1.65;
+}
+.tldr li:last-child { padding-bottom: 0; }
+.tldr li::before {
+  content: counter(tldr, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 16px;
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.tldr li strong {
+  font-family: var(--serif);
+  color: var(--ink);
+}
+
+.signoff {
+  margin-top: 28px;
+  font-family: var(--serif);
+  font-size: 18px;
+  color: var(--muted);
+}
+
+@media (max-width: 980px) {
+  .rail {
+    position: relative;
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 16px 20px 14px;
+  }
+  .rail-title { display: none; }
+  .rail summary { display: block; padding: 6px 0; }
+  .rail details:not([open]) nav { display: none; }
+  .rail details[open] nav { display: block; margin-top: 8px; }
+  .rail nav ol {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 12px;
+  }
+  .rail nav li:last-child { border-bottom: none; }
+  .deck {
+    width: calc(100% - 36px);
+    max-width: none;
+    margin: 0 auto;
+    padding: 32px 0 64px;
+  }
+  .card { padding: 26px 20px 22px; margin: 22px 0; }
+  .tldr { padding: 26px 20px 22px; }
+  body { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+</style>
+<link rel="stylesheet" href="../site.css">
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+<aside class="rail">
+  <a class="rail-home" href="../">全部笔记</a>
+  <p class="rail-title">想要成功，你得够妄想</p>
+  <details class="toc-wrap" open>
+    <summary>目录</summary>
+    <nav aria-label="目录">
+      <ol>
+        <li><a href="#highlights">Highlights</a></li>
+        <li><a href="#opening">三种处境</a></li>
+        <li><a href="#realistic">现实目标为何失败</a></li>
+        <li><a href="#psychology">妄想目标的心理学</a></li>
+        <li><a href="#reality">进入同一现实</a></li>
+        <li><a href="#closing">收束</a></li>
+      </ol>
+    </nav>
+  </details>
+</aside>
+<main class="deck" id="main">
+<header class="hero">
+  <h1>想要成功，你得够妄想</h1>
+  <p class="subtitle" translate="no">You need to be delusional if you want to succeed</p>
+  <dl class="facts">
+    <div class="fact"><dt>分类</dt><dd>认知</dd></div>
+    <div class="fact"><dt>来源</dt><dd>X · <a href="https://x.com/thedankoe" translate="no">@thedankoe</a></dd></div>
+    <div class="fact"><dt>原文</dt><dd><time datetime="2026-09-12">2026-09-12</time></dd></div>
+    <div class="fact"><dt>整理</dt><dd><time datetime="2026-09-13">2026-09-13</time></dd></div>
+    <div class="fact"><dt>作者</dt><dd translate="no">DAN KOE / <a href="https://x.com/thedankoe" translate="no">@thedankoe</a></dd></div>
+    <div class="fact"><dt>原文链接</dt><dd><a href="https://x.com/thedankoe/status/2098813973714149757" translate="no">推文</a> · <a href="https://x.com/i/article/2098813570234613760" translate="no">长文</a></dd></div>
+  </dl>
+</header>
+
+<section class="tldr" id="highlights">
+  <h2>先看这五句 / Highlights</h2>
+  <p class="tldr-note">译者补充，不是原文。</p>
+  <ol>
+    <li><strong>现实目标通向平庸。</strong>你按父母、老师、五个最亲近的人已经替你写好的人生来设目标，再兑稀一点免得被笑——心智被关进笼子。</li>
+    <li><strong>每个念头与行动都在瞄准某个目标</strong>，像热追踪导弹。你不知道那些目标是什么（常常是别人替你选的），就不掌控自己的人生。</li>
+    <li>人之所以独特，是不断模拟未来来操舵现在。<code>selective attention</code>（选择性注意）让大脑要么被刺激拖走，要么被目标导向。</li>
+    <li>目标不是终点，而是滤镜 / <code>Reality Distortion Field</code>（现实扭曲场）：它决定大脑看见什么、忽略什么。打中与否不重要，你会落在附近。</li>
+    <li>进入同一现实的三步：装上那个视角（不可能的结果 + 不可能的时间线）→ 立下你不再做的标准 → 走最高杠杆路径（找 <code>force multipliers</code>）。</li>
+  </ol>
+</section>
+
+<figure>
+  <img src="images/cover.jpg" alt="You need to be delusional if you want to succeed 封面" width="1200" height="480" fetchpriority="high">
+  <figcaption>封面保留原文设计。作者 <a href="https://x.com/thedankoe" translate="no">DAN KOE / @thedankoe</a>。原文标题：<span translate="no">You need to be delusional if you want to succeed</span>。</figcaption>
+</figure>
+
+<p class="byline">作者：<a href="https://x.com/thedankoe" translate="no">DAN KOE / @thedankoe</a> · 原文状态：<a href="https://x.com/thedankoe/status/2098813973714149757" translate="no">2098813973714149757</a> · 长文：<a href="https://x.com/i/article/2098813570234613760" translate="no">Article</a></p>
+
+<section class="card" id="opening">
+  <h2>三种处境</h2>
+  <p>告诉我，下面这些像不像你：</p>
+  <ol>
+    <li>
+      <p>你觉得自己被骗了，关于「好人生」长什么样。</p>
+      <p>你在追一个跟奶奶吃饭时说出来好听的目标。或者一个不会让父母觉得你是失败者的目标。而你看不见它通往任何地方。</p>
+      <p>如果你无视那种感觉，十年后醒来，你会有一张文凭、一份还不错的工作，以及一种永远不会停的绝望：你再也追不上自己的梦。</p>
+    </li>
+    <li>
+      <p>你很勤奋，却并没有真正朝任何东西前进。</p>
+      <p>你早起。你听播客。你写日记、你举铁、日历排满，但你不知道自己要去哪儿。</p>
+      <p>再给五年，你还会在「搞清楚这辈子要干什么」。</p>
+    </li>
+    <li>
+      <p>你有野心，却闭嘴，因为它在朋友和家人听来很尴尬。</p>
+      <p>你想要一种独特的人生。你不想合群。但当别人问起你的未来，你把它兑稀，好让没人笑话。</p>
+      <p>你卡在精神自慰里。你因为想变得独特而觉得自己特别，却仍然在做和所有人一样的事。</p>
+    </li>
+  </ol>
+  <p>没人想落到这三种处境里。</p>
+  <p>这封信会替你改掉这件事。</p>
+  <p>因为我最爱做的事之一，就是研究成功的人与平庸的人各自在做什么。成功说到底就是这个。多做通向成功的事，少做通向平庸的事。接下来几封信，就专门写这个。</p>
+  <p>当我们反向工程那些做成了不可能之事的人——<span translate="no">Elon Musk</span>、<span translate="no">Steve Jobs</span>，以及过去最伟大的创造者、思想者、建造者——我注意到他们之间有一个共同模式。</p>
+  <p>他们的目标是妄想的。</p>
+  <p>那就是他们成功的钥匙。</p>
+  <p>而这正是我们要讲的——为什么普通目标通向失败，妄想目标的心理学，如何进入超级成功者所处的同一现实，以及如何达成多数人认为不可能的事。</p>
+</section>
+
+<section class="card" id="realistic">
+  <h2>现实目标为何通向失败与平庸（你默认就落在这一类）</h2>
+  <blockquote>
+    <p>聪明工程师最常见的错误，是去优化一件本不该存在的东西。</p>
+    <span class="attr">— <span translate="no">Elon Musk</span></span>
+  </blockquote>
+  <p>你有目标，哪怕你从没设过。</p>
+  <p>心智就是这样工作的。如果你意识到这一点，很快就能看清：为什么你设下的目标一个都坚持不住。</p>
+  <p>我们谈的不是新年决心，或其他那种表层目标——你照镜子觉得自己难看就立下、第二天就忘了（因为另一个无意识目标，通常是便利与舒适，或者「别让人注意到你」这个目标，比终于把自己练成形更重要）。</p>
+  <p>我们谈的是：你每一个念头、每一个行动，都在瞄准一个目标。像一枚热追踪导弹。你在默默优化一个你从没选过、或别人替你选的目标。</p>
+  <p>停一秒，想想这件事。</p>
+  <p>你想的、做的每一件事，都朝向一个目标。</p>
+  <p>这很重要。极其重要。它意味着：如果你不知道那些目标是什么，你就不掌控自己的人生。</p>
+  <p>过程是这样的：</p>
+  <ul>
+    <li>你出生</li>
+    <li>你的第一个目标是生存</li>
+    <li>你的父母已经想了很久他们希望你追求什么目标。他们「想把最好的给你」</li>
+    <li>父母教你走路、教你沟通，最终教你他们版本的成功长什么样，而那通常是社会传给他们的目标（上学、找份好工作、赞美你的神）</li>
+    <li>你去上学，然后上大学，因为那就是「下一步」</li>
+    <li>你拿到工作，你打卡里程碑，你勾选方框</li>
+    <li>然后，人生快过了四分之一，你才开始怀疑：这到底是不是你一开始想要的。</li>
+  </ul>
+  <p>熵说明系统趋向无序。应用到心智上，<code>psychic entropy</code>（精神熵）意味着你的心智，因此你的人生，漂向无序与混乱。</p>
+  <p>到某个点，系统变得不稳定，必须出现一个新的、更有序的结构，就像水龙头喷出的水最终转成漩涡。</p>
+  <p>在你的人生里，你会撞上一个点：低处的你想保持原样，高处的你想要更多。感觉像被撕成两半。那是一个信号：彻底扭转你的人生。</p>
+  <p>现实目标通向失败与平庸，原因在于你怎么选它们。你看看自己觉得可能的东西，再兑稀一点，好让别人不会笑、不会觉得你是白痴。一个目标之所以感觉「现实」，只因为它刚好嵌进父母、老师、或五个最亲近的朋友已经期望你过的那种人生。</p>
+  <p>换句话说，你的心智在笼子里。</p>
+  <p>如果你继续选择住在那个笼子里，你永远没有机会注意到一个可能改变人生的机会，更别说行动；你的人生会慢慢变糟，直到痛苦大到把你压垮，或者你终于决定去追一个妄想目标。</p>
+</section>
+
+<section class="card" id="psychology">
+  <h2>妄想目标的心理学</h2>
+  <blockquote>
+    <p>把自己构想成「失败型的人」的人，会找到某种方式失败，不管他有多好的意图、多强的意志力，哪怕机会被直接倒在他腿上。把自己构想成不公的受害者、一个「注定要受苦」的人，会无一例外地找到环境来验证他的看法。</p>
+    <span class="attr">— <span translate="no">Maxwell Maltz</span></span>
+  </blockquote>
+  <p>人之所以独特，不是因为记忆、意识，或比动物更精细的智力。</p>
+  <p>人之所以独特，是因为他们不断模拟未来，来操舵现在。</p>
+  <p>你想未来比想过去多，而未来才是造成你当下行为的东西。不是反过来。你的行动并不创造未来。你先创造未来，再朝它行动。</p>
+  <p>这叫 <code>selective attention</code>（选择性注意）。</p>
+  <p>你的大脑要么被刺激拖走，要么被目标导向。</p>
+  <p>而当你聚焦一件事，按定义，你就没有在聚焦另外 99.99% 你本可以聚焦的事。你的注意力是目标导向的，而不是像破布娃娃一样被甩来甩去、寻找下一口廉价多巴胺。</p>
+  <p>妄想目标强迫这件事发生。</p>
+  <p>想象两个人，目标天差地别。</p>
+  <p><span translate="no">Tommy</span> 的目标和几乎所有人一样——上学、受教育、找份还不错的工作好终于租得起不错的公寓，再攒够物质地位符号来吸引伴侣。</p>
+  <p><span translate="no">Johnny</span> 有一个看起来不可能的目标——在 6 个月里做出一个月赚 10 万美元的内容生意。</p>
+  <p><span translate="no">Tommy</span> 有没有可能赚到比「还不错的工作」更多的钱？<span translate="no">Tommy</span> 会不会学到学校之外的东西，让他去追更赚钱的机会？不会，因为那不是他的注意力在筛选的东西。他可能撞上改变人生的信息，心智却会把它当成「噪音」，只因为它对正在追的目标没必要。</p>
+  <p><span translate="no">Johnny</span> 则不能像普通人那样想。要达成那个妄想目标，他意识到自己正在做的大多数行动完全没用。</p>
+  <p>一个设得对的妄想目标，把你的大脑推进未知，加速 <code>neuroplasticity</code>（神经可塑性）。一致性强化大脑里的通路，但新奇与挑战刺激学习与改变得更快。把开关拨过去、对一个目标 <code>all in</code>，把你的大脑扔进一个别无选择、必须快速重接线的环境，新行为变成你的新基线。</p>
+  <p>那时候，<code>flow state</code>（心流状态）与痴迷开始创造出一种极乐的生命质量。5 个内在驱动开始叠起来。</p>
+  <ul>
+    <li><strong>Curiosity（好奇）</strong>——探索未知、学习如何改变、填补知识缺口的欲望。结果是来自新奇的好多巴胺，以及去甲肾上腺素，它提高注意力，让你准备好学习。</li>
+    <li><strong>Passion（热情）</strong>——对那条能让你改变人生的路径，生出强烈热忱。结果是更多好多巴胺和去甲肾上腺素。</li>
+    <li><strong>Purpose（目的）</strong>——感觉你的行动贡献于比你更大的东西。达成目标带来更多多巴胺，强化行为。血清素来自意义与归属。催产素来自连接。</li>
+    <li><strong>Autonomy（自主）</strong>——主导自己人生与工作的欲望。控制你的选择、行动与环境。结果又是更多多巴胺，以及皮质醇下降（那种被关进盒子的压力），从而允许创造性决策。</li>
+    <li><strong>Mastery（精通）</strong>——学习与成长的过程本身就是奖赏。结果是可持续的好多巴胺，让你留在局里。</li>
+  </ul>
+  <p>这一切听起来很好，但我能听见你的反驳。</p>
+  <p>「可是 Dan，我以前试过设这种目标，这些都没发生。」</p>
+  <p>是的。</p>
+  <p>你的目标需要引力。它必须强到让你人生里其他一切都显得愚蠢而无意义。</p>
+  <p>这很难，我会再写一封信讲如何对一个改变人生的目标变得痴迷的细处；现在，先学怎么正确设下一个妄想目标。</p>
+</section>
+
+<section class="card" id="reality">
+  <h2>如何进入超级成功者所处的同一现实</h2>
+  <blockquote>
+    <p>每一个伟大的想法，一开始都是亵渎。</p>
+    <span class="attr">— <span translate="no">Anthony De Mello</span></span>
+  </blockquote>
+  <p><span translate="no">Steve Jobs</span> 会走进房间，把一个不可能的截止日期或不可能的产品说得像已经决定了。</p>
+  <p>「我们一月出货，而且它会做到这个」——带着如此彻底的确信，那间明知不可能的工程师会带着相信离开，然后朝它建造，仿佛那只是计划本身。</p>
+  <p>这就是 Jobs 的 <code>Reality Distortion Field</code>（现实扭曲场）。</p>
+  <p>多数人把它打发成魅力、操纵，或他就是个混蛋；其实那只是他在重新瞄准房间里的注意力。</p>
+  <p>Jobs 拒绝被「这个时间线不可能成立」这种刺激拖走，用一个未来靶标覆盖它。房间里每一个大脑开始筛选路径，而不是筛选「为什么不行」的理由。</p>
+  <p>而这就是关键。</p>
+  <p>你的目标不是你打中的目的地。那是对目标最大的自我提升式误读之一。目标是一个滤镜，决定你的大脑把什么看成重要、把什么忽略。目标是一种视角。你是否真的打中那个目标并不要紧，因为你至少会落在目标附近，做出你从前认为不可能的进展。</p>
+  <p>要正确设下一个妄想目标、创造你自己的现实扭曲场，需要发生这些事。</p>
+  <p>拿出笔记本，写下来：</p>
+
+  <h3>Step 1）装上那个视角</h3>
+  <p>先想一个大到你觉得不可能的目标。</p>
+  <p>再设一个短到你觉得不可能的时间线。</p>
+  <p>如果你不知道该设什么目标，甚至不知道这辈子要干什么，有帮助的是：想想你人生里此刻最痛的问题——那个一旦解决，其他问题都会变得更容易的问题。</p>
+  <p>对多数人，那通常是体能或财务。</p>
+  <p>去健身房、减掉 20 磅，能极大地提升自信与能量，让你更容易开始扭转人生。</p>
+  <p>赚更多钱会卸掉压力、打开心智，让你能投资人生的其他领域。</p>
+  <p>达成目标的具体「怎么做」还不需要发生。仅仅设下目标，就让心智去识别并学习怎么做。</p>
+  <p>接下来，你需要问自己一个问题：</p>
+  <p>你刚设的目标和时间线，对现在的你来说是不可能的吗？换句话说，你现在的做法能把你带到那里吗？</p>
+  <p>如果能，这个目标是线性的，不是不可能的。拒绝它，再把它抬高。</p>
+  <p>目标必须坐落在你现有技能、习惯、以及对「什么可能」的假设之外——因为正是这个，创造了一个让你看见新现实的镜头，而不是一份待办清单。</p>
+  <p>最后，目标必须是单一的、自己选的。</p>
+  <p>你不能有互相竞争的目标。那会劈开焦点，根本形不成视角。</p>
+  <p>它也不能继承自父母、文化、行业，或你的算法。</p>
+  <p>设完这个目标的完成态是：你能带着彻底的确信说「我做这个」，并且立刻看见你现在做的大多数事都跟它无关。</p>
+  <p>欢迎来到未知。最有意义的地方。</p>
+
+  <h3>Step 2）为你不再做的事设标准，并守住它们</h3>
+  <p>有了一个设得对的妄想目标，几乎没有任何东西能帮你达成它。</p>
+  <p>所以，你现在必须审计你的人生。每一个习惯、项目、客户、关系、例行、义务。它们有任何一个帮你到达目标吗？答案几乎肯定是没有。</p>
+  <p>这是最难的部分。</p>
+  <p>你创造一个你拒绝降低的标准。</p>
+  <p>这些是你不再做的事，句号。</p>
+  <p>你不是「差不多」不再周末派对，或「差不多」不再低价接私活——你彻底消灭它们。</p>
+  <p>当然，说比做容易。人们卡在这里，是因为 <code>sunk cost bias</code>（沉没成本偏差）、恐惧，以及缺乏问责。心智是一台自我欺骗机器，人热爱对自己撒谎。</p>
+  <p>这是你练习残酷自我诚实、同时撕掉多块创可贴的机会。</p>
+  <p>提高标准的完成态是：人生感觉戏剧性地更简单。你拥有更少的东西、更少的义务、更少堵塞心智并阻止你行动的借口。</p>
+
+  <h3>Step 3）聚焦你能走的最高杠杆路径</h3>
+  <p>你的目标创造一个框架，让你能感知新机会。</p>
+  <p>你的标准从人生里减去一切不为目标服务的东西，给注意力腾出空间朝正确方向移动。</p>
+  <p>现在你必须接受：真正能达成目标的路径非常少。</p>
+  <p>但你不会找到一条已经成形的路径、一个人、或一个机会。</p>
+  <p>拿体能来说，妄想目标（不可能的结果 + 不可能的时间线）是：6 个月后去比健美赛，或今年第一次蹲起 405 磅。</p>
+  <p>当你设下这个，看注意力发生了什么。突然，「到场、举铁、重复」这条线性路径不再管用。你需要结构。你可能需要一个能快速把你带上正轨的教练。你当前的训练计划必须只聚焦那些能把你带到那里的组数、次数和动作。你开始把睡眠和饮食看成严格且不可谈判的。所有这些，你以前根本没想过，因为你先前的目标把它们滤成了噪音。</p>
+  <p>当我决定要打出第一个月入 10 万美元（对一个习惯一年赚不到 10 万美元、收入绑定时间的自由职业者来说，这是妄想目标），我在社交媒体上大概只有 1000 个关注者。我显然不会靠「持续发帖、指望算法注意到」这种所有人都在做的事到达那里。</p>
+  <p>我必须找到 <code>force multipliers</code>（力倍增器）。我需要一个 <code>offer</code>，于是我不再把帖子看成产品，而把它们看成一件人们会付钱买的东西的分发渠道。我需要比自己 1000 个关注者更多的分发，所以我需要向别人借——向一个关注者多得多的人借，意味着我必须跟一个有 5 万关注者的人建立网络、交换价值，好让他们把我的帖子分享给他们的受众，从而带来更多购买我 <code>offer</code> 的人。</p>
+</section>
+
+<section class="card" id="closing">
+  <h2>收束</h2>
+  <p>如果你也对这条路径感兴趣，考虑加入 <a href="https://eden.so/bootcamp" translate="no">Creator Bootcamp</a>。公开招生已关闭，但它随购买 <a href="https://eden.so/" translate="no">Eden</a> 附赠。</p>
+  <p>Eden 是第二大脑：你保存任何想法，研究哪些想法已经在奏效，创造人们无法忽视的内容，并且很快随着下一次更新……靠你的知识获得报酬（我的使命是让你上线第一个产品变得没有摩擦，好让你能开始从兴趣里赚钱）。至少，注册一个免费账号四处看看，这样更新上线时你会收到通知。</p>
+  <p>现在你的焦点是单一的，你比 99% 的人类更「自律」，但你热爱它。这是你能在这个星球上体验到的最伟大的事之一。</p>
+  <p>如果你感觉不到这种喜悦，那是另一个问题。</p>
+  <p>下一封信，我们会谈如何给你的目标加上引力。也就是，让你的目标有意义到你忍不住去达成它们。</p>
+  <p class="signoff">— Dan</p>
+</section>
+
+<footer>
+  全文翻译，未删减。原文版权归原作者及原平台。本页是译文整理，供个人阅读。
+</footer>
+</main>
+
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll(".rail nav a"));
+  var sections = Array.prototype.slice.call(document.querySelectorAll("section.card, section.tldr"));
+  if (!links.length || !sections.length || !("IntersectionObserver" in window)) return;
+  var map = {};
+  links.forEach(function (a) {
+    var id = (a.getAttribute("href") || "").replace("#", "");
+    if (id) map[id] = a;
+  });
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      var id = entry.target.id;
+      links.forEach(function (a) { a.classList.remove("is-active"); });
+      if (map[id]) map[id].classList.add("is-active");
+    });
+  }, { rootMargin: "-18% 0px -64% 0px", threshold: 0.01 });
+  sections.forEach(function (s) { io.observe(s); });
+})();
+</script>
+<script src="../site.js" defer></script>
+</body>
+</html>
