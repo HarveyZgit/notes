@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Google ADK Graph Engineering：从一条提示词到智能体图</title>
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="icon" href="../logo.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<style>
+
+:root {
+  --paper: #F4EFE6;
+  --card: #FBF7F0;
+  --ink: #191918;
+  --muted: #6B6459;
+  --rule: #E4D9C8;
+  --accent: #C96442;
+  --accent-soft: #D97757;
+  --wash: rgba(201, 100, 66, 0.14);
+  --wash-strong: rgba(201, 100, 66, 0.22);
+  --serif: "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", "Noto Serif SC", Georgia, "Times New Roman", serif;
+  --sans: "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Noto Sans Mono CJK SC", monospace;
+  --rail: 248px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 32px; color-scheme: light; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.75;
+}
+
+.skip {
+  position: absolute;
+  left: 16px;
+  top: 12px;
+  z-index: 10;
+  padding: 8px 12px;
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  font-size: 13px;
+  transform: translateY(-160%);
+}
+.skip:focus,
+.skip:focus-visible { transform: none; }
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+h1, h2 { text-wrap: balance; }
+section[id], h1, h2 { scroll-margin-top: 32px; }
+
+.rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--rail);
+  height: 100vh;
+  overflow-y: auto;
+  padding: 28px 22px 36px;
+  background: #F5F0E8;
+  border-right: 1px solid var(--rule);
+  z-index: 4;
+}
+.rail-home {
+  display: inline-block;
+  margin: 0 0 16px;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+.rail-home:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.rail-title {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.35;
+  margin: 0 0 18px;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.rail summary {
+  display: none;
+  list-style: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.rail summary::-webkit-details-marker { display: none; }
+.rail nav ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: toc;
+}
+.rail nav li {
+  counter-increment: toc;
+  margin: 0;
+  border-top: 1px solid var(--rule);
+}
+.rail nav li:last-child { border-bottom: 1px solid var(--rule); }
+.rail nav a {
+  display: block;
+  position: relative;
+  padding: 9px 2px 9px 2.2em;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.rail nav a::before {
+  content: counter(toc, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 9px;
+  font-family: var(--serif);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--rule);
+  font-variant-numeric: tabular-nums;
+}
+.rail nav a:hover,
+.rail nav a.is-active {
+  color: var(--ink);
+}
+.rail nav a:hover::before,
+.rail nav a.is-active::before {
+  color: var(--accent);
+}
+.rail nav a.is-active { font-weight: 600; }
+
+.deck {
+  width: min(760px, calc(100% - var(--rail) - 64px));
+  max-width: 760px;
+  padding: 56px 0 96px;
+  margin-right: auto;
+  margin-left: calc(var(--rail) + max(40px, (100% - var(--rail) - 760px) / 2));
+}
+header.hero { padding: 8px 0 8px; }
+h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(32px, 5vw, 46px);
+  line-height: 1.18;
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.subtitle {
+  font-family: var(--serif);
+  font-size: 22px;
+  color: var(--muted);
+  margin: 0 0 8px;
+  font-style: italic;
+}
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin: 22px 0 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.facts .fact {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+.facts dt {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.facts dd {
+  margin: 0;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.facts a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.facts a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.lead {
+  color: var(--ink);
+  margin: 28px 0 8px;
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 40px 42px 36px;
+  margin: 36px 0;
+  counter-increment: slide;
+}
+.deck { counter-reset: slide; }
+.card h2 {
+  font-family: var(--serif);
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 8px;
+  letter-spacing: -0.015em;
+}
+.card h2::after {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 1px;
+  background: var(--accent);
+  margin: 16px 0 22px;
+}
+.card h3 {
+  font-family: var(--serif);
+  font-size: 20px;
+  margin: 28px 0 10px;
+}
+p { margin: 0 0 14px; }
+p:last-child { margin-bottom: 0; }
+ul, ol { margin: 0 0 14px; padding-left: 22px; }
+li { margin: 0 0 6px; }
+
+blockquote,
+blockquote.hl-quote {
+  margin: 22px 0;
+  padding: 18px 22px 18px 24px;
+  background: rgba(201, 100, 66, 0.08);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  font-family: var(--serif);
+  font-size: 21px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+blockquote p { margin: 0; }
+blockquote .en {
+  display: block;
+  margin-top: 12px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--muted);
+  font-style: normal;
+  white-space: pre-wrap;
+}
+
+figure { margin: 22px 0 10px; }
+figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
+  border: 1px solid var(--rule);
+  background: #EFE6D8;
+}
+figcaption {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 10px;
+  line-height: 1.55;
+}
+
+.note {
+  font-size: 14px;
+  color: var(--ink);
+  background: rgba(201, 100, 66, 0.08);
+  border-radius: 0;
+  padding: 12px 14px;
+  margin: 16px 0 0;
+  border-left: 2px solid var(--accent);
+}
+
+mark.hl, .hl {
+  background: linear-gradient(transparent 58%, rgba(201, 100, 66, 0.28) 58%);
+  color: inherit;
+  padding: 0 .12em;
+}
+
+.takeaways { display: grid; gap: 14px; margin-top: 12px; }
+.take {
+  background: linear-gradient(180deg, rgba(201, 100, 66, 0.16), rgba(201, 100, 66, 0.08));
+  border: 1px solid rgba(201, 100, 66, 0.35);
+  border-left: 3px solid var(--accent);
+  border-radius: 0;
+  padding: 16px 18px;
+  color: var(--ink);
+}
+.take strong {
+  color: var(--accent);
+  font-family: var(--serif);
+  font-size: 1.08em;
+}
+
+footer {
+  margin-top: 48px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+@media (max-width: 980px) {
+  .rail {
+    position: relative;
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 16px 20px 14px;
+  }
+  .rail-title { display: none; }
+  .rail summary {
+    display: block;
+    padding: 6px 0;
+  }
+  .rail details:not([open]) nav { display: none; }
+  .rail details[open] nav { display: block; margin-top: 8px; }
+  .rail nav ol {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 12px;
+  }
+  .rail nav li:last-child { border-bottom: none; }
+  .deck {
+    width: calc(100% - 36px);
+    max-width: none;
+    margin: 0 auto;
+    padding: 32px 0 64px;
+  }
+  .card { padding: 26px 20px 22px; margin: 22px 0; }
+  .tldr { padding: 26px 20px 22px; }
+  body { font-size: 16px; }
+}
+
+.tldr {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  padding: 36px 42px 32px;
+  margin: 24px 0 32px;
+}
+.tldr h2 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 18px;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+.tldr ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: tldr;
+}
+.tldr li {
+  counter-increment: tldr;
+  display: block;
+  position: relative;
+  margin: 0;
+  padding: 16px 0 16px 2.6em;
+  border-top: 1px solid var(--rule);
+  line-height: 1.65;
+}
+.tldr li:last-child { padding-bottom: 0; }
+.tldr li::before {
+  content: counter(tldr, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 16px;
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.tldr li strong {
+  font-family: var(--serif);
+  color: var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+</style>
+<link rel="stylesheet" href="../site.css">
+</head>
+
+<body>
+<a class="skip" href="#main">跳到正文</a>
+<aside class="rail">
+  <a class="rail-home" href="../">全部笔记</a>
+  <p class="rail-title" translate="no">Google ADK · Graph Engineering</p>
+  <details class="toc-wrap" open>
+    <summary>目录</summary>
+    <nav aria-label="目录">
+<ol>
+        <li><a href="#highlights">先看这五句</a></li>
+        <li><a href="#source">片源说明</a></li>
+        <li><a href="#why-prompt">为什么单提示词不够</a></li>
+        <li><a href="#what-graph">Graph engineering 是什么</a></li>
+        <li><a href="#first-graph">用 ADK 搭第一个图</a></li>
+        <li><a href="#parallel">并行：fan-out / Join</a></li>
+        <li><a href="#loop">Loop engineering</a></li>
+        <li><a href="#tools-vs-agents">工具 vs 子智能体</a></li>
+        <li><a href="#next-week">未展开：HITL / 状态</a></li>
+        <li><a href="#checklist">实践清单</a></li>
+      </ol>
+    </nav>
+  </details>
+</aside>
+<main class="deck" id="main">
+<header class="hero">
+  <h1 translate="no">Google ADK Graph Engineering: From One Prompt to Agent Graphs</h1>
+  <p class="subtitle">别把流程塞进一条提示词：用 ADK 把智能体跑成图</p>
+  <dl class="facts">
+    <div class="fact"><dt>分类</dt><dd translate="no">AI</dd></div>
+    <div class="fact"><dt>来源</dt><dd translate="no">X · @0xCodila</dd></div>
+    <div class="fact"><dt>原文</dt><dd><time datetime="2026-09-10">2026-09-10</time></dd></div>
+    <div class="fact"><dt>整理</dt><dd><time datetime="2026-09-12">2026-09-12</time></dd></div>
+    <div class="fact"><dt>讲师</dt><dd><span translate="no">Annie</span></dd></div>
+    <div class="fact"><dt>协持</dt><dd><span translate="no">Tilda</span></dd></div>
+    <div class="fact"><dt>框架</dt><dd translate="no">Google ADK 2.x</dd></div>
+    <div class="fact"><dt>片长</dt><dd>约 85 分钟</dd></div>
+    <div class="fact"><dt>推文</dt><dd><a href="https://x.com/0xCodila/status/2098182800482390216" translate="no">X 原帖</a></dd></div>
+  </dl>
+</header>
+
+<section class="tldr" id="highlights">
+  <h2>先看这五句</h2>
+  <p class="note" style="margin-top:0;margin-bottom:18px;"><strong>译者补充：</strong>下列五句是按全量字幕压缩的阅读入口，不是逐字摘录。</p>
+  <ol>
+    <li><strong>病不在提示词，在结构。</strong>把取天气、查赛道、估体能、写策略全塞进一次模型调用，数字会很自信——但没有 API 就全是幻觉。<mark class="hl">The fix is not a better prompt. The fix is structure.</mark></li>
+    <li><strong>节点可以是函数、智能体，甚至另一张图。</strong>可预测的工作放函数（零 token）；推理放模型。边把它们串成确定性顺序，而不是指望模型「记得」步骤。</li>
+    <li><strong>三种基本形：fan-out、Join、router。</strong>互不依赖就并行；用 <code>JoinNode</code> 等最慢分支；闭集规则用确定性路由，开集自由文本再用 LM 路由。</li>
+    <li><strong>能先画出流程，就值得做成图。</strong>退款、合规、安检这类生产流程需要可测、可观测、不跳步；真正开集的深度研究再用动态图 / 运行时生成节点。</li>
+    <li><strong>工具无状态，子智能体有状态。</strong>工具跑完控制权回到主智能体；委托给子智能体等于交出控制权。选哪一种，先问：这一段要不要自己的「脑子」和下一步决策权。</li>
+  </ol>
+</section>
+
+<figure>
+  <img src="images/cover.jpg" alt="讲师 Annie 在 Google 办公室讲 ADK" width="1200" height="675" fetchpriority="high">
+  <figcaption>封面。讲师 Annie；片源为 @0xCodila 转发的 Google ADK 训练 / Agent 101 直播剪辑（约 85.5 分钟）。</figcaption>
+</figure>
+
+<section class="card" id="source">
+  <h2>片源说明：@0xCodila 转发的 Google ADK Graph 课</h2>
+  <p class="note"><strong>译者注：</strong>推文包装成「Google 免费两小时 Graph &amp; Loop engineering course」。实际内容是 Google Agent Development Kit（ADK 2.x）训练 / 直播：前约 6 分钟是 Annie 的 Race Day 短片定义 graph engineering；其后是 Agent 101 第二周直播——主题是 workflow / 建「Buildyard」房子实验室，辅以 <span translate="no">ADK Web</span> 与 Cloud Shell。主持侧有 Tilda，聊天里还有 Christina、Logan、Shangjie（ADK workflow 相关）等。</p>
+  <figure>
+    <img src="images/00-open.jpg" alt="开场：Annie 介绍 graph engineering" width="1280" height="720" loading="lazy">
+    <figcaption>约 0:00–0:30。开场即点题：什么是 graph engineering、怎么搭、何时该用。</figcaption>
+  </figure>
+  <ul>
+    <li><strong>推文 TOC 时间点</strong>（对齐字幕后）：约 0:35 从零讲 graph；约 31:17 第一个 agent 图 / ADK Web；约 43:40 并行整院（fan-out）；约 1:04–1:05 router / loop；推文写的 1:30:09 self-improving 在本剪辑中<strong>基本缺席</strong>——片约 1:25 进入 Q&amp;A，自改进只在问答里被点到。</li>
+    <li><strong>本周 lab 主题：</strong>The Buildyard — Workflows at Agent Valley。上周单智能体「familiar」；本周多智能体工作流设计房子 / 蓝图。</li>
+    <li><strong>下周预告（片尾反复）：</strong>human-in-the-loop 与状态管理（长跑、暂停等人、再续跑）。</li>
+  </ul>
+  <figure>
+    <img src="images/12-10min.jpg" alt="五周系列路线图幻灯" width="1280" height="720" loading="lazy">
+    <figcaption>约 9–10 分钟。五周路线：单智能体 → workflow → HITL/状态 → memory → live/voice 等。</figcaption>
+  </figure>
+</section>
+
+<section class="card" id="why-prompt">
+  <h2>为什么单提示词不够：Race Day 与「fix is structure」</h2>
+  <figure>
+    <img src="images/01-graph-from-scratch.jpg" alt="Annie 讲解从零做 graph engineering" width="1280" height="720" loading="lazy">
+    <figcaption>约 0:35。短片段：用可运行的代码定义 graph engineering。</figcaption>
+  </figure>
+  <p>设定很简单：马拉松当天，跑者只问一句——<strong>这场该怎么跑？</strong> Attempt #1：一个智能体、一条巨型提示词，承诺取天气、分析赛道、检查体能、输出策略。跑出来的回答自信、具体——但没有天气 API、没有赛道数据，数字全是编的。Annie 称之为 disease：当每一步都困在<strong>同一次模型调用</strong>里，就没法真正拉取、没法单测、没法信任。</p>
+  <blockquote class="hl-quote">
+    <p>修复方案不是更好的提示词。<strong>修复方案是结构。</strong></p>
+    <span class="en">So the fix is not a better prompt. The fix is structure.</span>
+  </blockquote>
+  <figure>
+    <img src="images/10-2min.jpg" alt="Race Day 单提示词失败示意" width="1280" height="720" loading="lazy">
+    <figcaption>约 1–2 分钟。单提示词把整条工作流塞进一次调用：看似完整，实则不可取、不可测。</figcaption>
+  </figure>
+  <p>她把演进叠成一层层：先学 <strong>prompt engineering</strong>（对模型说什么）→ <strong>context engineering</strong>（模型周围放什么）→ <strong>loop engineering</strong>（计划—行动—检查循环）→ <strong>graph engineering</strong>：多块工作用边接起来。碎片是 <code>node</code>，接线是 <code>edge</code>。</p>
+  <p>直播段用「盖房 / 退款客服」把同一论点再讲一遍：单智能体 + 工具箱也能做事，但生产系统（尤其退款）若只靠提示词里的「先 A 后 B」，模型非确定性会跳步、改序。你既要生成式能力，又要<strong>确定性顺序</strong>——这就是引入 workflow / graph 的理由。</p>
+  <figure>
+    <img src="images/13-20min.jpg" alt="Today's build：建房工作流总图" width="1280" height="720" loading="lazy">
+    <figcaption>约 20 分钟。Today's build 总图：survey → blueprint → ground/stock/weather 并行 → join → inspect → finish / rework 回环。</figcaption>
+  </figure>
+</section>
+
+<section class="card" id="what-graph">
+  <h2>Graph engineering 是什么：节点、边、三种形</h2>
+  <figure>
+    <img src="images/11-5min.jpg" alt="Fan-out Join Router 概念小结" width="1280" height="720" loading="lazy">
+    <figcaption>约 5 分钟。短片收束：fan-out、join、router；并提示「有时你根本不需要图」。</figcaption>
+  </figure>
+  <p>最小马拉松图：两个节点——<code>fetch</code> 是普通 Python 函数（取 race-day 条件，无模型、无费用）；<code>advice</code> 是智能体（读条件写建议）。同一列表、同一接线。原则：<mark class="hl">可预测工作进函数，推理进模型</mark>。</p>
+  <h3>Fan-out</h3>
+  <p>天气、赛道、体能互不依赖 → 从 start 画出三条边，并行拉取。ADK 2 还支持 <strong>dynamic fan-out</strong>：运行时才知道要并多少条。</p>
+  <h3>Join</h3>
+  <p>像 synthesizer：等最慢分支，把输出打成按节点名键控的字典。不必手写 merger / aggregator agent——图里的 join 节点即可。</p>
+  <h3>Router</h3>
+  <p>热天 / 冷天 / 普通天三种策略、三个专家智能体，要挑一个：</p>
+  <ul>
+    <li><strong>LM router：</strong>让模型分类——能用，但费 token，且可能误读（非确定性）。</li>
+    <li><strong>Deterministic router：</strong>图里放带规则的路由节点。信号在数据里、集合是闭集时，if 语句更稳、更便宜。</li>
+  </ul>
+  <p>短片成本账：三个并行工厂 + 一个 join + 一个 strategist → 仍然<strong>正好一次</strong> LM 调用（只有 strategist 要模型）。</p>
+  <p><strong>要不要上图？</strong> 她给的自检：输入到来前能不能把流程画出来？能 → 画图、用 graph。形状本身依赖输入（如深度研究）→ ADK 2 的 dynamic workflow，让代码在运行时决定图的形状。有时你根本不需要图。</p>
+</section>
+
+<section class="card" id="first-graph">
+  <h2>用 ADK 搭第一个图 / ADK Web 调试</h2>
+  <figure>
+    <img src="images/02-15min.jpg" alt="单智能体工具箱回顾" width="1280" height="720" loading="lazy">
+    <figcaption>约 15 分钟。回顾上周：模型做脑、工具箱执行；本周要把「顺序」从提示词里抽出来做成图。</figcaption>
+  </figure>
+  <p>ADK 被定位为开源、可接多模型、本地可观测 / 测试、与 Google Cloud 部署协同的框架。本周 lab 在 <strong>Cloud Shell</strong> 上跑（也可本地 VS Code）：领免费 credit → 建 <span translate="no">Agent Valley</span> 前缀项目 → 配 <code>.env</code> / Vertex AI → 跑 setup。</p>
+  <p><strong>节点可以是什么：</strong>函数、带工具的智能体、纯智能体，甚至<strong>整张子工作流</strong>（嵌套图）。先抽象业务阶段，再决定这一段用确定性逻辑还是生成式 / 智能体。</p>
+  <figure>
+    <img src="images/03-first-agents-graph.jpg" alt="ADK Web UI 调试界面" width="1280" height="720" loading="lazy">
+    <figcaption>约 30–31 分钟。ADK Web（约 2.8.x）：Info / State / Artifacts / Evals / Events / Traces；直接跟图对话做排障。</figcaption>
+  </figure>
+  <p>第一步：只挂一个 <code>survey</code> 节点（无工具的简单 agent），用 output state 键（如 site）写回共享状态。代码侧在 workflow 里放节点、用边连图；Cloud Shell Editor 打开 <code>agent.py</code>，根 agent 最初只有 survey。</p>
+  <figure>
+    <img src="images/14-35min.jpg" alt="Cloud Shell 中编辑 agent 节点" width="1280" height="720" loading="lazy">
+    <figcaption>约 33–35 分钟。在 Cloud Shell Editor 看 survey 节点：指令 + 输出状态键；后续步骤靠取消注释逐步展开图。</figcaption>
+  </figure>
+  <p>第二步：取消注释 <code>blueprint</code>，把 survey → blueprint 连成<strong>顺序边</strong>。图保证从左到右、不跳步、不倒序——这是相对「提示词里写顺序」的硬控制。代价是灵活性更低：真正开集、说不清顺序时，仍可交给模型决策。</p>
+  <p>同一套 agent 后端既驱动 <span translate="no">ADK Web</span>，也驱动 lab 的可视化 web app。改 workflow 后两边一起变。生产排障应优先用 ADK Web 看状态、产物、事件，而不是只在应用层点点点。</p>
+</section>
+
+<section class="card" id="parallel">
+  <h2>并行：fan-out / Join（以及「上百个」怎么想）</h2>
+  <figure>
+    <img src="images/04-hundreds-parallel.jpg" alt="Buildyard lab：整院并行步骤" width="1280" height="720" loading="lazy">
+    <figcaption>约 43–48 分钟。Codelab 步骤「The whole yard at once」：crew 从一条边拆成三条并行；函数节点（如 ground）会很快变绿。</figcaption>
+  </figure>
+  <p>建房例子：算地基 / 库存 / 天气互不依赖 → fan-out 并行，再用 join 汇合，交给后续渲染 / 聚合。并行分支可以是函数、带工具的 agent、判断逻辑——类型可以混搭。Lab 里已知三条：<code>ground</code>（偏计算函数）、<code>stock</code>（agent+工具）、<code>weather</code>。</p>
+  <figure>
+    <img src="images/15-50min.jpg" alt="Web app 与 ADK Web 同步展示 fan-out" width="1280" height="720" loading="lazy">
+    <figcaption>约 50 分钟。改图后 web app 与 ADK Web 同步：三条并行可见，共享 state 被各节点读写。</figcaption>
+  </figure>
+  <p>推文「hundreds in parallel」对应的是能力边界，不是本 lab 真的 spawn 上百个。Annie 额外介绍（lab 未深做）：</p>
+  <ul>
+    <li><strong>Parallel worker：</strong>按输入个数复制<strong>同一种</strong>节点（厨房 / 卫浴 / loft 都是 design 节点）。</li>
+    <li><strong>Dynamic fan-out / fan-in：</strong>运行时才决定 fan 几条、各是什么；ADK 侧提到用上下文 / <code>ctx</code> 一类 API 在运行时挂节点。</li>
+  </ul>
+  <figure>
+    <img src="images/05-53min.jpg" alt="并行三种做法对比幻灯" width="1280" height="720" loading="lazy">
+    <figcaption>约 53–56 分钟。并行三路：固定三条 fan-out（本 lab）；parallel worker 按数量复制同节点；动态 fan-out 运行时生成。</figcaption>
+  </figure>
+</section>
+
+<section class="card" id="loop">
+  <h2>Loop engineering：route、check、repeat</h2>
+  <figure>
+    <img src="images/06-loop-engineering.jpg" alt="Today's build 含 rework 回环的完整图" width="1280" height="720" loading="lazy">
+    <figcaption>约 1:04–1:05（推文 Loop engineering 标记附近）。inspect 通过 → finish；否则 rework，虚线指回已有 stock 节点，形成闭图循环。</figcaption>
+  </figure>
+  <p>顺序 + fan-out/join 之后，下一步是 <strong>inspect → router</strong>：检查工作，决定 restock/rework 还是 finish，并防止环无限转。实现手法：路由边<strong>指回图里已有节点</strong>（向后指）→ 闭图 / 循环；若只指到新节点，那是改道而不是 loop。</p>
+  <figure>
+    <img src="images/16-60min.jpg" alt="启用 router 后的运行与 restock" width="1280" height="720" loading="lazy">
+    <figcaption>约 59–62 分钟。启用 router 后可视化：未过检则 restock 再走一程；过检则 finish。检查逻辑可以是规则，也可以是模型。</figcaption>
+  </figure>
+  <ul>
+    <li><strong>确定性路由：</strong>例如温度阈值（&gt;30°C / ≤30°C）——闭集、信号在数据里。</li>
+    <li><strong>LM 路由：</strong>开集、难穷尽规则时再交给模型。</li>
+  </ul>
+  <p>直播里还演示了 rate limit / resource exhausted：并行 + 模型节点容易撞配额，需重试。ADK Web 的图比应用层更能看清 join 与路由决策。</p>
+  <figure>
+    <img src="images/17-70min.jpg" alt="固定图 vs 动态工作流对比" width="1280" height="720" loading="lazy">
+    <figcaption>约 66–71 分钟。左边：事先画好的固定图；右边：楼层数 / 每层内容随用户输入变化 → 需要结构与灵活性的平衡（动态 fan-out、递归、运行时生成节点）。</figcaption>
+  </figure>
+  <p>动态工作流（进阶、本 lab 只点到）：深度研究不知要考虑多少因素时，可在运行中生成子处理；也可用「单智能体委托子智能体」或「工作流 + LM router」。取舍始终是<strong>控制 vs 灵活性</strong>，由业务问题决定，而不是框架口号。</p>
+</section>
+
+<section class="card" id="tools-vs-agents">
+  <h2>工具 vs 子智能体（Q&amp;A）</h2>
+  <figure>
+    <img src="images/07-1h15.jpg" alt="片尾总结与进入问答" width="1280" height="720" loading="lazy">
+    <figcaption>约 1:13–1:15。收束本周 lab：事先能画的图 → 代码构造 → 可视化；进阶才是动态树。随后进入 Q&amp;A。</figcaption>
+  </figure>
+  <p>观众问：何时该多个专家智能体，而不是「一个智能体 + 很多工具」？Annie 的对比很干脆：</p>
+  <blockquote class="hl-quote">
+    <p><strong>工具是无状态的；智能体是有状态的。</strong></p>
+    <span class="en">tool is stateless and agent is stateful</span>
+  </blockquote>
+  <ul>
+    <li><strong>多工具：</strong>工具可并行，但结束后控制权回到那个主智能体——主脑一直握着方向盘。</li>
+    <li><strong>子智能体：</strong>委托出去等于把控制权交给下一段；子智能体可以再委派、swarm、或交回。类似 workflow 里把控制交给下一节点。</li>
+  </ul>
+  <p>决策问题：这段子流程要不要自己的「脑」和下一步决策权？要 → 子智能体 / 图节点；不要、只是干完就返回 → 无状态工具更合适。</p>
+  <p>其他 Q&amp;A 要点：</p>
+  <ul>
+    <li><strong>何时不再用结构图？</strong> 从小而可行的确定性流程起步；发现盖不住开集输入，再加 handler、加 AI、或引入动态工作流——按问题演进，而不是抽象选模式。</li>
+    <li><strong>本地跑：</strong> clone → 自己的项目 / billing 或 API key → 改 <code>.env</code>（project id、Vertex、location）→ 装 <code>uv</code> → 跑 ADK / valley 脚本；核心仍是 <code>agent.py</code> 里的图。</li>
+    <li><strong>怀疑某节点坏了：</strong> 在 ADK Web 点开每个节点看输入输出，先收窄根因；「自改进」可通过带检查的 loop 改状态 / 逻辑——但这不是片中独立成章的 1:30 专题。</li>
+  </ul>
+  <figure>
+    <img src="images/08-near-end.jpg" alt="问答环节双人同框" width="1280" height="720" loading="lazy">
+    <figcaption>约 1:14 起 Q&amp;A。Annie + Tilda；本剪辑约在 1:25 附近结束，并非推文 TOC 的 1:30:09。</figcaption>
+  </figure>
+</section>
+
+<section class="card" id="next-week">
+  <h2>未展开：HITL / 状态管理（片尾预告）</h2>
+  <figure>
+    <img src="images/18-80min.jpg" alt="预告下周：人机回环与暂停等待输入的代码示意" width="1280" height="720" loading="lazy">
+    <figcaption>约 80 分钟附近画面。片中明确「下周讲 HITL + 状态」；剪辑里可见暂停等人输入一类示意，但本周不做完整实验。</figcaption>
+  </figure>
+  <p>自动化不等于全自动：退款要人审、安全要人点头。下周主题是：长跑流程如何插入 human-in-the-loop、如何管理多智能体 / 工作流里的持久状态、如何暂停后次日再续跑。本笔记<strong>不展开</strong>实现细节——按片中边界，那是下一课。</p>
+  <figure>
+    <img src="images/09-closing.jpg" alt="直播结束道别" width="1280" height="720" loading="lazy">
+    <figcaption>约 1:25。收束致谢；self-improving 未成独立章节，仅在问答中被一笔带过。</figcaption>
+  </figure>
+</section>
+
+<section class="card" id="checklist">
+  <h2>实践清单 / 何时不该用图</h2>
+  <div class="takeaways">
+    <div class="take"><strong>先问能不能画。</strong>输入到来前能画出阶段与依赖 → 值得做成 ADK workflow；画不出来、形状随输入剧烈变化 → 单智能体、LM 路由或动态图，而不是硬编码假确定性。</div>
+    <div class="take"><strong>函数 vs 模型。</strong>可预测、可测、零成本 → 函数节点；需要推理、生成、分类开集 → 智能体节点。Join 等分支，别手写 aggregator agent 除非业务真要「再想一遍」。</div>
+    <div class="take"><strong>路由选对工具。</strong>闭集 + 数据里有信号 → 确定性 router；自由文本开集 → LM router。Loop 用指回已有节点的边，并设好退出 / 上限。</div>
+    <div class="take"><strong>并行三档。</strong>已知固定分支 → 静态 fan-out + Join；同质复制 → parallel worker；未知数量 / 类型 → dynamic fan-out（进阶）。</div>
+    <div class="take"><strong>调试分层。</strong>用 ADK Web 看 Events / Traces / State / Artifacts，再对应用层；共享 state 键要起好名字，方便下周谈持久化与 HITL。</div>
+    <div class="take"><strong>何时不该上图。</strong>一次性探索、步骤本身就是开放对话、或过早优化「看起来像架构」的空图——先让单智能体跑通，再把已稳定的业务顺序抽成边。</div>
+  </div>
+  <figure>
+    <img src="images/cover.jpg" alt="再次回到 Annie 封面" width="1200" height="675" loading="lazy">
+    <figcaption>带走一句：生成式能力可以保留，但生产信任来自可测的结构——节点、边、以及你敢不敢在输入到来前把图画出来。</figcaption>
+  </figure>
+</section>
+
+<footer>
+  按全量字幕与视频截图整理，不是逐字稿。原文版权归原作者及原平台。本页是个人阅读笔记。<br>
+  剪辑来源 <span translate="no">X · @0xCodila</span> → <a href="https://x.com/0xCodila/status/2098182800482390216" translate="no">原推文</a>；内容为 Google ADK / Agent 101 直播（讲师 Annie，协持 Tilda）。
+</footer>
+</main>
+<script>
+
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll(".rail nav a"));
+  var sections = Array.prototype.slice.call(document.querySelectorAll("section.card, section.tldr"));
+  if (!links.length || !sections.length || !("IntersectionObserver" in window)) return;
+  var map = {};
+  links.forEach(function (a) {
+    var id = (a.getAttribute("href") || "").replace("#", "");
+    if (id) map[id] = a;
+  });
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      var id = entry.target.id;
+      links.forEach(function (a) { a.classList.remove("is-active"); });
+      if (map[id]) map[id].classList.add("is-active");
+    });
+  }, { rootMargin: "-18% 0px -64% 0px", threshold: 0.01 });
+  sections.forEach(function (s) { io.observe(s); });
+})();
+
+</script>
+<script src="../site.js" defer></script>
+</body>
+</html>

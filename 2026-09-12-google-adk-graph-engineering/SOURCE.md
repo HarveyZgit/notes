@@ -1,0 +1,13 @@
+# Source
+- X: https://x.com/0xCodila/status/2098182800482390216 (2026-09-10) by @0xCodila
+- Video duration: ~85.5 min (5129s)
+- Content: Google ADK graph-engineering training / live session. Presenter introduces herself as Annie. Builds with Google Agent Development Kit (ADK 2.x). Race-day marathon agent example; moves from one giant prompt to graph workflows; ADK Web UI; parallel fan-out; loop/route/check; Q&A on tools vs sub-agents, human-in-the-loop teased for next week.
+- Tweet TOC markers:
+  - 0:35 Graph engineering from scratch
+  - 31:17 first agents graph
+  - 43:40 hundreds in parallel
+  - 1:04:58 Loop engineering
+  - 1:30:09 self-improving / wrap (clip ends ~1:25 with Q&A; tweet 1:30:09 may be approximate)
+- Related Codila article (linked in tweet): https://x.com/0xCodila/status/2079597821511020996 — optional series context, do NOT substitute for this video's transcript
+- Transcript: whisper small on 360p audio → transcript.txt
+- 整理: 2026-09-12 ; 原文: 2026-09-10
