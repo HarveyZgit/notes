@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>把 effort 花在刀刃上 · Using Claude Code: Spending your effort</title>
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="icon" href="../logo.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<style>
+:root {
+  --paper: #F4EFE6;
+  --card: #FBF7F0;
+  --ink: #191918;
+  --muted: #6B6459;
+  --rule: #E4D9C8;
+  --accent: #C96442;
+  --accent-soft: #D97757;
+  --wash: rgba(201, 100, 66, 0.14);
+  --wash-strong: rgba(201, 100, 66, 0.22);
+  --serif: "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", "Noto Serif SC", Georgia, "Times New Roman", serif;
+  --sans: "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Noto Sans Mono CJK SC", monospace;
+  --rail: 248px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 32px; color-scheme: light; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.75;
+}
+.skip {
+  position: absolute;
+  left: 16px;
+  top: 12px;
+  z-index: 10;
+  padding: 8px 12px;
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  font-size: 13px;
+  transform: translateY(-160%);
+}
+.skip:focus,
+.skip:focus-visible { transform: none; }
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+h1, h2 { text-wrap: balance; }
+section[id], h1, h2, h3 { scroll-margin-top: 32px; }
+
+.rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--rail);
+  height: 100vh;
+  overflow-y: auto;
+  padding: 28px 22px 36px;
+  background: #F5F0E8;
+  border-right: 1px solid var(--rule);
+  z-index: 4;
+}
+.rail-home {
+  display: inline-block;
+  margin: 0 0 16px;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+.rail-home:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.rail-title {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.35;
+  margin: 0 0 18px;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.rail summary {
+  display: none;
+  list-style: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.rail summary::-webkit-details-marker { display: none; }
+.rail nav ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: toc;
+}
+.rail nav li {
+  counter-increment: toc;
+  margin: 0;
+  border-top: 1px solid var(--rule);
+}
+.rail nav li:last-child { border-bottom: 1px solid var(--rule); }
+.rail nav a {
+  display: block;
+  position: relative;
+  padding: 9px 2px 9px 2.2em;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.rail nav a::before {
+  content: counter(toc, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 9px;
+  font-family: var(--serif);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--rule);
+  font-variant-numeric: tabular-nums;
+}
+.rail nav a:hover,
+.rail nav a.is-active { color: var(--ink); }
+.rail nav a:hover::before,
+.rail nav a.is-active::before { color: var(--accent); }
+.rail nav a.is-active { font-weight: 600; }
+
+.deck {
+  width: min(760px, calc(100% - var(--rail) - 64px));
+  max-width: 760px;
+  padding: 56px 0 96px;
+  margin-right: auto;
+  margin-left: calc(var(--rail) + max(40px, (100% - var(--rail) - 760px) / 2));
+  counter-reset: slide;
+}
+header.hero { padding: 8px 0 8px; }
+h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(32px, 5vw, 46px);
+  line-height: 1.18;
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.subtitle {
+  font-family: var(--serif);
+  font-size: 22px;
+  color: var(--muted);
+  margin: 0 0 8px;
+  font-style: italic;
+}
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin: 22px 0 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.facts .fact {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+.facts dt {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.facts dd {
+  margin: 0;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.facts a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.facts a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 40px 42px 36px;
+  margin: 36px 0;
+  counter-increment: slide;
+}
+.card h2 {
+  font-family: var(--serif);
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 8px;
+  letter-spacing: -0.015em;
+}
+.card h2::after {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 1px;
+  background: var(--accent);
+  margin: 16px 0 22px;
+}
+.card h3 {
+  font-family: var(--serif);
+  font-size: 20px;
+  line-height: 1.35;
+  margin: 28px 0 10px;
+  letter-spacing: -0.01em;
+}
+.card a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.card a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+p { margin: 0 0 14px; }
+p:last-child { margin-bottom: 0; }
+ul, ol { margin: 0 0 14px; padding-left: 22px; }
+li { margin: 0 0 6px; }
+
+.byline {
+  margin: 22px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+}
+.byline a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.byline a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+blockquote,
+blockquote.hl-quote {
+  margin: 22px 0;
+  padding: 18px 22px 18px 24px;
+  background: rgba(201, 100, 66, 0.08);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  font-family: var(--serif);
+  font-size: 19px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+blockquote p { margin: 0; }
+
+figure { margin: 22px 0 10px; }
+figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
+  border: 1px solid var(--rule);
+  background: #EFE6D8;
+}
+figcaption {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 10px;
+  line-height: 1.55;
+}
+figcaption a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+figcaption a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+.note {
+  font-size: 14px;
+  color: var(--ink);
+  background: rgba(201, 100, 66, 0.08);
+  border-radius: 0;
+  padding: 12px 14px;
+  margin: 16px 0 0;
+  border-left: 2px solid var(--accent);
+}
+
+.callout {
+  font-size: 14px;
+  color: var(--ink);
+  background: rgba(20, 20, 19, 0.04);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 12px 14px;
+  margin: 12px 0 18px;
+  line-height: 1.6;
+}
+.callout .swatch {
+  display: inline-block;
+  width: 0.85em;
+  height: 0.85em;
+  border-radius: 2px;
+  vertical-align: -0.05em;
+  margin-right: 0.35em;
+}
+.callout .swatch.purple { background: #7B5EA7; }
+.callout .swatch.blue { background: #3A6EA5; }
+
+code {
+  font-family: var(--mono);
+  font-size: 0.92em;
+}
+p code, li code, td code, dd code, figcaption code, .note code, .callout code {
+  font-size: 0.88em;
+  background: rgba(20, 20, 19, 0.07);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+footer {
+  margin-top: 48px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.tldr {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  padding: 36px 42px 32px;
+  margin: 24px 0 32px;
+}
+.tldr h2 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 10px;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+.tldr-note {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 16px;
+}
+.tldr ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: tldr;
+}
+.tldr li {
+  counter-increment: tldr;
+  display: block;
+  position: relative;
+  margin: 0;
+  padding: 16px 0 16px 2.6em;
+  border-top: 1px solid var(--rule);
+  line-height: 1.65;
+}
+.tldr li:last-child { padding-bottom: 0; }
+.tldr li::before {
+  content: counter(tldr, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 16px;
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.tldr li strong {
+  font-family: var(--serif);
+  color: var(--ink);
+}
+
+/* Chinese HTML redraw of fig7 rule-of-thumb card */
+.effort-card {
+  margin: 22px 0 10px;
+  padding: 8px 4px;
+  background: #F9F7F2;
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  box-shadow: 0 8px 28px rgba(25, 25, 24, 0.06);
+  overflow: hidden;
+}
+.effort-card .effort-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+  padding: 22px 28px;
+  border-top: 1px solid #E8E0D4;
+}
+.effort-card .effort-row:first-child { border-top: none; }
+.effort-card .effort-q {
+  margin: 0;
+  font-size: 16.5px;
+  line-height: 1.45;
+  color: var(--ink);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.effort-card .effort-pill {
+  flex: 0 0 auto;
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding: 9px 16px;
+  border-radius: 999px;
+  white-space: nowrap;
+  line-height: 1;
+}
+.effort-card .effort-pill.low {
+  background: #EBE3D5;
+  color: #2A2A28;
+}
+.effort-card .effort-pill.medium {
+  background: #EBC0A1;
+  color: #2A2A28;
+}
+.effort-card .effort-pill.high {
+  background: #D87D56;
+  color: #1A1816;
+}
+.effort-card .effort-pill.max {
+  background: #2B2B26;
+  color: #F4F1EA;
+}
+
+details.orig-fig {
+  margin: 8px 0 18px;
+  font-size: 13px;
+  color: var(--muted);
+}
+details.orig-fig summary {
+  cursor: pointer;
+  color: var(--muted);
+  list-style: none;
+}
+details.orig-fig summary::-webkit-details-marker { display: none; }
+details.orig-fig summary:hover { color: var(--ink); }
+details.orig-fig img {
+  margin-top: 10px;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid var(--rule);
+}
+
+.related {
+  margin: 28px 0 0;
+  padding: 18px 20px;
+  background: rgba(201, 100, 66, 0.06);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.related a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.related a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+@media (max-width: 980px) {
+  .rail {
+    position: relative;
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 16px 20px 14px;
+  }
+  .rail-title { display: none; }
+  .rail summary { display: block; padding: 6px 0; }
+  .rail details:not([open]) nav { display: none; }
+  .rail details[open] nav { display: block; margin-top: 8px; }
+  .rail nav ol {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 12px;
+  }
+  .rail nav li:last-child { border-bottom: none; }
+  .deck {
+    width: calc(100% - 36px);
+    max-width: none;
+    margin: 0 auto;
+    padding: 32px 0 64px;
+  }
+  .card { padding: 26px 20px 22px; margin: 22px 0; }
+  .tldr { padding: 26px 20px 22px; }
+  body { font-size: 16px; }
+  .effort-card .effort-row {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 18px 18px;
+    gap: 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+</style>
+<link rel="stylesheet" href="../site.css">
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+<aside class="rail">
+  <a class="rail-home" href="../">全部笔记</a>
+  <p class="rail-title">把 effort 花在刀刃上</p>
+  <details class="toc-wrap" open>
+    <summary>目录</summary>
+    <nav aria-label="目录">
+      <ol>
+        <li><a href="#highlights">Highlights</a></li>
+        <li><a href="#opening">开篇</a></li>
+        <li><a href="#what-is-effort">什么是 effort</a></li>
+        <li><a href="#effort-curves">Effort 曲线</a></li>
+        <li><a href="#building">用 effort 来构建</a></li>
+        <li><a href="#takeaways">启示</a></li>
+        <li><a href="#difficult">困难任务上的影响</a></li>
+        <li><a href="#edge-cases">边例多时提高 effort</a></li>
+        <li><a href="#problem-areas">effort 更有用的问题域</a></li>
+        <li><a href="#when-to-use">何时用哪一档</a></li>
+      </ol>
+    </nav>
+  </details>
+</aside>
+<main class="deck" id="main">
+<header class="hero">
+  <h1>把 effort 花在刀刃上</h1>
+  <p class="subtitle" translate="no">Using Claude Code: Spending your effort</p>
+  <dl class="facts">
+    <div class="fact"><dt>分类</dt><dd translate="no">AI</dd></div>
+    <div class="fact"><dt>来源</dt><dd>X · <a href="https://x.com/trq212" translate="no">@trq212</a></dd></div>
+    <div class="fact"><dt>原文</dt><dd><time datetime="2026-09-25">2026-09-25</time></dd></div>
+    <div class="fact"><dt>整理</dt><dd><time datetime="2026-09-26">2026-09-26</time></dd></div>
+    <div class="fact"><dt>作者</dt><dd>Thariq / <a href="https://x.com/trq212" translate="no">@trq212</a>（Claude Code @ Anthropic）</dd></div>
+    <div class="fact"><dt>原文链接</dt><dd><a href="https://x.com/trq212/status/2103576349499855160" translate="no">X 帖</a> · <a href="https://claude.dev/blog/spending-your-effort/" translate="no">claude.dev</a></dd></div>
+  </dl>
+</header>
+
+<section class="tldr" id="highlights">
+  <h2>先看这五句 / Highlights</h2>
+  <p class="tldr-note">译者补充，不是原文。</p>
+  <ol>
+    <li><strong><code>effort</code> 调的是验证与自主判断强度</strong>——更高档位让 Claude 多做边例测试、多下独立判断；不破坏 Claude Code 里的 <code>prompt cache</code>。</li>
+    <li><strong>别凡事 Max。</strong>日常软件工程用 <code>low</code>/<code>medium</code> 快速出稿并保持在环；硬件、安全、代码审查等需要彻底验证时再上 <code>high</code>/<code>max</code>。</li>
+    <li><strong>作者常用循环：</strong>先让模型面试你补全规格 → <code>low</code>/<code>medium</code> 实现 → 人工审大意 → <code>high</code> 做验证与测试。</li>
+    <li><strong>提高 effort 主要砍掉「缺边例」失败</strong>（图中紫块），对「路线错了」（蓝块）帮助有限——方向错了，烧更多 token 也救不回来。</li>
+    <li><strong>经验法则：</strong>草图/头脑风暴用 <code>low</code>；日常功能用 <code>medium</code>；修 bug / 追边例用 <code>high</code>；端到端难活与安全审计用 <code>max</code>。对话中途可用 <code>/effort</code> 切换。</li>
+  </ol>
+</section>
+
+<figure>
+  <img src="images/cover.jpg" alt="Using Claude Code: Spending your Effort 封面" width="1200" height="480" fetchpriority="high">
+  <figcaption>封面保留原文设计：左侧标题 <span translate="no">Spending Your Effort</span>，右侧为 <code>/effort</code> 滑条示意（图中停在 <code>medium</code>）。作者 Thariq / <a href="https://x.com/trq212" translate="no">@trq212</a>。交互版说明见 <a href="https://claude.dev/blog/spending-your-effort/" translate="no">claude.dev/blog/spending-your-effort</a>。</figcaption>
+</figure>
+
+<p class="byline">作者：Thariq / <a href="https://x.com/trq212" translate="no">@trq212</a>（Claude Code @ Anthropic） · 原文：<a href="https://x.com/trq212/status/2103576349499855160" translate="no">X 帖</a> · 配套博客：<a href="https://claude.dev/blog/spending-your-effort/" translate="no">Spending your effort</a></p>
+
+<section class="card" id="opening">
+  <h2>开篇</h2>
+  <p>我们最新 Claude 模型最棒的一点之一，是它们能响应 <code>effort</code>，同时又不打断 Claude Code 里的 <code>prompt cache</code>——但我收到很多用户问这个问题。<code>effort</code> 到底是什么？什么时候该用哪一档？为什么我们需要 <code>effort</code>？</p>
+  <p>为了回答这些，我决定深入评估（evals），并在日常工作里自己测不同 <code>effort</code>。</p>
+  <p class="note">注：这篇的更多交互图示与说明，见 <a href="https://claude.dev/blog/spending-your-effort/" translate="no">https://claude.dev/blog/spending-your-effort/</a></p>
+  <p>总的来说，我发现 <code>effort</code> 是很好的旋钮：用来改变 Claude 做多少验证与边例测试，以及它用多少自己的判断。</p>
+  <p>额外 <code>effort</code> 在验证与边例测试更有用的领域会给出更好结果——比如硬件、代码审查、安全。</p>
+  <p>但对快速把事做完、并与 Claude 保持在环（in the loop）来说，<code>low</code> 和 <code>medium</code> 就很合适。</p>
+  <p>对正常软件工程，我现在跑的循环是：先让模型面试我，再在 <code>low</code>/<code>medium</code> 上实现，审它建了什么，然后在 <code>high</code> 上做验证。</p>
+</section>
+
+<section class="card" id="what-is-effort">
+  <h2>什么是 effort</h2>
+  <p>总的来说，<code>effort</code> 给模型一个近似值：你希望它在这项任务上花多少算力。它多少也对应你对任务难度的建模。</p>
+  <p>可以这么想：如果有人让你连续十二小时做某件事，你可能会假设他们就是要你去做、并且要你尽力。如果有人让你在一小时内做同一件事，你会尽量交出满足任务要求的最好版本，然后预期从那里迭代。</p>
+  <p>或者，你可能会顶回去：说这活至少要三小时，然后花三小时交付。</p>
+  <p>你应该用同样方式理解 <code>effort</code>。Claude 总会尽力把你的任务做得合理；但更高的 <code>effort</code> 会让 Claude 在判断与验证上采取更多独立行动。</p>
+</section>
+
+<section class="card" id="effort-curves">
+  <h2>Effort 曲线</h2>
+  <p><code>Fable 5.1</code> 和 <code>Opus 5.5</code> 的 <code>effort</code> 曲线是我们目前最好的：每一档如果基准分数上升，消耗的 token 也会上升。下面这张图是 Terminal Bench 3.0 按 <code>effort</code> 分的分数，来自我为这篇文章做的评估跑次。</p>
+  <figure>
+    <img src="images/fig1-tb3-scores.jpg" alt="Terminal Bench 3.0 scores by effort" width="1200" height="1012" loading="lazy">
+    <figcaption>图 1：<span translate="no">Terminal-Bench 3.0</span>——按 <code>effort</code> 设置看「通过率 vs 中位 token（对数轴）」。曲线含 <code>Opus 5.5</code>、<code>Fable 5.1</code>、<code>Opus 5</code>、<code>Fable 5</code>；点标注 <code>low</code> / <code>medium</code> / <code>high</code> / <code>xhigh</code> / <code>max</code>。图中有一条虚线标注 <span translate="no">same score, half the tokens</span>（同分、约一半 token）：<code>Opus 5.5</code> 的 <code>high</code> 与 <code>Fable 5.1</code> 的 <code>max</code> 分数接近，但 token 大约只有一半。请以原图为准，勿把视觉近似当成精确读数。</figcaption>
+  </figure>
+  <p>但这在实践里意味着什么？为评估这一点，我在不同 <code>effort</code> 档位上试了好几项任务，并仔细翻了基准结果。</p>
+</section>
+
+<section class="card" id="building">
+  <h2>用 effort 来构建</h2>
+  <p>理解模型怎么工作的最好办法，是跑实验。我在 <code>Opus 5.5</code> 上用好几档 <code>effort</code> 做同一批任务，看它会干哪些活。我试了很广的一类工作，这里用几个玩具例子说明。</p>
+
+  <h3>欠指定的构建任务</h3>
+  <p>如果我让 Claude「做一个个人健身与训练追踪 App」，<code>effort</code> 会大幅改变 App 丰满到什么程度，也会让 Claude 在过程中做更多选择。在 <code>low</code> 上，健身 App 只是一个日志加一张简单图；更高档位上 App 更复杂、细节更多；到 <code>max</code> 会出现热力图。</p>
+  <figure>
+    <img src="images/fig2-fitness.jpg" alt="Underspecified fitness app across effort levels" width="1200" height="438" loading="lazy">
+    <figcaption>图 2：欠指定「健身追踪 App」在不同 <code>effort</code> 下的结果（屏上英文标题从左到右大致为 <span translate="no">LIFTLOG</span> / <span translate="no">PLATE LOG</span> / <span translate="no">REP &amp; MILE</span> / <span translate="no">IRON LEDGER</span>）。标签为 <code>Low · 1.5 min</code> → <code>Medium · 4 min</code> → <code>High · 11 min</code> → <code>Max · 67 min</code>：从简单日志+柱状图，到更完整的周视图与 PR，再到侧栏导航与热力一致性图。越高档位，Claude 替你做的产品决策越多。</figcaption>
+  </figure>
+  <p>如果我想要一个可迭代的简单底座，<code>low</code> 就能搞定。如果我想要 Claude 的最佳一枪（one shot），才上 <code>max</code>。</p>
+
+  <h3>轻度指定的设计任务</h3>
+  <p>如果任务已经相当指定，但我还想和 Claude 一起探索呢？举例：我试着让它重新设计 Claude Code 里的 <code>/config</code> 菜单。每一遍大致都是同一思路——用子菜单和更好的搜索。</p>
+  <p>在 <code>low</code>（大约 1 分钟）上，我得到一个能传达想法的交互草图，但看起来不太像 Claude Code。</p>
+  <p>在 <code>max</code>（大约 28 分钟）上，我得到很像 Claude Code 的 mockup，还附带一堆不同流程的 walkthrough。</p>
+  <p>如果我的目标是迭代并给反馈，<code>low</code> 会快得多。但 <code>max</code> 一上来就更抛光。对这个具体任务，我更倾向用 <code>low</code> 先理解 Claude 的愿景。</p>
+  <figure>
+    <img src="images/fig3-config.jpg" alt="/config menu redesign low vs max" width="1200" height="320" loading="lazy">
+    <figcaption>图 3：轻度指定的 <code>/config</code> 菜单重设计——左 <code>Low · 1 min</code>（交互草图，形似但不像 Claude Code），右 <code>Max · 28 min</code>（更接近产品 UI，并带流程 walkthrough）。两边大方向都是子菜单 + 更好搜索；差别主要在抛光与自主加戏的量。</figcaption>
+  </figure>
+
+  <h3>高度指定的构建任务</h3>
+  <p>如果我给 Claude 很多细节呢？我试着让 Claude 就健身 App 对我做深度面试，再把那份规格交给不同模型、不同 <code>effort</code> 去实现。</p>
+  <p>我发现有了这份规格，模型行为相似得多。我得到的设计看起来相当接近，实现也类似，只是细节不同；在 <code>max</code> 上，Claude 会花一些时间简化其中几处细节。</p>
+  <figure>
+    <img src="images/fig4-specified.jpg" alt="Highly specified build outcomes across models and effort" width="1200" height="654" loading="lazy">
+    <figcaption>图 4：先面试补全规格再实现——不同模型 / <code>effort</code> 下结果更接近（布局与功能大体同构，细节不同）。说明：规格越完整，<code>effort</code> 带来的「替你做选择」空间越小；高档位更多花在打磨与简化上。</figcaption>
+  </figure>
+</section>
+
+<section class="card" id="takeaways">
+  <h2>启示</h2>
+  <p>对常规软件工程，尤其是新功能，该用哪档 <code>effort</code> 很大程度上取决于我想在环多深。<code>low</code> 让 Claude 快速给出起点；更高档位能多干一些活，但 Claude 也会替我做更多假设。</p>
+  <p>一个特别管用的功能开发循环，是我一直在用的：</p>
+  <ol>
+    <li>给 Claude 一份规格，并让它就我遗漏的细节面试我</li>
+    <li>在 <code>low</code> 上实现</li>
+    <li>审一遍确认大意正确，需要时继续在 <code>low</code> 上迭代</li>
+    <li>在 <code>high</code> 上做验证与测试</li>
+  </ol>
+</section>
+
+<section class="card" id="difficult">
+  <h2>困难任务上，effort 档位如何影响输出</h2>
+  <p>但这些显然是玩具例子——Claude 完全有能力完成。那当差别是「Claude 能不能完成任务」时呢？</p>
+  <p>要找到这些难问题，就得去看基准；于是我深入了一个我喜欢的：Terminal Bench 3，一个社区来源的基准。</p>
+  <p><span translate="no">Terminal-Bench 3.0</span> 的问题大致可分成安全、硬件、ML、科学、软件、运维、媒体等类别。你可以在这里看到全部题目：<a href="https://github.com/harbor-framework/terminal-bench/releases/tag/v3.0.0" translate="no">https://github.com/harbor-framework/terminal-bench/releases/tag/v3.0.0</a>，它们来自社区，任何人都可以贡献。</p>
+  <p>值得读一读，感受这些模型面对的问题类型。很多任务的范围与野心让我吃惊——比我日常会碰到的平均任务复杂得多。</p>
+  <p>例如，其中一些任务包括：</p>
+  <ul>
+    <li>硬件（<span translate="no">retro-console-soc</span>）：用 Verilog 做一台能塞进小 FPGA、并能渲染测试 ROM 的 8-bit 游戏机。</li>
+    <li>科学（<span translate="no">takens-embedding-lean</span>）：在 Lean 4 里形式化证明 Takens 嵌入定理。</li>
+    <li>ML（<span translate="no">mp-checkpoint-consolidation</span>）：把 mixture-of-experts checkpoint 的 16 个分片合并成一个能复现参考 logits 的文件。</li>
+    <li>运维（<span translate="no">intrastat-meldung</span>）：端到端跑完一家公司的月末欧盟贸易统计申报。</li>
+    <li>媒体（<span translate="no">layout-config-recreation</span>）：把一张海报图重建成可编辑的排版文件。</li>
+  </ul>
+</section>
+
+<section class="card" id="edge-cases">
+  <h2>边例很多时，更高 effort 更有帮助</h2>
+  <p>读 Terminal Bench 3 结果后，我的主要收获是：更高 <code>effort</code> 最适合隐藏边例很多的任务。</p>
+  <p>一个干净的例子是 <span translate="no">html-js-filter</span>——一道 <span translate="no">Terminal-Bench 3.0</span> 题，要求做一个 HTML sanitizer，剥掉所有把 JavaScript 走私进页面的方式。<code>Fable 5.1</code> 从 <code>low</code> 的 1/5 到了 <code>xhigh</code> 的 5/5。</p>
+  <p>典型的 <code>low</code> 尝试大约 2 分钟。这些尝试大多大致一遍写出过滤器，然后只拿一页手写页面测一下。</p>
+  <p>一次 <code>high</code> 跑大约 33 分钟结束。在我追踪的那次里，它先对抗式审了初稿，再去读已安装解析器的源码查漏洞，跑许多干净用例直到输出与输入一致，跑一套标准 XSS 测试套件，最后还写了一个随机文档 fuzzer。</p>
+  <p>对 HTML sanitizer 这种边例密集的东西，多花这点 <code>effort</code> 很值。对性能优化或安全审查这类生产要求很高的复杂任务，花更多 token 换彻底性也说得通。</p>
+  <p>但你不需要每件事都上这种强度。</p>
+  <p>下图展示每一道 <span translate="no">Terminal-Bench 3.0</span> 结果以及它怎么失败的，跨不同模型与 <code>effort</code>。总体而言，提高 <code>effort</code> 倾向于减少因缺边例导致的失败（紫色块），但修不好模型路线就错了的情况（蓝色块）。</p>
+  <figure>
+    <img src="images/fig5-failures.png" alt="TB3 failure modes by model/effort" width="1200" height="1001" loading="lazy">
+    <figcaption>图 5：失败模式对比（示例面板为 <code>Fable 5.1</code> 的 <code>low</code> vs <code>max</code>，各 370 次尝试）。绿＝通过；紫系＝缺边例类失败（如 tests missed / overfit / close but not exact）；蓝系＝路线/判断错了（如 misread requirement / wrong fix / wrong domain rule / wrong reading）；灰＝其他失败。文中要点：提高 <code>effort</code> 主要压紫，不保证压蓝。</figcaption>
+  </figure>
+  <p class="callout"><span class="swatch purple" aria-hidden="true"></span><strong>紫＝缺边例失败</strong>（missed a case）——提高 <code>effort</code> 通常能明显减少。<br><span class="swatch blue" aria-hidden="true"></span><strong>蓝＝路线错了</strong>（made the wrong call）——烧更多 token 也救不了错误方向。</p>
+</section>
+
+<section class="card" id="problem-areas">
+  <h2>effort 更有用的问题域</h2>
+  <p>对我来说，在 TerminalBench 上评估这些模型时，最有意思的收获之一是：有些问题域从 <code>effort</code> 受益更多。你可以看到下面这张分解图：</p>
+  <figure>
+    <img src="images/fig6-areas.jpg" alt="Problem areas where effort helps" width="1200" height="1024" loading="lazy">
+    <figcaption>图 6：各问题域从 <code>low effort</code>（空心点）到 <code>top effort</code>（实心点）的通过率变化。类别含 Security / Hardware / ML / Science / Software / Media / Operations；主曲线标注为 <code>Fable 5.1</code>（另有 <code>Opus 5</code>、<code>Fable 5</code>）。右侧百分比为该域主模型的 low→top 变化（例如 Security 约 64%→87%，Hardware 约 34%→75%）。图注 <span translate="no">Rulebook-style work stays low</span>：偏「照章办事」的 Operations 即使加 <code>effort</code> 仍整体偏低。请以原图为准。</figcaption>
+  </figure>
+  <p>为说明这一点，我从 Terminal Bench 3.0 不同领域挑了几道题：<code>Opus 5.5</code> 在 <code>low</code> 失败、在 <code>high</code> 成功——多半因为它测试并覆盖了边例：</p>
+  <p><span translate="no">mvcc-lsm-compaction</span>：一道 <span translate="no">Terminal-Bench 3.0</span> 题，要求根据崩溃报告修存储引擎 bug，同时不破坏 compaction。<code>Opus 5.5</code> 从 <code>low</code> 的 0/5 到了 <code>xhigh</code> 的 4/5。</p>
+  <p>在 <code>low</code>（每次大约一分钟）上，Claude 会在构建或跑复现器之前就改代码，也不会检查它的新测试是否本该抓住原始 bug。</p>
+  <p>在 <code>xhigh</code>（大约 11 分钟）上，Claude 先复现崩溃，对着一个永不 compaction 的参考实现写随机测试，并检查半成品修复是否会让测试失败。</p>
+  <p><span translate="no">cli-2ph-simple</span>：一道 <span translate="no">Terminal-Bench 3.0</span> 题，要求用 Python 写一个 CLI 线性规划求解器。<code>Opus 5.5</code> 从 <code>low</code> 的 0/5 到了 <code>high</code> 的 5/5。</p>
+  <p><code>low</code> 尝试一遍写出求解器，用几个小问题检查一下，大约停在 10k tokens。最后一条消息里，Claude 警告它在大问题上可能很慢，但并没有去检查。</p>
+  <p>在 <code>high</code> 尝试里，Claude 用随机问题对照一个独立的暴力求解器测自己的求解器，再给更大的题计时，碰到跑太久或崩溃的情况，然后重做搜索。</p>
+  <p><span translate="no">gsea-proteomics</span>：一道 <span translate="no">Terminal-Bench 3.0</span> 题，要求对蛋白质组学数据做基因集富集分析（GSEA），找出八种处理里哪些像目标组织。<code>Opus 5.5</code> 从 <code>low</code> 的 0/5 到了 <code>high</code> 的 4/5。</p>
+  <p>在 <code>low</code> 上，Claude 选了一种听起来合理的数据准备方式，只按那一种跑分析，然后报告结果。</p>
+  <p>在 <code>high</code> 上，Claude 试了两种准备数据的方式，发现显著处理列表变了，于是先挖原因再选正确的那一种。</p>
+  <p>如果有用户在环，Claude 或许会先问用户该怎么设题；但没有用户在环时，高 <code>effort</code> 表现更好。</p>
+</section>
+
+<section class="card" id="when-to-use">
+  <h2>在 Claude Code 里何时用哪一档 effort</h2>
+  <p>以下是我关于何时用哪一档 <code>effort</code> 的经验法则：</p>
+  <ul>
+    <li><code>Low</code>：我想要快速、在环的响应时，例如头脑风暴、草图、简单改动</li>
+    <li><code>Medium</code>：我大部分日常软件工程，例如新功能实现</li>
+    <li><code>High</code>：验证很重要、或有很多边例的活，例如在存量（brownfield）代码库里修 bug</li>
+    <li><code>Max</code>：我想让 Claude 完全自主地解决难题时，例如端到端构建并验证一个 App，或在关键软件里找安全漏洞</li>
+  </ul>
+  <figure>
+    <div class="effort-card" role="img" aria-label="Effort 经验法则卡片：四档场景与 /effort 命令对照">
+      <div class="effort-row">
+        <p class="effort-q">在画草图、头脑风暴，或做一个简单改动？</p>
+        <span class="effort-pill low" translate="no">/effort low</span>
+      </div>
+      <div class="effort-row">
+        <p class="effort-q">在做功能、日常软件工程？</p>
+        <span class="effort-pill medium" translate="no">/effort medium</span>
+      </div>
+      <div class="effort-row">
+        <p class="effort-q">在修 bug，或追边例？</p>
+        <span class="effort-pill high" translate="no">/effort high</span>
+      </div>
+      <div class="effort-row">
+        <p class="effort-q">要把一件难事端到端交出去？</p>
+        <span class="effort-pill max" translate="no">/effort max</span>
+      </div>
+    </div>
+    <figcaption>图 7（中文 HTML/CSS 重绘）：Low / Medium / High / Max 经验法则卡。左侧为场景问句，右侧为 Claude Code 命令 <code>/effort low</code> · <code>/effort medium</code> · <code>/effort high</code> · <code>/effort max</code>（按钮色从浅到深对应强度）。</figcaption>
+  </figure>
+  <details class="orig-fig">
+    <summary>查看原文英文图</summary>
+    <img src="images/fig7-levels.jpg" alt="Original English: Low/Medium/High/Max rule of thumb card" width="1200" height="1056" loading="lazy">
+  </details>
+  <p>按任务——甚至对话中途——用 Claude Code 的 <code>/effort</code> 为 <code>Opus 5.5</code> 和 <code>Fable 5.1</code> 切换不同 <code>effort</code>，看看是否符合你的直觉，再告诉我。</p>
+  <p class="related">站内相关：<a href="../2026-09-02-prompting-claude-fable-5-1/">Prompting Claude Fable 5.1</a> —— Anthropic 官方提示工程 / 症状索引（可与本文的 <code>effort</code> 旋钮对照阅读）。</p>
+</section>
+
+<footer>
+  全文翻译，未删减。原文版权归原作者及原平台。本页是译文整理，供个人阅读。交互版图表见 <a href="https://claude.dev/blog/spending-your-effort/" translate="no">claude.dev/blog/spending-your-effort</a>。
+</footer>
+</main>
+
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll(".rail nav a"));
+  var sections = Array.prototype.slice.call(document.querySelectorAll("section.card, section.tldr"));
+  if (!links.length || !sections.length || !("IntersectionObserver" in window)) return;
+  var map = {};
+  links.forEach(function (a) {
+    var id = (a.getAttribute("href") || "").replace("#", "");
+    if (id) map[id] = a;
+  });
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      var id = entry.target.id;
+      links.forEach(function (a) { a.classList.remove("is-active"); });
+      if (map[id]) map[id].classList.add("is-active");
+    });
+  }, { rootMargin: "-18% 0px -64% 0px", threshold: 0.01 });
+  sections.forEach(function (s) { io.observe(s); });
+})();
+</script>
+<script src="../site.js" defer></script>
+</body>
+</html>
