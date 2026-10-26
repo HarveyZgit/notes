@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claude Code 团队怎么做代码审查 · How the Claude Code team does code review</title>
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="icon" href="../logo.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<style>
+:root {
+  --paper: #F4EFE6;
+  --card: #FBF7F0;
+  --ink: #191918;
+  --muted: #6B6459;
+  --rule: #E4D9C8;
+  --accent: #C96442;
+  --accent-soft: #D97757;
+  --wash: rgba(201, 100, 66, 0.14);
+  --wash-strong: rgba(201, 100, 66, 0.22);
+  --serif: "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", "Noto Serif SC", Georgia, "Times New Roman", serif;
+  --sans: "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Noto Sans Mono CJK SC", monospace;
+  --rail: 248px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 32px; color-scheme: light; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.75;
+}
+.skip {
+  position: absolute;
+  left: 16px;
+  top: 12px;
+  z-index: 10;
+  padding: 8px 12px;
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  font-size: 13px;
+  transform: translateY(-160%);
+}
+.skip:focus,
+.skip:focus-visible { transform: none; }
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+h1, h2 { text-wrap: balance; }
+section[id], h1, h2, h3 { scroll-margin-top: 32px; }
+
+.rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--rail);
+  height: 100vh;
+  overflow-y: auto;
+  padding: 28px 22px 36px;
+  background: #F5F0E8;
+  border-right: 1px solid var(--rule);
+  z-index: 4;
+}
+.rail-home {
+  display: inline-block;
+  margin: 0 0 16px;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+.rail-home:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.rail-title {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.35;
+  margin: 0 0 18px;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.rail summary {
+  display: none;
+  list-style: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.rail summary::-webkit-details-marker { display: none; }
+.rail nav ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: toc;
+}
+.rail nav li {
+  counter-increment: toc;
+  margin: 0;
+  border-top: 1px solid var(--rule);
+}
+.rail nav li:last-child { border-bottom: 1px solid var(--rule); }
+.rail nav a {
+  display: block;
+  position: relative;
+  padding: 9px 2px 9px 2.2em;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.rail nav a::before {
+  content: counter(toc, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 9px;
+  font-family: var(--serif);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--rule);
+  font-variant-numeric: tabular-nums;
+}
+.rail nav a:hover,
+.rail nav a.is-active { color: var(--ink); }
+.rail nav a:hover::before,
+.rail nav a.is-active::before { color: var(--accent); }
+.rail nav a.is-active { font-weight: 600; }
+
+.deck {
+  width: min(760px, calc(100% - var(--rail) - 64px));
+  max-width: 760px;
+  padding: 56px 0 96px;
+  margin-right: auto;
+  margin-left: calc(var(--rail) + max(40px, (100% - var(--rail) - 760px) / 2));
+  counter-reset: slide;
+}
+header.hero { padding: 8px 0 8px; }
+h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(32px, 5vw, 46px);
+  line-height: 1.18;
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.subtitle {
+  font-family: var(--serif);
+  font-size: 22px;
+  color: var(--muted);
+  margin: 0 0 8px;
+  font-style: italic;
+}
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin: 22px 0 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.facts .fact {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+.facts dt {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.facts dd {
+  margin: 0;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.facts a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.facts a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 40px 42px 36px;
+  margin: 36px 0;
+  counter-increment: slide;
+}
+.card h2 {
+  font-family: var(--serif);
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 8px;
+  letter-spacing: -0.015em;
+}
+.card h2::after {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 1px;
+  background: var(--accent);
+  margin: 16px 0 22px;
+}
+.card h3 {
+  font-family: var(--serif);
+  font-size: 20px;
+  line-height: 1.35;
+  margin: 28px 0 10px;
+  letter-spacing: -0.01em;
+}
+.card a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.card a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+p { margin: 0 0 14px; }
+p:last-child { margin-bottom: 0; }
+ul, ol { margin: 0 0 14px; padding-left: 22px; }
+li { margin: 0 0 6px; }
+
+.byline {
+  margin: 22px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+}
+.byline a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.byline a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+blockquote,
+blockquote.hl-quote {
+  margin: 22px 0;
+  padding: 18px 22px 18px 24px;
+  background: rgba(201, 100, 66, 0.08);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  font-family: var(--serif);
+  font-size: 19px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+blockquote p { margin: 0; }
+
+figure { margin: 22px 0 10px; }
+figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
+  border: 1px solid var(--rule);
+  background: #EFE6D8;
+}
+figcaption {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 10px;
+  line-height: 1.55;
+}
+figcaption a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+figcaption a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+.note {
+  font-size: 14px;
+  color: var(--ink);
+  background: rgba(201, 100, 66, 0.08);
+  border-radius: 0;
+  padding: 12px 14px;
+  margin: 16px 0 0;
+  border-left: 2px solid var(--accent);
+}
+
+.callout {
+  font-size: 14px;
+  color: var(--ink);
+  background: rgba(20, 20, 19, 0.04);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 12px 14px;
+  margin: 12px 0 18px;
+  line-height: 1.6;
+}
+.callout .swatch {
+  display: inline-block;
+  width: 0.85em;
+  height: 0.85em;
+  border-radius: 2px;
+  vertical-align: -0.05em;
+  margin-right: 0.35em;
+}
+.callout .swatch.purple { background: #7B5EA7; }
+.callout .swatch.blue { background: #3A6EA5; }
+
+code {
+  font-family: var(--mono);
+  font-size: 0.92em;
+}
+p code, li code, td code, dd code, figcaption code, .note code, .callout code {
+  font-size: 0.88em;
+  background: rgba(20, 20, 19, 0.07);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+footer {
+  margin-top: 48px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.tldr {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  padding: 36px 42px 32px;
+  margin: 24px 0 32px;
+}
+.tldr h2 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.25;
+  margin: 0 0 10px;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+.tldr-note {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 16px;
+}
+.tldr ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: tldr;
+}
+.tldr li {
+  counter-increment: tldr;
+  display: block;
+  position: relative;
+  margin: 0;
+  padding: 16px 0 16px 2.6em;
+  border-top: 1px solid var(--rule);
+  line-height: 1.65;
+}
+.tldr li:last-child { padding-bottom: 0; }
+.tldr li::before {
+  content: counter(tldr, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 16px;
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.tldr li strong {
+  font-family: var(--serif);
+  color: var(--ink);
+}
+
+details.orig-fig {
+  margin: 8px 0 18px;
+  font-size: 13px;
+  color: var(--muted);
+}
+details.orig-fig summary {
+  cursor: pointer;
+  color: var(--muted);
+  list-style: none;
+}
+details.orig-fig summary::-webkit-details-marker { display: none; }
+details.orig-fig summary:hover { color: var(--ink); }
+details.orig-fig img {
+  margin-top: 10px;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid var(--rule);
+}
+
+.related {
+  margin: 28px 0 0;
+  padding: 18px 20px;
+  background: rgba(201, 100, 66, 0.06);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.related a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.related a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+@media (max-width: 980px) {
+  .rail {
+    position: relative;
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 16px 20px 14px;
+  }
+  .rail-title { display: none; }
+  .rail summary { display: block; padding: 6px 0; }
+  .rail details:not([open]) nav { display: none; }
+  .rail details[open] nav { display: block; margin-top: 8px; }
+  .rail nav ol {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 12px;
+  }
+  .rail nav li:last-child { border-bottom: none; }
+  .deck {
+    width: calc(100% - 36px);
+    max-width: none;
+    margin: 0 auto;
+    padding: 32px 0 64px;
+  }
+  .card { padding: 26px 20px 22px; margin: 22px 0; }
+  .tldr { padding: 26px 20px 22px; }
+  body { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+/* Chinese HTML/CSS redraws of FIG A–F */
+.redraw {
+  margin: 22px 0 10px;
+  padding: 26px 28px 22px;
+  background: #F9F7F2;
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  box-shadow: 0 8px 28px rgba(25, 25, 24, 0.06);
+  overflow: hidden;
+}
+.redraw .rd-kicker {
+  margin: 0 0 4px;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  font-weight: 600;
+}
+.redraw .rd-title {
+  margin: 0 0 2px;
+  font-family: var(--serif);
+  font-size: 22px;
+  line-height: 1.3;
+  color: var(--ink);
+}
+.redraw .rd-sub {
+  margin: 0 0 18px;
+  font-size: 14px;
+  color: var(--muted);
+}
+/* FIG A: life of a change */
+.life { list-style: none; margin: 0; padding: 0; }
+.life .phase {
+  margin: 14px 0 6px 30px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+}
+.life .phase:first-child { margin-top: 0; }
+.life .step {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 15em) minmax(0, 1fr);
+  gap: 4px 12px;
+  align-items: start;
+  padding: 7px 0;
+  margin: 0;
+  border-left: 1px solid #D9CFBF;
+  margin-left: 10px;
+  padding-left: 0;
+}
+.life .ico {
+  width: 20px; height: 20px;
+  margin-left: -11px;
+  margin-top: 3px;
+  border-radius: 50%;
+  background: #F9F7F2;
+  border: 1.5px solid #4A4640;
+  font-size: 11px;
+  line-height: 17px;
+  text-align: center;
+  color: #4A4640;
+}
+.life .ico.person {
+  border: none;
+  border-radius: 0;
+  width: 13px; height: 13px;
+  margin: 7px 0 0 -7px;
+  background: var(--accent);
+  transform: rotate(45deg);
+}
+.life .ico.recover { border-style: dashed; }
+.life .what { font-weight: 600; line-height: 1.5; }
+.life .how { color: #3F3B35; font-size: 15px; line-height: 1.55; }
+.legend {
+  display: flex; flex-wrap: wrap; gap: 6px 22px;
+  margin: 16px 0 0; padding-top: 12px;
+  border-top: 1px solid #E8E0D4;
+  font-size: 13px; color: var(--muted);
+}
+.legend .k { display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: -1px; border-radius: 50%; border: 1.5px solid #4A4640; }
+.legend .k.person { border: none; border-radius: 0; background: var(--accent); transform: rotate(45deg) scale(0.85); }
+.legend .k.recover { border-style: dashed; }
+.legend .k.before { border: none; border-radius: 2px; background: #8E8A84; }
+.legend .k.after { border: none; border-radius: 2px; background: var(--accent); }
+/* FIG B: layers */
+.layers { position: relative; margin: 6px 0 0; padding: 0 0 4px; }
+.layers::before {
+  content: "";
+  position: absolute; left: 30%; top: 0; bottom: 34px;
+  border-left: 2px dashed rgba(201, 100, 66, 0.7);
+  z-index: 1;
+  pointer-events: none;
+}
+.layers .in { margin: 0 0 8px; font-size: 13px; color: var(--muted); }
+.layer {
+  position: relative;
+  display: grid;
+  grid-template-columns: 60% 1fr;
+  align-items: center;
+  gap: 18px;
+  margin: 0 0 12px;
+}
+.layer .plane {
+  height: 30px;
+  background: #E3DDD3;
+  border: 1px solid #CFC7BA;
+  transform: skewX(-28deg);
+  position: relative;
+}
+.layer .plane i {
+  position: absolute; top: 8px;
+  width: 36px; height: 12px;
+  border-radius: 50%;
+  background: #FBF9F5;
+  border: 1px solid #CFC7BA;
+}
+.layer .plane b {
+  position: absolute; top: 9px;
+  width: 11px; height: 11px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid #FBF9F5;
+}
+.layer .lbl { font-size: 15px; color: var(--ink); }
+.layer.rollback .plane { background: none; border: none; border-bottom: 2px solid var(--accent); border-radius: 0 0 50% 50%; transform: none; height: 18px; width: 40%; margin-left: 10%; }
+.layer.rollback .lbl { color: var(--accent); font-weight: 600; }
+/* FIG C: table */
+.tier-table { width: 100%; border-collapse: collapse; font-size: 15px; line-height: 1.55; }
+.tier-table th {
+  text-align: left; font-weight: 500;
+  font-size: 12px; letter-spacing: 0.12em; color: var(--muted);
+  padding: 8px 12px; border-bottom: 1px solid var(--rule);
+  white-space: nowrap;
+}
+.tier-table td { padding: 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+.tier-table tr:last-child td { border-bottom: none; }
+.tier-table td:first-child { white-space: nowrap; font-weight: 600; }
+.tier-table td:last-child { color: var(--ink); }
+.tier-table .t-low { color: #6B6459; }
+.tier-table .t-med { color: #B5602F; }
+.tier-table .t-high { color: #8E2F16; }
+/* FIG D: eval loop */
+.loop { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.loop .node {
+  position: relative;
+  padding: 12px 14px;
+  background: #FBF9F5;
+  border: 1px solid #E2D9CB;
+  border-radius: 10px;
+}
+.loop .node strong { display: block; font-size: 15.5px; line-height: 1.4; }
+.loop .node span { display: block; font-size: 13.5px; color: var(--muted); line-height: 1.5; margin-top: 2px; }
+.loop .node.hot { border-color: var(--accent); background: rgba(201, 100, 66, 0.08); }
+.loop .node .n { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: 0.08em; }
+.loop-note { margin: 12px 0 0; font-size: 13.5px; color: var(--muted); }
+/* FIG E: bars */
+.bars .grp { margin: 0 0 14px; padding-bottom: 12px; border-bottom: 1px solid #E8E0D4; }
+.bars .grp:last-of-type { border-bottom: none; }
+.bars .q { margin: 0 0 6px; font-weight: 600; font-size: 15px; }
+.bars .row { display: flex; align-items: center; gap: 10px; margin: 4px 0; font-size: 14px; font-variant-numeric: tabular-nums; }
+.bars .bar { height: 16px; border-radius: 1px; min-width: 6px; }
+.bars .bar.before { background: #8E8A84; }
+.bars .bar.after { background: var(--accent); }
+.bars .row.after-row span { font-weight: 700; }
+/* FIG F */
+.learn { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 16px; }
+.learn .base {
+  padding: 16px; background: #FBF9F5; border: 1px solid #E2D9CB; border-radius: 12px; text-align: center;
+}
+.learn .base h4 { margin: 0 0 10px; font-size: 15px; }
+.learn .grid { display: inline-grid; grid-template-columns: repeat(7, 16px); gap: 4px; margin-bottom: 10px; }
+.learn .grid i { width: 16px; height: 16px; border-radius: 3px; background: #DDD6CA; }
+.learn .grid i.on { background: #D9774F; }
+.learn .base p { margin: 4px 0 0; font-size: 13px; color: var(--muted); line-height: 1.5; }
+.learn .base .hl { color: var(--accent); font-weight: 600; }
+.learn .ask { margin: 0 0 10px; font-size: 14px; }
+.learn .ask .hl { color: var(--accent); }
+.learn .bubble {
+  margin: 0 0 12px; padding: 10px 12px;
+  border: 1.5px solid #3F3B35; border-radius: 12px;
+  font-size: 14px; background: #FFFDF9;
+}
+.learn .bubble small { display: block; font-size: 11px; letter-spacing: 0.1em; color: var(--muted); }
+.learn .out { padding: 12px 14px; border-radius: 12px; margin: 0 0 10px; background: #FFFDF9; }
+.learn .out.solid { border: 1.5px solid #D9774F; }
+.learn .out.dashed { border: 1.5px dashed #BFB6A8; background: #F6F2EB; }
+.learn .out small { display: block; font-size: 11px; letter-spacing: 0.1em; color: #5F7590; }
+.learn .out strong { display: block; font-size: 15.5px; }
+.learn .out span { display: block; font-size: 13.5px; color: var(--muted); line-height: 1.5; }
+.learn-foot { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+.learn-foot div { padding: 12px 14px; border-radius: 10px; font-size: 14px; line-height: 1.55; }
+.learn-foot .meh { background: #E7E1D6; color: #4A4640; }
+.learn-foot .yes { background: #1E1D1B; color: #F4F1EA; }
+.learn-foot .yes b { color: #E58E6A; }
+@media (max-width: 980px) {
+  .redraw { padding: 20px 16px 18px; }
+  .life .step { grid-template-columns: 22px minmax(0, 1fr); }
+  .life .how { grid-column: 2; }
+  .loop { grid-template-columns: 1fr; }
+  .learn, .learn-foot { grid-template-columns: 1fr; }
+  .layer { grid-template-columns: 55% 1fr; }
+}
+</style>
+<link rel="stylesheet" href="../site.css">
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+<aside class="rail">
+  <a class="rail-home" href="../">全部笔记</a>
+  <p class="rail-title">Claude Code 团队怎么做代码审查</p>
+  <details class="toc-wrap" open>
+    <summary>目录</summary>
+    <nav aria-label="目录">
+      <ol>
+        <li><a href="#highlights">核心观点</a></li>
+        <li><a href="#opening">开篇</a></li>
+        <li><a href="#rethinking">重新想清楚审查的目标</a></li>
+        <li><a href="#human-time">人的时间与注意力</a></li>
+        <li><a href="#journey">一次改动的旅程</a></li>
+        <li><a href="#better-reviewer">我们如何改进审查器</a></li>
+        <li><a href="#humans">人在环中</a></li>
+        <li><a href="#team-context">团队上下文</a></li>
+        <li><a href="#own-it">谁合并，谁负责</a></li>
+        <li><a href="#changing-course">及时转向</a></li>
+        <li><a href="#implement">如何落地</a></li>
+        <li><a href="#headed">未来走向</a></li>
+      </ol>
+    </nav>
+  </details>
+</aside>
+<main class="deck" id="main">
+<header class="hero">
+  <h1>Claude Code 团队怎么做代码审查</h1>
+  <p class="subtitle" translate="no">How the Claude Code team does code review</p>
+  <dl class="facts">
+    <div class="fact"><dt>分类</dt><dd translate="no">AI</dd></div>
+    <div class="fact"><dt>来源</dt><dd>X · <a href="https://x.com/addyosmani" translate="no">@addyosmani</a></dd></div>
+    <div class="fact"><dt>原文</dt><dd><time datetime="2026-10-26">2026-10-26</time></dd></div>
+    <div class="fact"><dt>整理</dt><dd><time datetime="2026-10-27">2026-10-27</time></dd></div>
+    <div class="fact"><dt>作者</dt><dd>Addy Osmani / <a href="https://x.com/addyosmani" translate="no">@addyosmani</a>（Claude Code @ Anthropic）</dd></div>
+    <div class="fact"><dt>原文链接</dt><dd><a href="https://x.com/addyosmani/status/2114604912520921136" translate="no">X 长文</a> · <a href="https://claude.dev/blog/solving-code-review-at-anthropic/" translate="no">claude.dev 原始版</a></dd></div>
+  </dl>
+</header>
+
+<section class="tldr" id="highlights">
+  <h2>核心观点 / Highlights</h2>
+  <p class="tldr-note">译者补充，不是原文。</p>
+  <ol>
+    <li><strong>问题换了：</strong>不再问「有没有人读过这段代码」，而是问「这个改动可能出什么错、哪道检查（自动或人工）最适合抓住它」。6 月到 9 月，合并进 Claude Code 的 PR 数量翻了一倍多，需要回滚的 PR 占比反而下降了 40% 以上。</li>
+    <li><strong>多层检查，而不是一道闸：</strong>提 PR 前的验证 → 每个 PR 的 AI 审查 → 可阻断的安全审查 → 阻断式 CI → 按风险分级的人工批准 → 合并队列 / feature flag / 分阶段发布，最底下兜着快速回滚。</li>
+    <li><strong>风险看改动，不看作者：</strong>由分类器定级（无需人 / 一人 / 两人）；agent 的批准不算人工批准；agent 写的 PR，操作 agent 的人一定算一位必需审查者；出现不可信的新提交就得重新批准。</li>
+    <li><strong>用事故当评测集，审查必须收敛：</strong>限制轮次、初轮后只审新 diff、按 bug 类别报告、不重复报旧问题——一轮审查加修复即通过的比例从 65% 升到 78%，平均通过所需审查轮次从 2.08 降到 1.32。</li>
+    <li><strong>人的注意力留给机器替代不了的事：</strong>该不该做、危险代码、架构、核验证据、为改动担责。想了解代码，就让 Claude 为那一小块生成讲解，而不是逐行读琐碎的 diff。</li>
+  </ol>
+</section>
+
+<figure>
+  <img src="images/cover.jpg" alt="How the Claude Code team does Code Review 封面" width="2048" height="819" fetchpriority="high">
+  <figcaption>封面保留原文设计：左侧衬线标题 <span translate="no">How the Claude Code team does Code Review</span>，右侧是一条由外向内收拢的螺旋线（呼应文中「审查必须收敛」）。作者 Addy Osmani / <a href="https://x.com/addyosmani" translate="no">@addyosmani</a>。</figcaption>
+</figure>
+
+<p class="byline">作者：Addy Osmani / <a href="https://x.com/addyosmani" translate="no">@addyosmani</a>（Claude Code @ Anthropic） · 原文：<a href="https://x.com/addyosmani/status/2114604912520921136" translate="no">X 长文</a>（约 15 分钟阅读） · 原始版本：<a href="https://claude.dev/blog/solving-code-review-at-anthropic/" translate="no">Solving code review at Anthropic</a></p>
+
+<section class="card" id="opening">
+  <h2>开篇</h2>
+  <p>我们之前提到过，Claude Code 大约 90% 的代码是 Claude 写的。那么在这种规模下，我们怎么做代码审查？到底还有谁在读代码？代码出了问题又怎么办？</p>
+  <p>这篇文章介绍我们 Claude Code 团队的代码审查流程，以及我们是怎么改进它的。从 6 月到 9 月，合并进 Claude Code 代码库的 pull request 数量翻了一倍多，而必须回滚（revert）的 pull request 所占比例下降了 40% 以上。</p>
+  <p>我们并没有停止做代码审查。相反，我们把大部分「阅读」自动化了，并调校它，让它为人的时间和精力做优化。我们还在提升「回滚错误」的速度和便利性上做了大量投入。</p>
+</section>
+
+<section class="card" id="rethinking">
+  <h2>重新想清楚代码审查的目标</h2>
+  <p>当 agent 开始写代码，改动的数量会迅速增长。在我们的 monorepo 里，每天合并的改动从 5 月的大约 2,500 个，涨到了今年 9 月的超过 <a href="https://www.anthropic.com/engineering/redesigning-source-control">30,000</a> 个。</p>
+  <p>Claude Code 虽然不在我们的 monorepo 里，但它承受的压力同样很大。当你以这样的速度前进时，手工逐行做代码审查会变得越来越难，甚至根本不可能。</p>
+  <p><strong>代码审查有两个目的：</strong></p>
+  <ul>
+    <li>在上线前发现并纠正 bug</li>
+    <li>对代码库形成共同的理解</li>
+  </ul>
+  <p>本文主要讲第一个目标，第二个目标会在文末讨论。</p>
+  <p>在我们看来，「有没有人读过这段代码？」只是一个不精确的替代指标，它真正想衡量的是：「这个改动可能出什么错？哪一道检查——自动的或人工的——才是抓住它的正确手段？」</p>
+  <p>这个问题也改变了代码审查发生的时间点。传统上，代码审查是一种事后检查：代码写完了，PR 提了，然后有人等着另一个人来看一眼。而我们把代码审查融进了工作流本身，它更像是你边写边持续进行的拼写检查。</p>
+  <p>大部分改动在被交给人看之前，已经被 Claude 审查并修正过至少一次。这样，我们能抓住大部分常规 bug，把人的注意力留给更高层面的考量。</p>
+</section>
+
+<section class="card" id="human-time">
+  <h2>人的时间与注意力</h2>
+  <p>我们希望把人的时间和注意力留给只有人才能处理的事情，同时确保有足够的自动化覆盖其余部分。即便按我们现在的节奏，仍然有大量工作需要人来做，而我们团队几乎每天都在遇到新的、前所未有的挑战。</p>
+  <p>因此，人的时间是一种「双边成本」。我们不仅计算人们花在代码审查上的时间，也计算他们花在修复烂代码引入的 bug 上的时间。如果只减少了前者而没有减少后者，我们其实并没有节省人的时间。</p>
+  <p>所以，我们的目标是：在 Claude Code 的各个仓库里（CLI、桌面端和 Web 应用、移动应用），大多数 pull request 在合并时，环里最多只有一个人（这个人可以就是作者本人），而且回滚和事故不增加。</p>
+  <p>我们用这些指标来跟踪人的时间：每个 PR 的人工批准次数中位数（以及第 95 百分位）、人工评论数，以及一个 PR 等人的时长。我们把回滚率和事故率当作护栏：如果这些指标上升，说明我们并没有减少人的时间，只是把它挪到了别处。</p>
+</section>
+
+<section class="card" id="journey">
+  <h2>一次改动的旅程是怎样的？</h2>
+  <p>一个典型的改动，无论来自工程师的笔记本电脑，还是来自 Slack 里的一个 Claude 会话，都会经过多层审查。</p>
+  <figure>
+    <div class="redraw" role="img" aria-label="图 A 中文重绘：一次改动的一生，从作者机器到用户的十个环节">
+      <p class="rd-title">一次改动的一生</p>
+      <p class="rd-sub">一个典型的 Claude Code 改动，从作者的机器到用户手里</p>
+      <ol class="life">
+        <li class="phase">提 PR 之前</li>
+        <li class="step"><span class="ico" aria-hidden="true">✓</span><span class="what">工作已被验证</span><span class="how">Claude 跑测试、构建和 linter；另一个 agent 在全新上下文里审查 diff</span></li>
+        <li class="phase">每一个 PR 上</li>
+        <li class="step"><span class="ico" aria-hidden="true">✓</span><span class="what">必过的 CI</span><span class="how">lint、类型检查、跨平台测试、构建与打包。红了就阻断合并</span></li>
+        <li class="step"><span class="ico" aria-hidden="true">✓</span><span class="what">Claude 代码审查</span><span class="how">多个 agent 并行找 bug，验证者对每条发现投票，留下来的按严重程度排序</span></li>
+        <li class="step"><span class="ico" aria-hidden="true">✓</span><span class="what">安全审查</span><span class="how">单独的一遍审查。任一审查有未关闭的发现，都会阻断合并</span></li>
+        <li class="step"><span class="ico person" aria-hidden="true"></span><span class="what">按风险批准</span><span class="how">由分类器定级：不需要人、一个人或两个人。某些路径总是需要一个人</span></li>
+        <li class="phase">合并</li>
+        <li class="step"><span class="ico" aria-hidden="true">✓</span><span class="what">合并队列</span><span class="how">在应用了该改动的最新 main 上再跑一遍检查</span></li>
+        <li class="phase">合并之后</li>
+        <li class="step"><span class="ico" aria-hidden="true">✓</span><span class="what">放在 flag 后面，内部先用</span><span class="how">Anthropic 员工先跑起来，再推给所有人</span></li>
+        <li class="step"><span class="ico" aria-hidden="true">✓</span><span class="what">逐步发布</span><span class="how">先到 latest 渠道，stable 渠道随后跟进</span></li>
+        <li class="step"><span class="ico recover" aria-hidden="true">↻</span><span class="what">盯着看，向前修或回滚</span><span class="how">作者和 on-call 盯着；flag 能很快关掉，坏掉的构建会被回滚</span></li>
+      </ol>
+      <p class="legend"><span><i class="k"></i>自动化</span><span><i class="k person"></i>由人决定，按风险缩放</span><span><i class="k recover"></i>恢复</span></p>
+    </div>
+    <figcaption>图 A（中文 HTML/CSS 重绘）：一次改动的一生。</figcaption>
+  </figure>
+  <details class="orig-fig">
+    <summary>查看原文英文图</summary>
+    <img src="images/fig-a-life-of-a-change.jpg" alt="Original English FIG A: The life of a change" width="1200" height="1083" loading="lazy">
+  </details>
+  <p>上图是一个典型的 Claude Code 改动从作者环境到生产环境的过程。这个过程大部分是自动化的，人的注意力集中在有风险的那部分。</p>
+  <p>我们有六层检查，外加一个回滚机制，用来处理漏过去的问题。</p>
+  <figure>
+    <div class="redraw" role="img" aria-label="图 B 中文重绘：六层检查叠在一起，问题从上往下漏，最底下是快速回滚">
+      <p class="rd-title">多层检查，而不是一道闸</p>
+      <p class="rd-sub">六层检查，下面还垫着回滚</p>
+      <div class="layers">
+        <p class="in">问题从这里进来 ↓</p>
+        <div class="layer"><div class="plane"><b style="left:6%"></b><i style="left:16%"></i><i style="left:calc(50% - 18px)"></i><b style="left:86%"></b></div><span class="lbl">验证</span></div>
+        <div class="layer"><div class="plane"><b style="left:18%"></b><i style="left:calc(50% - 18px)"></i><i style="left:72%"></i></div><span class="lbl">必过的 CI</span></div>
+        <div class="layer"><div class="plane"><i style="left:28%"></i><i style="left:calc(50% - 18px)"></i><b style="left:74%"></b></div><span class="lbl">AI 审查</span></div>
+        <div class="layer"><div class="plane"><b style="left:31%"></b><i style="left:calc(50% - 18px)"></i><i style="left:66%"></i></div><span class="lbl">安全审查</span></div>
+        <div class="layer"><div class="plane"><i style="left:14%"></i><i style="left:calc(50% - 18px)"></i><b style="left:69%"></b></div><span class="lbl">人工批准</span></div>
+        <div class="layer"><div class="plane"><b style="left:16%"></b><i style="left:calc(50% - 18px)"></i><i style="left:82%"></i></div><span class="lbl">合并队列 + flag</span></div>
+        <div class="layer rollback"><div class="plane"></div><span class="lbl">快速回滚</span></div>
+      </div>
+    </div>
+    <figcaption>图 B（中文 HTML/CSS 重绘）：多层检查，而不是一道闸。每一层都有漏洞（白色椭圆），红点是被某一层拦下的问题；极少数问题恰好从每层的漏洞穿过（虚线），最后由快速回滚兜住。</figcaption>
+  </figure>
+  <details class="orig-fig">
+    <summary>查看原文英文图</summary>
+    <img src="images/fig-b-layers-not-one-gate.jpg" alt="Original English FIG B: Layers, not one gate" width="1200" height="815" loading="lazy">
+  </details>
+  <p>每一层都会抓住一些 bug，也会漏掉另一些。能穿过所有层的 bug 很少；即便真有漏过去的，我们也有回滚机制。</p>
+
+  <h3>1. 提 PR 之前的验证</h3>
+  <p>我们的大部分审查发生在创建 PR 之前。我们会要求 Claude 做一些可运行的事情，比如跑测试、跑构建，或者把截图和设计稿做比对。我们不让它只说「任务完成了」，而是让它把结果展示给我们看。然后，由一个子 agent 在全新上下文里审查 diff。这两种做法都写在我们的<a href="https://code.claude.com/docs/en/best-practices">最佳实践指南</a>里。</p>
+  <p>在开 PR 之前，我们很多人还会跑几个内部 skill——找 bug、缩减 diff、端到端验证，以及按我们的设计规范检查 UI 改动。</p>
+  <p>按 Claude Code 的创造者 Boris Cherny 的说法，给 Claude 配上一套<a href="https://x.com/bcherny/status/2007179861115511237">验证流程</a>，大概是获得更高质量结果的最大关键。</p>
+  <p>他估计，一套验证流程能把 Claude 输出的质量提升到原来的两到三倍。</p>
+  <p>不同领域的验证流程可能差别很大：</p>
+  <p>有时简单到只是跑一条 bash 命令；有时是跑一整套测试；有时是在浏览器或手机模拟器里测试应用。</p>
+  <p>如果自动审查器反复指出同一个问题，我们就从源头修掉它——通过 skill 本身、一条 lint 规则，或者更新这样的文档文件：</p>
+  <p><code>CLAUDE.md</code>——项目说明文件，你可以用它给 Claude 提供项目的上下文（技术栈、约定、目标、非目标）。Claude Code 每一次审查都会读入这个文件，所以对大型代码库我们会保持它简短，把其余文档放在这里引用。当代码违反了这个文件里的约定，或者某次更新让其中某些内容过时了，审查器就会指出来。</p>
+  <p><code>REVIEW.md</code>——代码 owner 在这个文件里告诉审查器：在他们负责的那部分代码里什么最重要。我们会单独验证审查器是否真的遵循了这些准则。好的 <code>REVIEW.md</code> 都很简短，重点在于：</p>
+  <ul>
+    <li>定义什么算项目失败（文档不能说谎；配置不能把请求路由错）</li>
+    <li>限制吹毛求疵</li>
+    <li>定义要忽略的路径</li>
+    <li>要求给出文件 + 行号引用，而不是去猜文件名</li>
+    <li>要求一份顶层摘要，包含问题数量，并在没问题时明确写出「no issues」</li>
+  </ul>
+
+  <h3>2. 每个 pull request 都有 AI 审查</h3>
+  <p>每个 PR 在人工审查之前都会先经过一次 Claude 审查。</p>
+  <p>审查会把 diff 放在整个代码库以及 PR 作者陈述的意图下进行分析，检查：</p>
+  <ul>
+    <li>这个改动是否真的解决了问题</li>
+    <li>这个改动是否与更大的系统相契合</li>
+    <li>这个改动是否不会弄坏代码库的其他部分</li>
+  </ul>
+  <p>在审查 bug 修复时，这个 bot 会尝试找到根因。</p>
+  <p>我们面向公众的产品 <a href="https://code.claude.com/docs/en/code-review">Code Review for Claude Code</a> 现已向所有 Team 和 Enterprise 客户开放。另外还有一个本地使用的轻量版本——<code>/code-review</code>。</p>
+  <p>自从我们发布研究预览版以来，内部 PR 中收到实质性审查意见的比例从 16% 升到了 54%。对超过 1,000 行的 PR，Code Review 在大多数情况下都能发现问题；对较小的 PR，大多数返回的是干净结果。管理员可以把仓库配置为 Quick、Standard 或 Deep 模式。当漏掉一个 bug 的代价高于审查代码所花的时间时，Deep 就很有用。</p>
+  <p>在交给人审查之前，每条发现都要经过其他多个 agent 的把关：</p>
+  <ul>
+    <li>多个 agent 并行找 bug</li>
+    <li>由一次单独的投票判断某条发现是有效还是误报，只有票数足够的发现才会被确认</li>
+    <li>只涉及风格 / 诊断 / 清理的发现会被过滤掉（这些过滤器在推出之前，我们先在自己的 PR 上做过 A/B 测试）</li>
+  </ul>
+  <p>剩下的发现会以行内评论的形式呈现，按严重程度排序，并标记为：</p>
+  <ul>
+    <li>Important（重要）</li>
+    <li>Nit（小问题）</li>
+    <li>Pre-existing（原本就存在；这样就不会因为不是这个 PR 引入的 bug 而不公平地责怪作者）</li>
+  </ul>
+  <p>所有发现都必须处理——要么修掉，要么写明理由后把讨论串标记为已解决。很多情况下，agent 会在夜里把问题修好，作者第二天回来时，PR 已经又过了一轮审查。</p>
+
+  <h3>3. 能阻断合并的安全审查</h3>
+  <p>我们还会跑一次自动化安全审查。只要还有未关闭的发现（无论来自代码审查还是安全审查），任何 PR 都不能合并。作者可以修复问题，也可以用一句简短的理由关闭讨论串（这就是我们处理误报的方式）。</p>
+  <p>如果后续某个提交解决了问题，对应的发现会被自动关闭。你也可以用开源的安全审查 GitHub Action，或者 <code>/security-review</code> 命令，搭出同样的机制。具体做法见 Claude Code 自动化安全审查的指南。</p>
+
+  <h3>4. 能阻断合并的自动化检查</h3>
+  <p>标准检查：lint、类型检查、全平台测试、构建。（我们写过一篇文章讲我们如何扩展 CI。）一个典型的 CLI PR，在有人看它之前就可能已经跑了几十项检查。PR 模板里有几个问题：这个改动是怎么测试的、怎么回滚。Claude 可以替你回答这些问题，但作者有责任审核这些回答。</p>
+
+  <h3>5. 按风险缩放的人工批准</h3>
+  <p>有些改动比另一些风险更高（比如修一处文档 vs. 改自动更新器），所以需要不同级别的审查。</p>
+  <figure>
+    <div class="redraw">
+      <table class="tier-table">
+        <thead><tr><th scope="col">风险</th><th scope="col">示例</th><th scope="col">所需人工批准</th></tr></thead>
+        <tbody>
+          <tr><td class="t-low">低</td><td>文档、文案、仅内部可见的功能、放在 flag 后面的纯增量改动</td><td>自动审查和安全检查都通过（变绿）后，不需要人工批准</td></tr>
+          <tr><td class="t-med">中</td><td>常规产品改动，以及对敏感区域的改动，比如缓存、自动更新器或系统提示词</td><td>一个人</td></tr>
+          <tr><td class="t-high">高</td><td>风险最高的代码，外加一小组总是需要两个人的路径</td><td>两个人</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <figcaption>图 C（中文 HTML 表格重绘）：风险分级与所需人工批准数。点击表格可放大。</figcaption>
+  </figure>
+  <details class="orig-fig">
+    <summary>查看原文英文图</summary>
+    <img src="images/fig-c-risk-tiers.jpg" alt="Original English FIG C: risk tiers" width="1199" height="509" loading="lazy">
+  </details>
+  <p>级别由改动决定，而不是由作者决定。一个分类器根据改动本身判定风险级别。另一个分类器判断某个具体改动是否其实需要再多一次批准，即便它的级别并不要求。有些路径总是需要再多一次批准——任何被 owner 标记为敏感的内容，以及任何 CI workflow 文件。</p>
+  <p>只有在仓库信任名单上的作者才能享受较宽松的审查要求，一般就是拥有该仓库的那个团队。其他人都需要第二个人批准。agent 的批准不算人工批准。自动审查可以放行一个低风险改动，但在需要人的时候，它不能替代人。</p>
+  <p>改动的作者要为它负责，所以如果一个 PR 是 agent 写的，操作这个 agent 的人总会被算作必需审查者之一。一次 PR 批准只对一个提交有效。如果落下了一个不可信的新提交（比如 agent 推了点东西，或者有人手工解决了合并冲突），这个 PR 就必须重新批准。</p>
+
+  <h3>6. 合并队列、feature flag 与分阶段发布</h3>
+  <p>合并队列确保所有检查都在「应用了该改动的 main」上运行。这能防止两个各自成功的 PR 合进来后把 main 弄坏。通常，新功能会放在 feature flag 后面发布，Anthropic 员工先拿到访问权限。因为我们自己大量使用这个产品，所以经常能比用户更早发现回归问题。</p>
+  <p>当我们公开发布时，改动会先进入 latest 渠道，stable 渠道随后跟进。</p>
+
+  <h3>7. 快速反馈与回滚</h3>
+  <p>总会有一些糟糕的合并漏过去。这是我们的最后一道防线，重点是尽可能快地识别出它们。放在 feature flag 后面的改动无需重新部署就能关掉。</p>
+  <p>Claude Code 实行每周轮换的 on-call，每次事故复盘都会回头看：本该由哪一层抓住这个问题。除了盯着回滚和事故仪表盘，发现糟糕的合并仍然要靠作者和 on-call。我们目前还没有根据这些指标自动调整批准要求的「熔断」机制，但随着我们朝着「合并更少需要人工介入」推进，这是我们正在研究的方向。</p>
+  <p>一位团队成员指出，放慢速度、减少产出其实能提高准确性，但那主要是因为整体做的工作量减少了。我们真正的优先级，是提升快速发现并纠正问题的能力。</p>
+</section>
+
+<section class="card" id="better-reviewer">
+  <h2>我们如何让审查器变得更好</h2>
+  <p>我们的代码审查流程是一个持续改进的循环：</p>
+  <p>我们把事故当作评测指标。团队收集了引发事故的 PR、它们的向前修复（fix-forward）和回滚，并请了解代码库的工程师逐一核实每个 bug 的位置和是否正确。审查系统每天都会在这个集合上做评测。</p>
+  <figure>
+    <div class="redraw" role="img" aria-label="图 D 中文重绘：用事故构建评测集并每天运行的循环">
+      <p class="rd-title">我们的事故就是评测集</p>
+      <p class="rd-sub">由过去的事故和回滚构建，每天运行</p>
+      <div class="loop">
+        <div class="node"><span class="n">01</span><strong>事故或回滚</strong><span>一个弄坏了东西的改动</span></div>
+        <div class="node"><span class="n">02 →</span><strong>专家核实的用例</strong><span>专家确认这个 bug</span></div>
+        <div class="node"><span class="n">03 →</span><strong>加入集合</strong><span>每次事故都新增一个用例</span></div>
+        <div class="node"><span class="n">04</span><strong>修改审查器</strong><span>它的提示词、工具或模型</span></div>
+        <div class="node hot"><span class="n">05 →</span><strong>每日评测运行</strong><span>对照每一个用例打分</span></div>
+        <div class="node"><span class="n">06 →</span><strong>分数上升了吗？</strong><span>上升就保留；否则就丢掉</span></div>
+      </div>
+      <p class="loop-note">03 加入集合后进入 05 的每日评测；06 判断完，回到 04 进行下一次修改（next change）。</p>
+    </div>
+    <figcaption>图 D（中文 HTML/CSS 重绘）：我们的事故就是评测集。</figcaption>
+  </figure>
+  <details class="orig-fig">
+    <summary>查看原文英文图</summary>
+    <img src="images/fig-d-incidents-are-the-eval.jpg" alt="Original English FIG D: Our incidents are the eval" width="1200" height="512" loading="lazy">
+  </details>
+  <p>每一次事故都会扩充这个集合，而对审查系统的每一次修改，都要在整个集合上评测。</p>
+  <p>为了衡量噪音，我们观察人们如何回应审查评论。如果我们愿意报告大量「不是 bug 的东西」，提高 bug 发现率是很容易的，所以必须加以约束。我们按 PR 上的人如何处理每条审查评论来分类：修复了问题、拒绝了它、说明这是有意为之，或认定它无关紧要。此外，我们还会在已知干净的 PR 上运行审查系统，观察它有多频繁地报告某些「如果照做就会导致有害改动」的东西。</p>
+  <p>我们明确的优先级是：第一，发现真正的 bug；第二，减少审查轮次。</p>
+  <p>当作者是 agent 时，处理一条审查评论的代价更高。人类花一秒钟就能忽略一条小问题，但当 agent 必须处理它时，就会多出一个提交，以及又一轮审查。</p>
+  <p>审查流程必须收敛。agent 作者和 agent 审查者是可能无限循环下去的。我们观察到 CLI 项目里有一个 PR，因为 agent 作者和 agent 审查者之间来回拉锯，一夜之间循环了五十多次。这个循环是被手动叫停的，否则它可能会无限进行下去。</p>
+  <p>当我们对审查系统反复标记的内容跑 <code>git blame</code> 时，大约 59% 是从它第一轮审查时就已经存在的代码。也就是说，审查系统很少在发现新 bug，而是每一轮多找出几个老 bug。</p>
+  <p>我们还让情况变得更糟了：因为每一轮都可能发现不同的 bug，我们养成了默认跑好几轮审查的习惯。对高风险改动来说，迭代多轮审查可能有用，但并不是每个 PR 都需要。团队开始在召回率之外，同时跟踪「通过所需轮次」，并把复审改成：</p>
+  <ul>
+    <li>限制轮次。三轮之后，审查系统会请作者重新评估整体思路。</li>
+    <li>初始几轮之后，复审只看 diff。</li>
+    <li>指明 bug 的类别，让作者能一次改掉全部同类问题，而不是只改一行。</li>
+    <li>避免重复报告已经指出过的问题。</li>
+  </ul>
+  <p>审查 agent 还会在夜里对当前代码库运行，帮我们在历史 bug 扩散之前把它们找出来。</p>
+  <figure>
+    <div class="redraw" role="img" aria-label="图 E 中文重绘：收敛改进前后的三组对比柱状图">
+      <p class="rd-title">会收敛的审查</p>
+      <p class="rd-sub">内部 pull request，在做收敛改进之前与之后</p>
+      <div class="bars">
+        <div class="grp">
+          <p class="q">一轮审查加修复后即通过</p>
+          <div class="row"><i class="bar before" style="width:65%"></i><span>65%</span></div>
+          <div class="row after-row"><i class="bar after" style="width:78%"></i><span>78%</span></div>
+        </div>
+        <div class="grp">
+          <p class="q">需要五轮或更多</p>
+          <div class="row"><i class="bar before" style="width:8.9%"></i><span>8.9%</span></div>
+          <div class="row after-row"><i class="bar after" style="width:1.5%"></i><span>1.5%</span></div>
+        </div>
+        <div class="grp">
+          <p class="q">通过所需的平均审查次数</p>
+          <div class="row"><i class="bar before" style="width:72%"></i><span>2.08</span></div>
+          <div class="row after-row"><i class="bar after" style="width:45.7%"></i><span>1.32</span></div>
+        </div>
+        <p class="legend"><span><i class="k before"></i>改进前</span><span><i class="k after"></i>收敛改进之后</span></p>
+      </div>
+    </div>
+    <figcaption>图 E（中文 HTML/CSS 重绘）：会收敛的审查。数值均照抄原图；第三组柱长按 2.08 与 1.32 的比例绘制。</figcaption>
+  </figure>
+  <details class="orig-fig">
+    <summary>查看原文英文图</summary>
+    <img src="images/fig-e-review-that-converges.jpg" alt="Original English FIG E: Review that converges" width="1199" height="611" loading="lazy">
+  </details>
+  <p>做了收敛改进（Convergence）之后，每个内部 pull request 平均审查轮次的下降情况。</p>
+</section>
+
+<section class="card" id="humans">
+  <h2>人在环中</h2>
+  <p>让一位资深工程师停下手头工作去审查一个常见错误，比把这个过程自动化要昂贵得多。但在某些任务上，人类审查者仍然必不可少：</p>
+  <ul>
+    <li>我们到底该不该做这个？决定是否构建某样东西，为产品设定愿景、品味和目标。</li>
+  </ul>
+  <p>有一个团队声称已经解决了代码审查的瓶颈，但对来自团队外部的改动，他们仍然会做人工审查，以确保这是该做的东西。</p>
+  <ul>
+    <li>审计危险代码（计费、自动更新器、CI workflow）。</li>
+    <li>架构审查，因为这些选择定下了其他人要遵循的约定。</li>
+    <li>核验证据（测试输出、跑过的命令、截图、审查者评论）。如果你说不出这些检查会漏掉什么，就别只要一个 👍，你需要的是一次真正的审查！</li>
+    <li>承担责任。每一个上线的改动，都有一个人为它负责，不管是谁敲的代码。</li>
+  </ul>
+</section>
+
+<section class="card" id="team-context">
+  <h2>团队上下文</h2>
+  <p>代码审查一直还承担着另一重作用：传达代码库的变化。读同事改动的 diff，通常就是人们理解「改了什么」以及「代码库怎么运作」的方式。如果大部分阅读都由机器完成，那学习代码库的途径会变成什么？</p>
+  <p>我们对此没有任何正式机制。团队里没有任何人脑子里装着 Claude Code 的完整心智模型，我们也不认为有人需要这样。相反，当任何人想了解代码库的某一部分时，他们会让 Claude 针对那一小块生成一份讲解。这只需要几分钟，而且讲解永远是最新的。</p>
+  <figure>
+    <div class="redraw" role="img" aria-label="图 F 中文重绘：机器读大部分代码时，人如何学习代码">
+      <p class="rd-kicker">在团队里共享上下文</p>
+      <p class="rd-title">如果大部分阅读由机器完成，人要怎么学会这份代码？</p>
+      <p class="rd-sub">&nbsp;</p>
+      <div class="learn">
+        <div class="base">
+          <h4>代码库</h4>
+          <div class="grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <p><span class="hl">■ managed settings</span><br>你想弄懂的那一部分</p>
+          <p>没有人在脑子里装着它的完整心智模型</p>
+        </div>
+        <div>
+          <p class="ask">就<span class="hl">恰好那一小块</span>去问 Claude</p>
+          <p class="bubble"><small>例如</small>「Claude Code 是怎么获取 managed settings 的？」</p>
+          <div class="out solid"><strong>Claude 写一份讲解</strong><span>只要几分钟，反映代码此刻的样子</span></div>
+          <div class="out dashed"><small>有人会再多走一步</small><strong>Claude 做一个小 artifact</strong><span>把这部分代码可视化，并按那个人喜欢的学习方式来讲</span></div>
+        </div>
+      </div>
+      <div class="learn-foot">
+        <div class="meh"><strong>逐行读琐碎的 diff：</strong>一行文案改动几乎教不了你什么。</div>
+        <div class="yes"><b>为你即将修改的模块生成一份讲解</b>，能教会你很多。</div>
+      </div>
+    </div>
+    <figcaption>图 F（中文 HTML/CSS 重绘）：如果大部分阅读由机器完成，人要怎么学会这份代码？</figcaption>
+  </figure>
+  <details class="orig-fig">
+    <summary>查看原文英文图</summary>
+    <img src="images/fig-f-how-anyone-learns-the-code.jpg" alt="Original English FIG F: If machines do most of the reading, how does anyone learn the code?" width="1200" height="675" loading="lazy">
+  </details>
+  <p>我们中有些人还会再多走一步：让 Claude 生成一个小 artifact，把这块区域可视化，并按自己喜欢的方式来讲解。</p>
+  <p>比起逐行阅读琐碎的 diff（比如一行文案改动），这是更好地集中人类注意力的方式——前者几乎教不了你什么，而为你将要修改的模块生成一份讲解，能教会你很多。</p>
+  <p>另外，我们总体上默认开放：在公开的 Slack 频道里工作，在别人构建的同时就能看到他们在做什么。</p>
+</section>
+
+<section class="card" id="own-it">
+  <h2>「谁合并，谁负责」</h2>
+  <p>如果你合并了一个小型或中型改动，结果还是出了问题，普遍的预期是你通常要自己修。这件事之所以不会失控，有几个原因：</p>
+  <ul>
+    <li>改动小，便于审查、调试和回滚。</li>
+    <li>一切都能回滚。feature flag、回滚和分阶段发布，能在几分钟内撤销大部分错误。</li>
+    <li>影响范围决定门槛。代价越高的代码，就有越多人看、越多验证。</li>
+    <li>遥测和内部使用能很快暴露回归问题。</li>
+    <li>这不是甩锅游戏。修复问题的人拥有它，是因为他掌握的上下文最多。事故复盘考虑的是整个系统。</li>
+    <li>另外，团队大部分人在公开频道里工作，共同分担责任。任何人都能看到别人在做什么、加入讨论，或者让 Claude 去找遗漏。反馈也会来自非代码 owner。这种开放，是我们在没有给每一行代码都设闸的情况下，质量依然保持很高的重要原因。</li>
+  </ul>
+</section>
+
+<section class="card" id="changing-course">
+  <h2>及时转向</h2>
+  <p>有了 agent，开始一项新工作的成本很低，但有时候你不该开始。这种情况通常发生在：频道里有人指出某个拟议改动走错了路（引用之前的决定，或提出更好的路径），然后作者要么关掉 PR，要么改变实现方式。</p>
+  <p>因为写出这些代码本来就很容易，关掉 PR 并不会让人觉得是一种损失。关键是在讨论串的早期就转向，而不是等到最后，在一个已经定稿的 PR 上留一条阻断性评论。</p>
+</section>
+
+<section class="card" id="implement">
+  <h2>如何落地</h2>
+  <p>这套做法的大部分组件，你的团队现在就能用上。</p>
+  <h3>提 pull request 之前</h3>
+  <ul>
+    <li>给 agent 一份它可以运行的检查清单，把这些检查列在一份简短的 <code>CLAUDE.md</code> 里</li>
+    <li>配置 agent 通过 hooks 调用格式化工具和 linter</li>
+    <li>在本地运行 <code>/code-review</code> 和 <code>/security-review</code>，或者让一个全新上下文的子 agent 审查改动</li>
+    <li>建一份 <code>REVIEW.md</code>，用它跟踪反复出现的审查问题</li>
+  </ul>
+  <h3>每一个 pull request 上</h3>
+  <ul>
+    <li>强制执行 CI</li>
+    <li>在 PR 模板里加上「Testing」「Risk」和「How to revert」</li>
+    <li>先在一个仓库上加一个 AI 审查者（Code Review for Claude Code，或 Claude Code GitHub Action），花几周时间迭代你的 <code>REVIEW.md</code>，再推广到更多仓库。</li>
+    <li>加上自动化安全审查</li>
+    <li>要求所有审查讨论串都解决之后才能合并</li>
+    <li>按风险施加审查力度：常规改动快速过一遍，高风险区域（bug 代价高的地方）彻底审查。Code Review 有 Quick、Standard 和 Deep 三档。</li>
+    <li>限制审查轮次，几轮之后只审新的 diff。</li>
+  </ul>
+  <h3>批准</h3>
+  <ul>
+    <li>定义风险级别，并且依据改动而不是作者来定级。从严开始，看到证据后再逐步放宽。</li>
+    <li>宽松的批准路径只留给受信任的作者。</li>
+    <li>bot 的批准不能用来满足必需的批准。有新提交推上来时，撤销已有的批准。</li>
+    <li>对控制认证、计费、CI 和发布 workflow 的代码和策略，以及安装程序，指定由人来批准。用 CODEOWNERS 和分支保护来实现。</li>
+  </ul>
+  <h3>合并与合并之后</h3>
+  <ul>
+    <li>建立合并队列</li>
+    <li>试用 feature flag</li>
+    <li>先发布给内部用户</li>
+    <li>分阶段发布</li>
+    <li>建立一步回滚机制</li>
+    <li>通过记录事故和回滚，构建一套评测集</li>
+    <li>每次修改审查器的提示词、工具或模型时，都重新给它打分</li>
+    <li>跟踪人的投入，把回滚率和事故率当作护栏</li>
+  </ul>
+</section>
+
+<section class="card" id="headed">
+  <h2>未来走向</h2>
+  <p>Code Review 发布时的设想是：最终的批准决定仍由人来做。这个产品所做的只是贴出它的发现。但在我们自己的仓库里，我们走得更远：由 owner 决定哪些低风险改动可以在自动检查通过后自动合并。而这条边界还会继续演变。</p>
+  <p>所以每当我们的审查器漏掉了什么，我们都会问自己：模型的上下文里缺了什么？然后把它变成一个 <code>CLAUDE.md</code> 文件、一个 skill 或一项新检查。我们的目标没有变：在保持回滚率不高于现在的前提下，减少每个改动所需的人力投入。</p>
+  <p>所以，如果你也允许 agent 创建 pull request，请告诉我们：你自动化了哪些检查、哪些需要人来做，以及我们哪里做错了。</p>
+  <p class="note">原文注：本文改写自我们最初的<a href="https://claude.dev/blog/solving-code-review-at-anthropic/">文章</a>，并经过 Pangram 检测。</p>
+  <p class="byline">Addy Osmani · Claude Code @anthropicai</p>
+  <p class="related">站内相关：<a href="../2026-09-26-claude-code-spending-your-effort/">把 effort 花在刀刃上</a> —— 同为 Claude Code 团队文章，文中「高 effort 适合代码审查、安全」可与本文对照阅读。</p>
+</section>
+
+<footer>
+  全文翻译，未删减。原文版权归原作者及原平台。本页是译文整理，供个人阅读。图 A–F 为中文 HTML/CSS 重绘，原文英文图可在各图下方展开查看。
+</footer>
+</main>
+
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll(".rail nav a"));
+  var sections = Array.prototype.slice.call(document.querySelectorAll("section.card, section.tldr"));
+  if (!links.length || !sections.length || !("IntersectionObserver" in window)) return;
+  var map = {};
+  links.forEach(function (a) {
+    var id = (a.getAttribute("href") || "").replace("#", "");
+    if (id) map[id] = a;
+  });
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      var id = entry.target.id;
+      links.forEach(function (a) { a.classList.remove("is-active"); });
+      if (map[id]) map[id].classList.add("is-active");
+    });
+  }, { rootMargin: "-18% 0px -64% 0px", threshold: 0.01 });
+  sections.forEach(function (s) { io.observe(s); });
+})();
+</script>
+<script src="../site.js" defer></script>
+</body>
+</html>
