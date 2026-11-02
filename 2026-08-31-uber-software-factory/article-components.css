@@ -1,0 +1,7 @@
+/* Preserved article-specific diagrams and interactive components only. */
+.tm {
+  font-size: 13px;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 18px;
+}

@@ -1,898 +1,211 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="light">
-<title>总结整理</title>
-<link rel="icon" href="favicon.ico" sizes="any">
-<link rel="icon" href="logo.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<style>
-:root {
-  --paper: #F4EFE6;
-  --card: #FBF7F0;
-  --ink: #191918;
-  --muted: #6B6459;
-  --rule: #E4D9C8;
-  --accent: #C96442;
-  --serif: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
-  --sans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-}
-* { box-sizing: border-box; }
-html { color-scheme: light; }
-body {
-  margin: 0;
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--sans);
-  font-size: 17px;
-  line-height: 1.7;
-}
-.skip {
-  position: absolute;
-  left: 16px;
-  top: 12px;
-  z-index: 8;
-  padding: 8px 12px;
-  background: var(--ink);
-  color: var(--paper);
-  text-decoration: none;
-  font-size: 13px;
-  transform: translateY(-160%);
-}
-.skip:focus,
-.skip:focus-visible {
-  transform: none;
-}
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
-}
-.wrap {
-  width: min(860px, calc(100% - 40px));
-  margin: 0 auto;
-  padding: 72px 0 96px;
-  padding-left: max(0px, env(safe-area-inset-left));
-  padding-right: max(0px, env(safe-area-inset-right));
-}
-.masthead { margin: 0 0 40px; }
-.brand-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 0 0 12px;
-}
-.brand-mark {
-  display: block;
-  flex: 0 0 36px;
-  width: 36px;
-  height: 36px;
-  line-height: 0;
-}
-.brand-mark img {
-  display: block;
-  width: 36px;
-  height: 36px;
-}
-.brand-row h1 { margin: 0; }
-.kicker {
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--accent);
-  font-weight: 600;
-  margin: 0 0 12px;
-}
-h1 {
-  font-family: var(--serif);
-  font-size: clamp(36px, 6vw, 52px);
-  line-height: 1.15;
-  margin: 0 0 12px;
-  letter-spacing: -0.02em;
-  text-wrap: balance;
-}
-.lead {
-  color: var(--muted);
-  margin: 0;
-  max-width: 36em;
-}
-
-.toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 10px 36px;
-  margin: 0 0 8px;
-  padding: 0 0 18px;
-  border-bottom: 1px solid var(--rule);
-}
-.group {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 8px 14px;
-  min-width: 0;
-}
-.filter-label {
-  font-size: 12px;
-  color: var(--muted);
-  min-width: 2.5em;
-}
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 12px;
-  min-width: 0;
-}
-.chip {
-  appearance: none;
-  background: transparent;
-  border: 0;
-  border-bottom: 1px solid transparent;
-  color: var(--muted);
-  font-family: inherit;
-  font-size: 13px;
-  line-height: 1.3;
-  padding: 4px 0;
-  margin: 0;
-  border-radius: 0;
-  cursor: pointer;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: rgba(201, 100, 66, 0.18);
-}
-.chip:hover { color: var(--ink); }
-.chip.is-on {
-  color: var(--ink);
-  border-bottom-color: var(--accent);
-  font-weight: 600;
-}
-
-.search-wrap {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 8px 14px;
-  flex: 1 1 100%;
-  min-width: 0;
-}
-.search-field {
-  flex: 1 1 16rem;
-  min-width: 0;
-}
-#q {
-  width: 100%;
-  appearance: none;
-  -webkit-appearance: none;
-  background: transparent;
-  border: 0;
-  border-bottom: 1px solid var(--rule);
-  color: var(--ink);
-  font-family: inherit;
-  font-size: 15px;
-  line-height: 1.4;
-  padding: 6px 0;
-  border-radius: 0;
-  transition: border-color 160ms ease;
-}
-#q::placeholder { color: var(--muted); }
-#q:focus {
-  outline: none;
-  border-bottom-color: var(--accent);
-}
-#q::-webkit-search-cancel-button { cursor: pointer; }
-
-.catalog { margin: 0; }
-.entry {
-  display: grid;
-  grid-template-columns: 9.25rem minmax(0, 1fr);
-  gap: 6px 40px;
-  align-items: start;
-  padding: 28px 2px;
-  border-bottom: 1px solid var(--rule);
-  color: inherit;
-  text-decoration: none;
-}
-.entry:hover .title { color: var(--accent); }
-.entry:hover .blurb { color: var(--ink); }
-.entry:hover .spine-date { color: var(--ink); }
-.entry.is-hidden { display: none; }
-.spine {
-  display: block;
-  padding-top: 4px;
-  min-width: 0;
-}
-.spine-label {
-  display: block;
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  color: var(--muted);
-  margin: 0 0 4px;
-}
-.spine-date {
-  display: block;
-  font-family: var(--serif);
-  font-size: 22px;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
-  color: var(--muted);
-  transition: color 160ms ease;
-}
-.entry-body { min-width: 0; }
-.title {
-  font-family: var(--serif);
-  font-size: clamp(22px, 3vw, 28px);
-  line-height: 1.3;
-  margin: 0 0 8px;
-  letter-spacing: -0.015em;
-  text-wrap: balance;
-  transition: color 160ms ease;
-}
-.blurb {
-  margin: 0 0 12px;
-  color: var(--muted);
-  font-size: 15px;
-  line-height: 1.6;
-  transition: color 160ms ease;
-}
-.meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 16px;
-  margin: 0;
-  color: var(--muted);
-  font-size: 13px;
-}
-.meta time { font-variant-numeric: tabular-nums; }
-
-.empty {
-  display: none;
-  color: var(--muted);
-  font-size: 15px;
-  margin: 28px 0 8px;
-}
-.empty.is-shown { display: block; }
-
-footer {
-  margin-top: 48px;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.7;
-}
-
-@media (max-width: 680px) {
-  .wrap { width: calc(100% - 32px); padding: 48px 0 72px; }
-  .entry {
-    display: block;
-    padding: 22px 0;
-  }
-  .entry.is-hidden { display: none; }
-  .spine { margin: 0 0 10px; }
-  .spine-date { font-size: 18px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .entry:hover .title,
-  .entry:hover .blurb,
-  .entry:hover .spine-date,
-  .spine-date,
-  .title,
-  .blurb,
-  #q { transition: none; }
-}
-</style>
-<link rel="stylesheet" href="site.css">
-</head>
-<body>
-<a class="skip" href="#catalog">跳到笔记列表</a>
-<div class="wrap">
-  <header class="masthead">
-    <p class="kicker">NOTES</p>
-    <div class="brand-row">
-      <a class="brand-mark" href="." aria-label="总结整理">
-        <img src="logo.svg" alt="" width="36" height="36">
-      </a>
-      <h1>总结整理</h1>
-    </div>
-    <p class="lead">公开阅读笔记，按分类与来源标记。</p>
-  </header>
-
-  <div class="toolbar">
-    <div class="group" data-group="cat">
-      <span class="filter-label" id="lbl-cat">分类</span>
-      <div class="chips" role="group" aria-labelledby="lbl-cat">
-        <button type="button" class="chip is-on" data-value="" aria-pressed="true">全部</button>
-        <button type="button" class="chip" data-value="AI" aria-pressed="false" translate="no">AI</button>
-        <button type="button" class="chip" data-value="认知" aria-pressed="false">认知</button>
-        <button type="button" class="chip" data-value="科技" aria-pressed="false">科技</button>
-      </div>
-    </div>
-    <div class="group" data-group="src">
-      <span class="filter-label" id="lbl-src">来源</span>
-      <div class="chips" role="group" aria-labelledby="lbl-src">
-        <button type="button" class="chip is-on" data-value="" aria-pressed="true">全部</button>
-        <button type="button" class="chip" data-value="YouTube" aria-pressed="false" translate="no">YouTube</button>
-        <button type="button" class="chip" data-value="X" aria-pressed="false" translate="no">X</button>
-        <button type="button" class="chip" data-value="官方" aria-pressed="false">官方</button>
-        <button type="button" class="chip" data-value="Website" aria-pressed="false" translate="no">Website</button>
-      </div>
-    </div>
-    <div class="search-wrap">
-      <label class="filter-label" for="q">搜索</label>
-      <div class="search-field">
-        <input type="search" id="q" name="q" placeholder="搜索标题或摘要" autocomplete="off" spellcheck="false" aria-controls="catalog">
-      </div>
-    </div>
-  </div>
-
-  <main id="catalog" class="catalog">
-    <a class="entry" href="2026-11-02-super-agent-design/" data-category="AI" data-source="X">
-      <div class="spine">
-        <span class="spine-label">整理</span>
-        <time class="spine-date" datetime="2026-11-02">2026-11-02</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title">Super-agent 设计探索：迈向更自主的 Agent 系统 · <span translate="no">Exploring Super-agent Design</span></h2>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#fbfbfa"><title>Notes · 阅读手记</title><meta name="description" content="关于 AI、认知与科技的公开阅读笔记。留住那些值得反复想起的观点，也记录理解世界的过程。"><link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="design.css"><link rel="stylesheet" href="home.css"></head><body id="top" class="home-page"><a class="skip" href="#catalog">跳到阅读目录</a><div class="page"><header class="masthead"><a class="wordmark" href="index.html" aria-label="Notes 阅读手记首页"><img src="logo.svg" width="38" height="38" alt="">notes</a><div class="masthead-right"><span>HARVEY’S READING NOTES</span><a href="index.html#catalog">阅读目录 ↗</a></div></header><main><section class="editorial-intro"><div><p class="eyebrow">A PERSONAL COLLECTION OF IDEAS</p><h1>在阅读之间，<br>让想法<em>慢慢生长。</em></h1></div><p class="hero-copy">关于 AI、认知与科技的阅读笔记。<br>留住那些值得反复想起的观点，<br>也记录理解世界的过程。</p></section><section class="feature" aria-label="最近整理的笔记"><div class="feature-text"><p class="eyebrow">LATEST NOTE <span> / </span> 2026.11.02</p><h2><a href="2026-11-02-super-agent-design/index.html">Super-agent 设计探索：迈向更自主的 Agent 系统</a></h2><p class="feature-summary">多任务的天花板是人的注意力：用 Router + Worker 两层架构、事件驱动、全双工交互做一个常驻在线的 Super-agent（附研究原型，非正式产品）</p><a class="text-button" href="2026-11-02-super-agent-design/index.html">读这篇笔记 <span>↗</span></a></div><div class="art" aria-hidden="true"><svg viewBox="0 0 440 300" fill="none"><g stroke="#292929" stroke-width="1.1"><ellipse cx="220" cy="150" rx="130" ry="104" transform="rotate(-28 220 150)"/><ellipse cx="220" cy="150" rx="113" ry="104" transform="rotate(-28 220 150)"/><ellipse cx="220" cy="150" rx="90" ry="104" transform="rotate(-28 220 150)"/><ellipse cx="220" cy="150" rx="64" ry="104" transform="rotate(-28 220 150)"/><ellipse cx="220" cy="150" rx="31" ry="104" transform="rotate(-28 220 150)"/><path d="M112 212L328 88M91 169L282 61M154 243L350 132"/></g><circle cx="220" cy="150" r="11" fill="#583b8d"/></svg><span>CONNECTIONS, NOT JUST COLLECTIONS</span></div></section><section id="catalog" aria-labelledby="catalog-title"><div class="section-header"><h2 id="catalog-title">最近的阅读</h2><span>按整理时间 · 从新到旧</span></div><div class="filters"><div class="group categories" data-group="cat" role="group" aria-label="文章分类"><button type="button" class="chip" data-value="" aria-pressed="true">全部</button><button type="button" class="chip" data-value="AI" aria-pressed="false">AI</button><button type="button" class="chip" data-value="认知" aria-pressed="false">认知</button><button type="button" class="chip" data-value="科技" aria-pressed="false">科技</button></div><div class="search-group"><label class="search-wrap"><span aria-hidden="true">⌕</span><input type="search" id="q" placeholder="搜索标题或摘要" aria-label="搜索标题或摘要" aria-controls="results" autocomplete="off"></label><select id="source" aria-label="按来源筛选"><option value="">全部来源</option><option value="YouTube">YouTube</option><option value="X">X</option><option value="官方">官方</option><option value="Website">Website</option></select></div></div><div class="results-bar"><p id="result-count" role="status" aria-live="polite">30 篇阅读笔记</p><button type="button" id="reset-filters" disabled>清除筛选 ×</button></div><div id="results"><a class="entry" href="2026-11-02-super-agent-design/index.html" data-category="AI" data-source="X"><div class="entry-body"><h3 class="title"><span class="title-main">Super-agent 设计探索：迈向更自主的 Agent 系统</span><span class="title-separator"> · </span><span class="title-secondary"><span translate="no">Exploring Super-agent Design</span></span></h3>
         <p class="blurb">多任务的天花板是人的注意力：用 Router + Worker 两层架构、事件驱动、全双工交互做一个常驻在线的 Super-agent（附研究原型，非正式产品）</p>
-        <p class="meta">
+        <div class="entry-details"><time datetime="2026-11-02">2026-11-02</time><p class="meta">
           <span>原文 <time datetime="2026-11-01">2026-11-01</time></span>
           <span>分类 <span translate="no">AI</span></span>
           <span>来源 <span translate="no">X · @DeepSeekHarness</span></span>
         </p>
-      </div>
-    </a>
-    <a class="entry" href="2026-10-27-how-i-work-with-agents/" data-category="AI" data-source="X">
-      <div class="spine">
-        <span class="spine-label">整理</span>
-        <time class="spine-date" datetime="2026-10-27">2026-10-27</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title">我怎么跟 Agent 一起工作 · <span translate="no">How I work with Agents</span></h2>
+      </div></div><span class="entry-arrow" aria-hidden="true">↗</span></a><a class="entry" href="2026-10-27-how-i-work-with-agents/index.html" data-category="AI" data-source="X"><div class="entry-body"><h3 class="title"><span class="title-main">我怎么跟 Agent 一起工作</span><span class="title-separator"> · </span><span class="title-secondary"><span translate="no">How I work with Agents</span></span></h3>
         <p class="blurb">用最新模型、让 Agent 看见整个 SDLC、要证据、交大任务走异步，只审爆炸半径大的代码</p>
-        <p class="meta">
+        <div class="entry-details"><time datetime="2026-10-27">2026-10-27</time><p class="meta">
           <span>原文 <time datetime="2026-10-25">2026-10-25</time></span>
           <span>分类 <span translate="no">AI</span></span>
           <span>来源 <span translate="no">X · @thorstenball</span></span>
         </p>
-      </div>
-    </a>
-    <a class="entry" href="2026-10-27-claude-code-team-code-review/" data-category="AI" data-source="X">
-      <div class="spine">
-        <span class="spine-label">整理</span>
-        <time class="spine-date" datetime="2026-10-27">2026-10-27</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title">Claude Code 团队怎么做代码审查 · <span translate="no">How the Claude Code team does code review</span></h2>
+      </div></div><span class="entry-arrow" aria-hidden="true">↗</span></a><a class="entry" href="2026-10-27-claude-code-team-code-review/index.html" data-category="AI" data-source="X"><div class="entry-body"><h3 class="title"><span class="title-main">Claude Code 团队怎么做代码审查</span><span class="title-separator"> · </span><span class="title-secondary"><span translate="no">How the Claude Code team does code review</span></span></h3>
         <p class="blurb">把大部分「读代码」交给多层自动检查，人只盯高风险环节；PR 翻倍，回滚占比降四成</p>
-        <p class="meta">
+        <div class="entry-details"><time datetime="2026-10-27">2026-10-27</time><p class="meta">
           <span>原文 <time datetime="2026-10-26">2026-10-26</time></span>
           <span>分类 <span translate="no">AI</span></span>
           <span>来源 <span translate="no">X · @addyosmani</span></span>
         </p>
-      </div>
-    </a>
-    <a class="entry" href="2026-09-26-claude-code-spending-your-effort/" data-category="AI" data-source="X">
-      <div class="spine">
-        <span class="spine-label">整理</span>
-        <time class="spine-date" datetime="2026-09-26">2026-09-26</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title">把 effort 花在刀刃上 · <span translate="no">Using Claude Code: Spending your effort</span></h2>
+      </div></div><span class="entry-arrow" aria-hidden="true">↗</span></a><a class="entry" href="2026-09-26-claude-code-spending-your-effort/index.html" data-category="AI" data-source="X"><div class="entry-body"><h3 class="title"><span class="title-main">把 effort 花在刀刃上</span><span class="title-separator"> · </span><span class="title-secondary"><span translate="no">Using Claude Code: Spending your effort</span></span></h3>
         <p class="blurb">effort 调的是验证与自主判断强度；别凡事 Max</p>
-        <p class="meta">
+        <div class="entry-details"><time datetime="2026-09-26">2026-09-26</time><p class="meta">
           <span>原文 <time datetime="2026-09-25">2026-09-25</time></span>
           <span>分类 <span translate="no">AI</span></span>
           <span>来源 <span translate="no">X · @trq212</span></span>
         </p>
-      </div>
-    </a>
-    <a class="entry" href="2026-09-13-we-must-pace-the-frontier/" data-category="AI" data-source="Website">
-      <div class="spine">
-        <span class="spine-label">整理</span>
-        <time class="spine-date" datetime="2026-09-13">2026-09-13</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title">必须给前沿定速 · <span translate="no">We Must Pace the Frontier</span></h2>
+      </div></div><span class="entry-arrow" aria-hidden="true">↗</span></a><a class="entry" href="2026-09-13-we-must-pace-the-frontier/index.html" data-category="AI" data-source="Website"><div class="entry-body"><h3 class="title"><span class="title-main">必须给前沿定速</span><span class="title-separator"> · </span><span class="title-secondary"><span translate="no">We Must Pace the Frontier</span></span></h3>
         <p class="blurb">能力冲刺要给安全留时间：驻场评估、民主协调、全球定速</p>
-        <p class="meta">
+        <div class="entry-details"><time datetime="2026-09-13">2026-09-13</time><p class="meta">
           <span>原文 <time datetime="2026-09-12">2026-09-12</time></span>
           <span>分类 <span translate="no">AI</span></span>
           <span>来源 <span translate="no">Website · Dario Amodei</span></span>
         </p>
-      </div>
-    </a>
-    <a class="entry" href="2026-09-13-you-need-to-be-delusional/" data-category="认知" data-source="X">
-      <div class="spine">
-        <span class="spine-label">整理</span>
-        <time class="spine-date" datetime="2026-09-13">2026-09-13</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title" translate="no">You need to be delusional if you want to succeed</h2>
+      </div></div><span class="entry-arrow" aria-hidden="true">↗</span></a><a class="entry" href="2026-09-13-you-need-to-be-delusional/index.html" data-category="认知" data-source="X"><div class="entry-body"><h3 class="title" translate="no">You need to be delusional if you want to succeed</h3>
         <p class="blurb">现实目标通向平庸；妄想目标是注意力滤镜与现实扭曲场</p>
-        <p class="meta">
+        <div class="entry-details"><time datetime="2026-09-13">2026-09-13</time><p class="meta">
           <span>原文 <time datetime="2026-09-12">2026-09-12</time></span>
           <span>分类 认知</span>
           <span>来源 <span translate="no">X · @thedankoe</span></span>
         </p>
-      </div>
-    </a>
-    <a class="entry" href="2026-09-12-google-adk-graph-engineering/" data-category="AI" data-source="X">
-      <div class="spine">
-        <span class="spine-label">整理</span>
-        <time class="spine-date" datetime="2026-09-12">2026-09-12</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title" translate="no">Google ADK Graph Engineering: From One Prompt to Agent Graphs</h2>
+      </div></div><span class="entry-arrow" aria-hidden="true">↗</span></a><a class="entry" href="2026-09-12-google-adk-graph-engineering/index.html" data-category="AI" data-source="X"><div class="entry-body"><h3 class="title" translate="no">Google ADK Graph Engineering: From One Prompt to Agent Graphs</h3>
         <p class="blurb">别把流程塞进一条提示词：用 ADK 把智能体跑成图</p>
-        <p class="meta">
+        <div class="entry-details"><time datetime="2026-09-12">2026-09-12</time><p class="meta">
           <span>原文 <time datetime="2026-09-10">2026-09-10</time></span>
           <span>分类 <span translate="no">AI</span></span>
           <span>来源 <span translate="no">X · @0xCodila</span></span>
         </p>
-      </div>
-    </a>
-    <a class="entry" href="2026-09-12-ai-engineering-shaping-the-build/" data-category="AI" data-source="X">
-      <div class="spine">
-        <span class="spine-label">整理</span>
-        <time class="spine-date" datetime="2026-09-12">2026-09-12</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title" translate="no">AI Engineering Skills Map: Shaping the build</h2>
+      </div></div><span class="entry-arrow" aria-hidden="true">↗</span></a><a class="entry" href="2026-09-12-ai-engineering-shaping-the-build/index.html" data-category="AI" data-source="X"><div class="entry-body"><h3 class="title" translate="no">AI Engineering Skills Map: Shaping the build</h3>
         <p class="blurb">不只写代码：驱动构建循环、拍产品决策、对齐与高主体性</p>
-        <p class="meta">
+        <div class="entry-details"><time datetime="2026-09-12">2026-09-12</time><p class="meta">
           <span>原文 <time datetime="2026-09-11">2026-09-11</time></span>
           <span>分类 <span translate="no">AI</span></span>
           <span>来源 <span translate="no">X · @AndrewYNg</span></span>
         </p>
-      </div>
-    </a>
-    <a class="entry" href="2026-09-10-sam-altman-stanford-cs153/" data-category="AI" data-source="X">
-      <div class="spine">
-        <span class="spine-label">整理</span>
-        <time class="spine-date" datetime="2026-09-10">2026-09-10</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title" translate="no">Stanford CS153 Frontier Systems | Scale, AGI, and the Future of Everything</h2>
+      </div></div><span class="entry-arrow" aria-hidden="true">↗</span></a><a class="entry" href="2026-09-10-sam-altman-stanford-cs153/index.html" data-category="AI" data-source="X"><div class="entry-body"><h3 class="title" translate="no">Stanford CS153 Frontier Systems | Scale, AGI, and the Future of Everything</h3>
         <p class="blurb">代币能顶百人工程队：Altman 谈规模、ChatGPT 诞生与推理栈</p>
-        <p class="meta">
+        <div class="entry-details"><time datetime="2026-09-10">2026-09-10</time><p class="meta">
           <span>原文 <time datetime="2026-05-21">2026-05-21</time></span>
           <span>分类 <span translate="no">AI</span></span>
           <span>来源 <span translate="no">X · @laobaishare</span></span>
         </p>
-      </div>
-    </a>
-    <a class="entry" href="2026-09-06-how-to-fix-your-entire-life-in-1-day/" data-category="认知" data-source="X">
-      <div class="spine">
-        <span class="spine-label">整理</span>
-        <time class="spine-date" datetime="2026-09-06">2026-09-06</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title" translate="no">How to fix your entire life in 1 day</h2>
+      </div></div><span class="entry-arrow" aria-hidden="true">↗</span></a><a class="entry" href="2026-09-06-how-to-fix-your-entire-life-in-1-day/index.html" data-category="认知" data-source="X"><div class="entry-body"><h3 class="title" translate="no">How to fix your entire life in 1 day</h3>
         <p class="blurb">用一天把人生系统重装一遍：七个行为改变视角</p>
-        <p class="meta">
+        <div class="entry-details"><time datetime="2026-09-06">2026-09-06</time><p class="meta">
           <span>原文 <time datetime="2026-01-12">2026-01-12</time></span>
           <span>分类 认知</span>
           <span>来源 <span translate="no">X · @thedankoe</span></span>
         </p>
-      </div>
-    </a>
-    <a class="entry" href="2026-09-06-grok-bot-for-engineering/" data-category="AI" data-source="X">
-      <div class="spine">
-        <span class="spine-label">整理</span>
-        <time class="spine-date" datetime="2026-09-06">2026-09-06</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title" translate="no">Grok Bot for Engineering</h2>
+      </div></div><span class="entry-arrow" aria-hidden="true">↗</span></a><a class="entry" href="2026-09-06-grok-bot-for-engineering/index.html" data-category="AI" data-source="X"><div class="entry-body"><h3 class="title" translate="no">Grok Bot for Engineering</h3>
         <p class="blurb">用 Grok Bot 管工程舰队：从 15 个云智能体到 200+</p>
-        <p class="meta">
+        <div class="entry-details"><time datetime="2026-09-06">2026-09-06</time><p class="meta">
           <span>原文 <time datetime="2026-08-31">2026-08-31</time></span>
           <span>分类 <span translate="no">AI</span></span>
           <span>来源 <span translate="no">X · @lingxi</span></span>
         </p>
-      </div>
-    </a>
-    <a class="entry" href="2026-09-05-rethinking-skills-prompts-gpt-6-astra/" data-category="AI" data-source="X">
-      <div class="spine">
-        <span class="spine-label">整理</span>
-        <time class="spine-date" datetime="2026-09-05">2026-09-05</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title" translate="no">Rethinking skills and prompts for GPT-6 Astra</h2>
+      </div></div><span class="entry-arrow" aria-hidden="true">↗</span></a><a class="entry" href="2026-09-05-rethinking-skills-prompts-gpt-6-astra/index.html" data-category="AI" data-source="X"><div class="entry-body"><h3 class="title" translate="no">Rethinking skills and prompts for GPT-6 Astra</h3>
         <p class="blurb">Skills / AGENTS.md 该减负了，Astra 不需要旧脚手架</p>
-        <p class="meta">
+        <div class="entry-details"><time datetime="2026-09-05">2026-09-05</time><p class="meta">
           <span>原文 <time datetime="2026-09-04">2026-09-04</time></span>
           <span>分类 <span translate="no">AI</span></span>
           <span>来源 <span translate="no">X · @pvncher</span></span>
         </p>
-      </div>
-    </a>
-    <a class="entry" href="2026-09-02-prompting-claude-fable-5-1/" data-category="AI" data-source="官方">
-      <div class="spine">
-        <span class="spine-label">整理</span>
-        <time class="spine-date" datetime="2026-09-02">2026-09-02</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title" translate="no">Prompting Claude Fable 5.1</h2>
+      </div></div><span class="entry-arrow" aria-hidden="true">↗</span></a><a class="entry" href="2026-09-02-prompting-claude-fable-5-1/index.html" data-category="AI" data-source="官方"><div class="entry-body"><h3 class="title" translate="no">Prompting Claude Fable 5.1</h3>
         <p class="blurb">Fable 5.1 提示词：按你看到的症状改</p>
-        <p class="meta">
+        <div class="entry-details"><time datetime="2026-09-02">2026-09-02</time><p class="meta">
           <span>原文 <time datetime="2026-09-02">2026-09-02</time></span>
           <span>分类 <span translate="no">AI</span></span>
           <span>来源 官方 · Anthropic</span>
         </p>
-      </div>
-    </a>
-    <a class="entry" href="2026-08-31-uber-software-factory/" data-category="AI" data-source="X">
-      <div class="spine">
-        <span class="spine-label">整理</span>
-        <time class="spine-date" datetime="2026-08-31">2026-08-31</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title" translate="no">Running a Software Factory Efficiently at Uber Scale</h2>
+      </div></div><span class="entry-arrow" aria-hidden="true">↗</span></a><a class="entry" href="2026-08-31-uber-software-factory/index.html" data-category="AI" data-source="X"><div class="entry-body"><h3 class="title" translate="no">Running a Software Factory Efficiently at Uber Scale</h3>
         <p class="blurb">用量涨了 7 倍，单次成本还能降下来</p>
-        <p class="meta">
+        <div class="entry-details"><time datetime="2026-08-31">2026-08-31</time><p class="meta">
           <span>原文 <time datetime="2026-08-28">2026-08-28</time></span>
           <span>分类 <span translate="no">AI</span></span>
           <span>来源 <span translate="no">X · @UberEng</span></span>
         </p>
-      </div>
-    </a>
-    <a class="entry" href="2026-08-31-ai-engineering-se-fundamentals/" data-category="AI" data-source="X">
-      <div class="spine">
-        <span class="spine-label">整理</span>
-        <time class="spine-date" datetime="2026-08-31">2026-08-31</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title" translate="no">AI Engineering Skills Map: Software engineering fundamentals</h2>
+      </div></div><span class="entry-arrow" aria-hidden="true">↗</span></a><a class="entry" href="2026-08-31-ai-engineering-se-fundamentals/index.html" data-category="AI" data-source="X"><div class="entry-body"><h3 class="title" translate="no">AI Engineering Skills Map: Software engineering fundamentals</h3>
         <p class="blurb">会用 Agent 写代码，仍要懂软件基本功</p>
-        <p class="meta">
+        <div class="entry-details"><time datetime="2026-08-31">2026-08-31</time><p class="meta">
           <span>原文 <time datetime="2026-08-28">2026-08-28</time></span>
           <span>分类 <span translate="no">AI</span></span>
           <span>来源 <span translate="no">X · @AndrewYNg</span></span>
         </p>
-      </div>
-    </a>
-    <a class="entry" href="2026-08-28-ai-native-sdlc-playbook/" data-category="AI" data-source="官方">
-      <div class="spine">
-        <span class="spine-label">整理</span>
-        <time class="spine-date" datetime="2026-08-28">2026-08-28</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title" translate="no">The AI-Native SDLC playbook</h2>
+      </div></div><span class="entry-arrow" aria-hidden="true">↗</span></a><a class="entry" href="2026-08-28-ai-native-sdlc-playbook/index.html" data-category="AI" data-source="官方"><div class="entry-body"><h3 class="title" translate="no">The AI-Native SDLC playbook</h3>
         <p class="blurb">AI 原生软件开发生命周期手册（全文翻译）</p>
-        <p class="meta">
+        <div class="entry-details"><time datetime="2026-08-28">2026-08-28</time><p class="meta">
           <span>原文 <time datetime="2026-08-21">2026-08-21</time></span>
           <span>分类 <span translate="no">AI</span></span>
           <span>来源 官方 · Anthropic</span>
         </p>
-      </div>
-    </a>
-    <a class="entry" href="2026-08-27-codex-beginner-to-expert/" data-category="AI" data-source="X">
-      <div class="spine">
-        <span class="spine-label">整理</span>
-        <time class="spine-date" datetime="2026-08-27">2026-08-27</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title">万字长文｜Codex 从入门到精通</h2>
+      </div></div><span class="entry-arrow" aria-hidden="true">↗</span></a><a class="entry" href="2026-08-27-codex-beginner-to-expert/index.html" data-category="AI" data-source="X"><div class="entry-body"><h3 class="title">万字长文｜Codex 从入门到精通</h3>
         <p class="blurb">先认清界面和边界，再谈精通</p>
-        <p class="meta">
+        <div class="entry-details"><time datetime="2026-08-27">2026-08-27</time><p class="meta">
           <span>原文 <time datetime="2026-08-23">2026-08-23</time></span>
           <span>分类 <span translate="no">AI</span></span>
           <span>来源 <span translate="no">X · @miles_mazy</span></span>
         </p>
-      </div>
-    </a>
-    <a class="entry" href="2026-08-27-fde-not-models/" data-category="AI" data-source="X">
-      <div class="spine">
-        <span class="spine-label">整理</span>
-        <time class="spine-date" datetime="2026-08-27">2026-08-27</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title">昨天在深圳做完 FDE 路演，我更确定：企业真正缺的不是模型</h2>
+      </div></div><span class="entry-arrow" aria-hidden="true">↗</span></a><a class="entry" href="2026-08-27-fde-not-models/index.html" data-category="AI" data-source="X"><div class="entry-body"><h3 class="title">昨天在深圳做完 FDE 路演，我更确定：企业真正缺的不是模型</h3>
         <p class="blurb">缺的是能把模型接到业务结果的人</p>
-        <p class="meta">
+        <div class="entry-details"><time datetime="2026-08-27">2026-08-27</time><p class="meta">
           <span>原文 <time datetime="2026-08-12">2026-08-12</time></span>
           <span>分类 <span translate="no">AI</span></span>
           <span>来源 <span translate="no">X · @miles_mazy</span></span>
         </p>
-      </div>
-    </a>
-    <a class="entry" href="2026-08-23-ai-engineering-skills-map/" data-category="AI" data-source="X">
-      <div class="spine">
-        <span class="spine-label">整理</span>
-        <time class="spine-date" datetime="2026-08-23">2026-08-23</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title" translate="no">AI Engineering Skills Map: Building and Deploying AI Applications</h2>
+      </div></div><span class="entry-arrow" aria-hidden="true">↗</span></a><a class="entry" href="2026-08-23-ai-engineering-skills-map/index.html" data-category="AI" data-source="X"><div class="entry-body"><h3 class="title" translate="no">AI Engineering Skills Map: Building and Deploying AI Applications</h3>
         <p class="blurb">做 AI 应用，先把这六项技能练扎实</p>
-        <p class="meta">
+        <div class="entry-details"><time datetime="2026-08-23">2026-08-23</time><p class="meta">
           <span>原文 <time datetime="2026-08-21">2026-08-21</time></span>
           <span>分类 <span translate="no">AI</span></span>
           <span>来源 <span translate="no">X · @AndrewYNg</span></span>
         </p>
-      </div>
-    </a>
-    <a class="entry" href="2026-08-23-codex-multi-agent/" data-category="AI" data-source="X">
-      <div class="spine">
-        <span class="spine-label">整理</span>
-        <time class="spine-date" datetime="2026-08-23">2026-08-23</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title">Codex 进阶指南：作为 Multi-Agent 编排控制平面</h2>
+      </div></div><span class="entry-arrow" aria-hidden="true">↗</span></a><a class="entry" href="2026-08-23-codex-multi-agent/index.html" data-category="AI" data-source="X"><div class="entry-body"><h3 class="title">Codex 进阶指南：作为 Multi-Agent 编排控制平面</h3>
         <p class="blurb">把 Codex 当成多智能体调度台</p>
-        <p class="meta">
+        <div class="entry-details"><time datetime="2026-08-23">2026-08-23</time><p class="meta">
           <span>原文 <time datetime="2026-07-30">2026-07-30</time></span>
           <span>分类 <span translate="no">AI</span></span>
           <span>来源 <span translate="no">X · @riba2534</span></span>
         </p>
-      </div>
-    </a>
-    <a class="entry" href="2026-08-23-context-engineering-claude-5/" data-category="AI" data-source="X">
-      <div class="spine">
-        <span class="spine-label">整理</span>
-        <time class="spine-date" datetime="2026-08-23">2026-08-23</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title" translate="no">The new rules of context engineering for Claude 5 models</h2>
+      </div></div><span class="entry-arrow" aria-hidden="true">↗</span></a><a class="entry" href="2026-08-23-context-engineering-claude-5/index.html" data-category="AI" data-source="X"><div class="entry-body"><h3 class="title" translate="no">The new rules of context engineering for Claude 5 models</h3>
         <p class="blurb">Claude 5 的上下文工程新规则</p>
-        <p class="meta">
+        <div class="entry-details"><time datetime="2026-08-23">2026-08-23</time><p class="meta">
           <span>原文 <time datetime="2026-07-24">2026-07-24</time></span>
           <span>分类 <span translate="no">AI</span></span>
           <span>来源 <span translate="no">X · @trq212</span></span>
         </p>
-      </div>
-    </a>
-    <a class="entry" href="2026-08-23-claude-code-loops/" data-category="AI" data-source="X">
-      <div class="spine">
-        <span class="spine-label">整理</span>
-        <time class="spine-date" datetime="2026-08-23">2026-08-23</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title" translate="no">Getting started with loops</h2>
+      </div></div><span class="entry-arrow" aria-hidden="true">↗</span></a><a class="entry" href="2026-08-23-claude-code-loops/index.html" data-category="AI" data-source="X"><div class="entry-body"><h3 class="title" translate="no">Getting started with loops</h3>
         <p class="blurb">先设计循环，再写提示</p>
-        <p class="meta">
+        <div class="entry-details"><time datetime="2026-08-23">2026-08-23</time><p class="meta">
           <span>原文 <time datetime="2026-07-06">2026-07-06</time></span>
           <span>分类 <span translate="no">AI</span></span>
           <span>来源 <span translate="no">X · @ClaudeDevs</span></span>
         </p>
-      </div>
-    </a>
-    <a class="entry" href="2026-08-23-dynamic-workflows-harness/" data-category="AI" data-source="X">
-      <div class="spine">
-        <span class="spine-label">整理</span>
-        <time class="spine-date" datetime="2026-08-23">2026-08-23</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title" translate="no">A harness for every task: dynamic workflows in Claude Code</h2>
+      </div></div><span class="entry-arrow" aria-hidden="true">↗</span></a><a class="entry" href="2026-08-23-dynamic-workflows-harness/index.html" data-category="AI" data-source="X"><div class="entry-body"><h3 class="title" translate="no">A harness for every task: dynamic workflows in Claude Code</h3>
         <p class="blurb">每个任务都该有自己的 harness</p>
-        <p class="meta">
+        <div class="entry-details"><time datetime="2026-08-23">2026-08-23</time><p class="meta">
           <span>原文 <time datetime="2026-06-02">2026-06-02</time></span>
           <span>分类 <span translate="no">AI</span></span>
           <span>来源 <span translate="no">X · @trq212</span></span>
         </p>
-      </div>
-    </a>
-    <a class="entry" href="2026-08-23-claude-code-dynamic-workflows/" data-category="AI" data-source="X">
-      <div class="spine">
-        <span class="spine-label">整理</span>
-        <time class="spine-date" datetime="2026-08-23">2026-08-23</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title">Claude Code Dynamic Workflows：把编排逻辑搬进代码的新原语</h2>
+      </div></div><span class="entry-arrow" aria-hidden="true">↗</span></a><a class="entry" href="2026-08-23-claude-code-dynamic-workflows/index.html" data-category="AI" data-source="X"><div class="entry-body"><h3 class="title">Claude Code Dynamic Workflows：把编排逻辑搬进代码的新原语</h3>
         <p class="blurb">编排逻辑写进代码里</p>
-        <p class="meta">
+        <div class="entry-details"><time datetime="2026-08-23">2026-08-23</time><p class="meta">
           <span>原文 <time datetime="2026-05-28">2026-05-28</time></span>
           <span>分类 <span translate="no">AI</span></span>
           <span>来源 <span translate="no">X · @riba2534</span></span>
         </p>
-      </div>
-    </a>
-    <a class="entry" href="2026-08-23-llm-training-post-training/" data-category="AI" data-source="X">
-      <div class="spine">
-        <span class="spine-label">整理</span>
-        <time class="spine-date" datetime="2026-08-23">2026-08-23</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title">你不知道的大模型训练：原理、路径与新实践</h2>
+      </div></div><span class="entry-arrow" aria-hidden="true">↗</span></a><a class="entry" href="2026-08-23-llm-training-post-training/index.html" data-category="AI" data-source="X"><div class="entry-body"><h3 class="title">你不知道的大模型训练：原理、路径与新实践</h3>
         <p class="blurb">差距出在后训练，不在预训练</p>
-        <p class="meta">
+        <div class="entry-details"><time datetime="2026-08-23">2026-08-23</time><p class="meta">
           <span>原文 <time datetime="2026-04-03">2026-04-03</time></span>
           <span>分类 <span translate="no">AI</span></span>
           <span>来源 <span translate="no">X · @HiTw93</span></span>
         </p>
-      </div>
-    </a>
-    <a class="entry" href="2026-08-23-agent-principles-architecture/" data-category="AI" data-source="X">
-      <div class="spine">
-        <span class="spine-label">整理</span>
-        <time class="spine-date" datetime="2026-08-23">2026-08-23</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title">你不知道的 Agent：原理、架构与工程实践</h2>
+      </div></div><span class="entry-arrow" aria-hidden="true">↗</span></a><a class="entry" href="2026-08-23-agent-principles-architecture/index.html" data-category="AI" data-source="X"><div class="entry-body"><h3 class="title">你不知道的 Agent：原理、架构与工程实践</h3>
         <p class="blurb">Harness 和工具描述比换模型更要紧</p>
-        <p class="meta">
+        <div class="entry-details"><time datetime="2026-08-23">2026-08-23</time><p class="meta">
           <span>原文 <time datetime="2026-03-19">2026-03-19</time></span>
           <span>分类 <span translate="no">AI</span></span>
           <span>来源 <span translate="no">X · @HiTw93</span></span>
         </p>
-      </div>
-    </a>
-    <a class="entry" href="2026-08-23-claude-code-skills/" data-category="AI" data-source="X">
-      <div class="spine">
-        <span class="spine-label">整理</span>
-        <time class="spine-date" datetime="2026-08-23">2026-08-23</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title" translate="no">Lessons from Building Claude Code: How We Use Skills</h2>
+      </div></div><span class="entry-arrow" aria-hidden="true">↗</span></a><a class="entry" href="2026-08-23-claude-code-skills/index.html" data-category="AI" data-source="X"><div class="entry-body"><h3 class="title" translate="no">Lessons from Building Claude Code: How We Use Skills</h3>
         <p class="blurb">Anthropic 内部怎么写 Skills</p>
-        <p class="meta">
+        <div class="entry-details"><time datetime="2026-08-23">2026-08-23</time><p class="meta">
           <span>原文 <time datetime="2026-03-17">2026-03-17</time></span>
           <span>分类 <span translate="no">AI</span></span>
           <span>来源 <span translate="no">X · @trq212</span></span>
         </p>
-      </div>
-    </a>
-    <a class="entry" href="2026-08-23-claude-code-architecture-governance/" data-category="AI" data-source="X">
-      <div class="spine">
-        <span class="spine-label">整理</span>
-        <time class="spine-date" datetime="2026-08-23">2026-08-23</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title">你不知道的 Claude Code：架构、治理与工程实践</h2>
+      </div></div><span class="entry-arrow" aria-hidden="true">↗</span></a><a class="entry" href="2026-08-23-claude-code-architecture-governance/index.html" data-category="AI" data-source="X"><div class="entry-body"><h3 class="title">你不知道的 Claude Code：架构、治理与工程实践</h3>
         <p class="blurb">上下文乱了就不是 Prompt 问题</p>
-        <p class="meta">
+        <div class="entry-details"><time datetime="2026-08-23">2026-08-23</time><p class="meta">
           <span>原文 <time datetime="2026-03-12">2026-03-12</time></span>
           <span>分类 <span translate="no">AI</span></span>
           <span>来源 <span translate="no">X · @HiTw93</span></span>
         </p>
-      </div>
-    </a>
-    <a class="entry" href="2026-08-21-claude-code-agentic/" data-category="AI" data-source="YouTube">
-      <div class="spine">
-        <span class="spine-label">整理</span>
-        <time class="spine-date" datetime="2026-08-21">2026-08-21</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title" translate="no">How Anthropic uses Claude Code: Agentic Software Engineering at Scale</h2>
+      </div></div><span class="entry-arrow" aria-hidden="true">↗</span></a><a class="entry" href="2026-08-21-claude-code-agentic/index.html" data-category="AI" data-source="YouTube"><div class="entry-body"><h3 class="title" translate="no">How Anthropic uses Claude Code: Agentic Software Engineering at Scale</h3>
         <p class="blurb">2026 年瓶颈是人的注意力</p>
-        <p class="meta">
+        <div class="entry-details"><time datetime="2026-08-21">2026-08-21</time><p class="meta">
           <span>原文 <time datetime="2026-08-11">2026-08-11</time></span>
           <span>分类 <span translate="no">AI</span></span>
           <span>来源 <span translate="no">YouTube</span></span>
         </p>
-      </div>
-    </a>
-    <a class="entry" href="2026-08-21-exam-education-ai/" data-category="认知" data-source="YouTube">
-      <div class="spine">
-        <span class="spine-label">整理</span>
-        <time class="spine-date" datetime="2026-08-21">2026-08-21</time>
-      </div>
-      <div class="entry-body">
-        <h2 class="title">清华教授：应试教育在AI面前全军覆没，我们应该如何重新学习？</h2>
+      </div></div><span class="entry-arrow" aria-hidden="true">↗</span></a><a class="entry" href="2026-08-21-exam-education-ai/index.html" data-category="认知" data-source="YouTube"><div class="entry-body"><h3 class="title">清华教授：应试教育在AI面前全军覆没，我们应该如何重新学习？</h3>
         <p class="blurb">应试教育之后，怎么重新学习</p>
-        <p class="meta">
+        <div class="entry-details"><time datetime="2026-08-21">2026-08-21</time><p class="meta">
           <span>原文 <time datetime="2026-03-28">2026-03-28</time></span>
           <span>分类 认知</span>
           <span>来源 <span translate="no">YouTube</span></span>
         </p>
-      </div>
-    </a>
-    <p class="empty" id="empty" aria-live="polite">没有匹配的笔记</p>
-  </main>
-
-  <footer>
-    托管在 GitHub Pages · 仓库 HarveyZgit/notes<br>
-    原文版权归原作者及原平台。本站是个人阅读笔记，不是原文转载。
-  </footer>
-</div>
-<script>
-(function () {
-  var allowed = {
-    cat: ["", "AI", "认知", "科技"],
-    src: ["", "YouTube", "X", "官方", "Website"]
-  };
-  var state = { cat: "", src: "", q: "" };
-  var entries = Array.prototype.slice.call(document.querySelectorAll(".entry"));
-  var empty = document.getElementById("empty");
-  var search = document.getElementById("q");
-  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var searchTimer = 0;
-
-  function hay(row) {
-    var title = ((row.querySelector(".title") || {}).textContent || "");
-    var blurb = ((row.querySelector(".blurb") || {}).textContent || "");
-    var cat = row.getAttribute("data-category") || "";
-    var src = row.getAttribute("data-source") || "";
-    var meta = ((row.querySelector(".meta") || {}).textContent || "");
-    return (title + " " + blurb + " " + cat + " " + src + " " + meta).toLowerCase();
-  }
-
-  function apply() {
-    var q = (state.q || "").trim().toLowerCase();
-    var shown = 0;
-    entries.forEach(function (row) {
-      var okCat = !state.cat || row.getAttribute("data-category") === state.cat;
-      var okSrc = !state.src || row.getAttribute("data-source") === state.src;
-      var okQ = !q || hay(row).indexOf(q) >= 0;
-      var on = okCat && okSrc && okQ;
-      row.classList.toggle("is-hidden", !on);
-      if (on) shown += 1;
-    });
-    empty.classList.toggle("is-shown", shown === 0);
-  }
-
-  function paintChips() {
-    Array.prototype.slice.call(document.querySelectorAll(".group")).forEach(function (group) {
-      var key = group.getAttribute("data-group");
-      Array.prototype.slice.call(group.querySelectorAll(".chip")).forEach(function (chip) {
-        var on = (chip.getAttribute("data-value") || "") === state[key];
-        chip.classList.toggle("is-on", on);
-        chip.setAttribute("aria-pressed", on ? "true" : "false");
-      });
-    });
-    if (search && search.value !== state.q) search.value = state.q;
-  }
-
-  function writeUrl() {
-    var q = new URLSearchParams();
-    if (state.cat) q.set("cat", state.cat);
-    if (state.src) q.set("src", state.src);
-    if (state.q) q.set("q", state.q);
-    var qs = q.toString();
-    var next = location.pathname + (qs ? "?" + qs : "") + location.hash;
-    var now = location.pathname + location.search + location.hash;
-    if (next !== now) history.replaceState(null, "", next);
-  }
-
-  function readUrl() {
-    var q = new URLSearchParams(location.search);
-    var cat = q.get("cat") || "";
-    var src = q.get("src") || "";
-    state.cat = allowed.cat.indexOf(cat) >= 0 ? cat : "";
-    state.src = allowed.src.indexOf(src) >= 0 ? src : "";
-    state.q = q.get("q") || "";
-  }
-
-  function sync(write) {
-    paintChips();
-    apply();
-    if (write) writeUrl();
-  }
-
-  readUrl();
-  sync(false);
-
-  Array.prototype.slice.call(document.querySelectorAll(".group")).forEach(function (group) {
-    var key = group.getAttribute("data-group");
-    group.addEventListener("click", function (e) {
-      var btn = e.target.closest(".chip");
-      if (!btn || !group.contains(btn)) return;
-      state[key] = btn.getAttribute("data-value") || "";
-      sync(true);
-    });
-  });
-
-  if (search) {
-    search.addEventListener("input", function () {
-      state.q = search.value || "";
-      if (reduceMotion) {
-        sync(true);
-        return;
-      }
-      if (searchTimer) window.clearTimeout(searchTimer);
-      searchTimer = window.setTimeout(function () {
-        searchTimer = 0;
-        sync(true);
-      }, 80);
-    });
-  }
-
-  window.addEventListener("popstate", function () {
-    readUrl();
-    sync(false);
-  });
-})();
-</script>
-<script src="site.js" defer></script>
-</body>
-</html>
+      </div></div><span class="entry-arrow" aria-hidden="true">↗</span></a></div><div id="empty" class="empty"><p class="eyebrow">A LITTLE ROOM FOR DISCOVERY</p><h3>还没找到这篇笔记</h3><p>试试更短的关键词，或换一个分类与来源。</p><button type="button" id="empty-reset">查看全部笔记</button></div><p class="list-end">— 每一次阅读，都是一次新的连接 —</p></section></main><footer class="site-footer"><div><a class="wordmark" href="index.html" aria-label="Notes 阅读手记首页"><img src="logo.svg" width="38" height="38" alt="">notes</a><p>读过，想过，留下一点什么。</p></div><a href="#top">回到页首 ↑</a></footer></div><script src="catalog.js"></script></body></html>

@@ -1,6 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Notes">
-  <rect width="128" height="128" fill="#F4EFE6"/>
-  <path fill="#C96442" d="M24 26h35v66L20 102z"/>
-  <path fill="#C96442" d="M69 26h35l4 76-39-10z"/>
-  <text x="88" y="74" text-anchor="middle" fill="#FFFFFF" font-family="Georgia, 'Times New Roman', Times, serif" font-size="44" font-weight="600">N</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="#583b8d" role="img" aria-label="notes 页窗标记"><path fill-rule="evenodd" d="M20 6h24c9 0 14 5 14 14v24c0 9-5 14-14 14H20C11 58 6 53 6 44V20C6 11 11 6 20 6Zm1 12v28h22V29L32 18H21Z"/></svg>

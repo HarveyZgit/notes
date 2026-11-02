@@ -1,0 +1,124 @@
+/* Preserved article-specific diagrams and interactive components only. */
+.callout {
+  font-size: 14px;
+  color: var(--ink);
+  background: rgba(20, 20, 19, 0.04);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 12px 14px;
+  margin: 12px 0 18px;
+  line-height: 1.6;
+}
+.callout .swatch {
+  display: inline-block;
+  width: 0.85em;
+  height: 0.85em;
+  border-radius: 2px;
+  vertical-align: -0.05em;
+  margin-right: 0.35em;
+}
+.callout .swatch.purple { background: #7B5EA7; }
+.callout .swatch.blue { background: #3A6EA5; }
+.callout code {
+  font-size: 0.88em;
+  background: rgba(20, 20, 19, 0.07);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.effort-card {
+  margin: 22px 0 10px;
+  padding: 8px 4px;
+  background: #F9F7F2;
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  box-shadow: 0 8px 28px rgba(25, 25, 24, 0.06);
+  overflow: hidden;
+}
+.effort-card .effort-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+  padding: 22px 28px;
+  border-top: 1px solid #E8E0D4;
+}
+.effort-card .effort-row:first-child { border-top: none; }
+.effort-card .effort-q {
+  margin: 0;
+  font-size: 16.5px;
+  line-height: 1.45;
+  color: var(--ink);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.effort-card .effort-pill {
+  flex: 0 0 auto;
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding: 9px 16px;
+  border-radius: 999px;
+  white-space: nowrap;
+  line-height: 1;
+}
+.effort-card .effort-pill.low {
+  background: #EBE3D5;
+  color: #2A2A28;
+}
+.effort-card .effort-pill.medium {
+  background: #EBC0A1;
+  color: #2A2A28;
+}
+.effort-card .effort-pill.high {
+  background: #D87D56;
+  color: #1A1816;
+}
+.effort-card .effort-pill.max {
+  background: #2B2B26;
+  color: #F4F1EA;
+}
+details.orig-fig {
+  margin: 8px 0 18px;
+  font-size: 13px;
+  color: var(--muted);
+}
+details.orig-fig summary {
+  cursor: pointer;
+  color: var(--muted);
+  list-style: none;
+}
+details.orig-fig summary::-webkit-details-marker { display: none; }
+details.orig-fig summary:hover { color: var(--ink); }
+details.orig-fig img {
+  margin-top: 10px;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid var(--rule);
+}
+.related {
+  margin: 28px 0 0;
+  padding: 18px 20px;
+  background: rgba(201, 100, 66, 0.06);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.related a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}
+.related a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+@media (max-width: 980px){.effort-card .effort-row {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 18px 18px;
+    gap: 12px;
+  }}

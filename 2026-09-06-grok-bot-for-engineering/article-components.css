@@ -1,0 +1,92 @@
+/* Preserved article-specific diagrams and interactive components only. */
+.img-zh {
+  font-size: 14px;
+  color: var(--ink);
+  background: rgba(201, 100, 66, 0.08);
+  border-left: 2px solid var(--accent);
+  padding: 12px 14px;
+  margin: 10px 0 0;
+  line-height: 1.65;
+}
+.img-zh .label {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin: 0 0 8px;
+  font-weight: 600;
+}
+.img-zh p { margin: 0 0 8px; }
+.img-zh p:last-child { margin-bottom: 0; }
+.img-zh ul { margin: 0; padding-left: 18px; }
+.img-zh li { margin: 0 0 4px; }
+.img-zh code {
+  font-size: 0.88em;
+  background: rgba(20, 20, 19, 0.07);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.embed-card {
+  display: block;
+  margin: 22px 0 18px;
+  padding: 18px 20px 16px;
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+a.embed-card {
+  color: inherit;
+  border-bottom: none;
+}
+a.embed-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(201, 100, 66, 0.18);
+  color: inherit;
+}
+.embed-card .embed-kicker {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin: 0 0 8px;
+  font-weight: 600;
+}
+.embed-card .embed-title {
+  font-family: var(--serif);
+  font-size: 18px;
+  line-height: 1.35;
+  margin: 0 0 6px;
+  color: var(--ink);
+}
+.embed-card .embed-meta {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 10px;
+}
+.embed-card .embed-body {
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 0 0 10px;
+  color: var(--ink);
+}
+.embed-card .embed-orig {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 10px;
+  font-style: italic;
+  line-height: 1.55;
+}
+.embed-card .embed-link {
+  font-size: 13px;
+  color: var(--accent);
+  word-break: break-all;
+}
+.embed-card .embed-cta {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--accent);
+  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
+}

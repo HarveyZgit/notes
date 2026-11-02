@@ -1,29 +1,13 @@
 (function () {
   "use strict";
-
-  var overlay;
-  var panel;
-  var bodyEl;
-  var captionEl;
-  var closeBtn;
-  var lastFocus = null;
-
-  function isLogo(img) {
-    if (!img) return true;
-    if (img.closest(".brand-mark, .masthead, .lb-overlay")) return true;
-    var src = (img.getAttribute("src") || "") + " " + (img.getAttribute("alt") || "");
-    src = src.toLowerCase();
-    if (/(?:^|\/)(?:logo|favicon)(?:\b|\.)/.test(src) || /favicon/.test(src)) return true;
-    return false;
-  }
+  var overlay, bodyEl, captionEl, closeBtn, zoomBtn, lastFocus, activeImage;
+  var inertState = [], zoomed = false;
 
   function isZoomableImg(img) {
-    if (!img || img.tagName !== "IMG") return false;
-    if (isLogo(img)) return false;
-    if (img.closest(".lb-overlay")) return false;
-    if (img.closest("figure")) return true;
-    if (img.closest("main")) return true;
-    return false;
+    if (!img || img.tagName !== "IMG" || img.closest(".brand-mark, .masthead, .lb-overlay, a")) return false;
+    var src = ((img.getAttribute("src") || "") + " " + (img.alt || "")).toLowerCase();
+    if (/(?:^|\/)(?:logo|favicon)(?:\b|\.)/.test(src) || /favicon/.test(src)) return false;
+    return !!img.closest("figure, main, .deck");
   }
 
   function ensureOverlay() {
@@ -34,50 +18,55 @@
     overlay.setAttribute("aria-modal", "true");
     overlay.setAttribute("aria-label", "放大查看");
     overlay.hidden = true;
-
+    var toolbar = document.createElement("div");
+    toolbar.className = "lb-toolbar";
+    zoomBtn = document.createElement("button");
+    zoomBtn.type = "button";
+    zoomBtn.className = "lb-zoom";
+    zoomBtn.textContent = "放大 2×";
+    zoomBtn.setAttribute("aria-pressed", "false");
     closeBtn = document.createElement("button");
     closeBtn.type = "button";
     closeBtn.className = "lb-close";
-    closeBtn.setAttribute("aria-label", "关闭");
+    closeBtn.setAttribute("aria-label", "关闭放大查看");
     closeBtn.textContent = "×";
-
-    panel = document.createElement("div");
+    toolbar.appendChild(zoomBtn);
+    toolbar.appendChild(closeBtn);
+    var panel = document.createElement("div");
     panel.className = "lb-panel";
-
     bodyEl = document.createElement("div");
     bodyEl.className = "lb-body";
-
+    bodyEl.tabIndex = 0;
+    bodyEl.setAttribute("role", "region");
+    bodyEl.setAttribute("aria-label", "查看区域，可滚动查看放大的内容");
     captionEl = document.createElement("p");
     captionEl.className = "lb-caption";
     captionEl.hidden = true;
-
     panel.appendChild(bodyEl);
     panel.appendChild(captionEl);
-    overlay.appendChild(closeBtn);
+    overlay.appendChild(toolbar);
     overlay.appendChild(panel);
     document.body.appendChild(overlay);
-
-    overlay.addEventListener("click", function (e) {
-      if (e.target === overlay) closeLightbox();
-    });
+    overlay.addEventListener("click", function (e) { if (e.target === overlay) closeLightbox(); });
     closeBtn.addEventListener("click", closeLightbox);
+    zoomBtn.addEventListener("click", toggleZoom);
   }
 
   function setCaption(text) {
-    if (text) {
-      captionEl.textContent = text;
-      captionEl.hidden = false;
-    } else {
-      captionEl.textContent = "";
-      captionEl.hidden = true;
-    }
+    captionEl.textContent = text || "";
+    captionEl.hidden = !text;
   }
 
-  function openLightbox() {
-    ensureOverlay();
-    lastFocus = document.activeElement;
+  function openLightbox(trigger) {
+    lastFocus = trigger || document.activeElement;
     overlay.hidden = false;
     document.body.classList.add("lb-open");
+    inertState = [];
+    Array.prototype.forEach.call(document.body.children, function (el) {
+      if (el === overlay || /^(SCRIPT|STYLE|LINK)$/.test(el.tagName)) return;
+      inertState.push({ el: el, inert: el.inert });
+      el.inert = true;
+    });
     closeBtn.focus();
   }
 
@@ -85,48 +74,70 @@
     if (!overlay || overlay.hidden) return;
     overlay.hidden = true;
     document.body.classList.remove("lb-open");
+    inertState.forEach(function (item) { item.el.inert = item.inert; });
+    inertState = [];
     bodyEl.className = "lb-body";
-    bodyEl.innerHTML = "";
+    bodyEl.replaceChildren();
+    activeImage = null;
+    zoomed = false;
     setCaption("");
-    var restore = lastFocus;
+    if (lastFocus && lastFocus.isConnected) lastFocus.focus({ preventScroll: true });
     lastFocus = null;
-    if (restore && typeof restore.focus === "function") {
-      try { restore.focus(); } catch (err) {}
+  }
+
+  function toggleZoom() {
+    if (!activeImage) return;
+    zoomed = !zoomed;
+    if (zoomed) {
+      var fittedWidth = activeImage.getBoundingClientRect().width;
+      // At least twice the fitted width; preserve native detail in large diagrams.
+      activeImage.style.width = Math.max(fittedWidth * 2, activeImage.naturalWidth) + "px";
+      bodyEl.classList.add("is-zoomed");
+    } else {
+      activeImage.style.width = "";
+      bodyEl.classList.remove("is-zoomed");
+      bodyEl.scrollTop = bodyEl.scrollLeft = 0;
     }
+    zoomBtn.textContent = zoomed ? "适应屏幕" : "放大 2×";
+    zoomBtn.setAttribute("aria-pressed", String(zoomed));
   }
 
   function openImage(img) {
     ensureOverlay();
     bodyEl.className = "lb-body";
-    bodyEl.innerHTML = "";
-    var large = document.createElement("img");
-    large.src = img.currentSrc || img.src;
-    large.alt = img.alt || "";
-    large.decoding = "async";
-    bodyEl.appendChild(large);
-    var fig = img.closest("figure");
-    var cap = fig && fig.querySelector("figcaption");
-    setCaption(cap ? cap.textContent.trim() : "");
-    openLightbox();
+    bodyEl.replaceChildren();
+    zoomed = false;
+    zoomBtn.hidden = false;
+    zoomBtn.textContent = "放大 2×";
+    zoomBtn.setAttribute("aria-pressed", "false");
+    activeImage = document.createElement("img");
+    activeImage.src = img.currentSrc || img.src;
+    activeImage.alt = img.alt || "";
+    activeImage.decoding = "async";
+    activeImage.addEventListener("click", toggleZoom);
+    bodyEl.appendChild(activeImage);
+    var fig = img.closest("figure"), cap = fig && fig.querySelector("figcaption");
+    setCaption(cap ? cap.textContent.trim() : img.alt);
+    openLightbox(img);
   }
 
-  function openTable(table) {
+  function openTable(table, trigger) {
     ensureOverlay();
     bodyEl.className = "lb-body lb-body--table";
-    bodyEl.innerHTML = "";
+    bodyEl.replaceChildren();
+    activeImage = null;
+    zoomBtn.hidden = true;
     var clone = table.cloneNode(true);
-    var nodes = clone.querySelectorAll("[id]");
-    for (var i = 0; i < nodes.length; i++) nodes[i].removeAttribute("id");
+    clone.removeAttribute("id");
+    Array.prototype.forEach.call(clone.querySelectorAll("[id]"), function (el) { el.removeAttribute("id"); });
     bodyEl.appendChild(clone);
-    setCaption("");
-    openLightbox();
+    setCaption("表格 · 可横向滚动查看");
+    openLightbox(trigger);
   }
 
   function wrapTables() {
-    var tables = document.querySelectorAll("main table, .deck table");
-    for (var i = 0; i < tables.length; i++) {
-      var table = tables[i];
-      if (table.closest(".lb-overlay")) continue;
+    Array.prototype.forEach.call(document.querySelectorAll("main table, .deck table"), function (table) {
+      if (table.closest(".lb-overlay")) return;
       var wrap = table.closest(".table-wrap");
       if (!wrap) {
         wrap = document.createElement("div");
@@ -134,57 +145,67 @@
         table.parentNode.insertBefore(wrap, table);
         wrap.appendChild(table);
       }
+      wrap.tabIndex = 0;
+      wrap.setAttribute("role", "region");
+      wrap.setAttribute("aria-label", "表格，可横向滚动");
       if (!wrap.querySelector(".table-zoom")) {
         var btn = document.createElement("button");
         btn.type = "button";
         btn.className = "table-zoom";
-        btn.textContent = "放大";
-        btn.setAttribute("aria-label", "放大表格");
-        wrap.appendChild(btn);
+        btn.textContent = "放大表格";
+        wrap.insertBefore(btn, table);
       }
-    }
-  }
-
-  function hasTextSelection() {
-    var sel = window.getSelection && window.getSelection();
-    return !!(sel && String(sel).length);
+    });
   }
 
   document.addEventListener("click", function (e) {
-    var zoomBtn = e.target.closest(".table-zoom");
-    if (zoomBtn) {
-      e.preventDefault();
-      var wrap = zoomBtn.closest(".table-wrap");
-      var table = wrap && wrap.querySelector("table");
-      if (table) openTable(table);
+    var btn = e.target.closest(".table-zoom");
+    if (btn) {
+      var table = btn.closest(".table-wrap").querySelector("table");
+      if (table) openTable(table, btn);
       return;
     }
-
-    var table = e.target.closest("main table, .deck table");
-    if (table && !e.target.closest("a, button, input, textarea, select, .lb-overlay")) {
-      if (!hasTextSelection()) openTable(table);
+    var clickedTable = e.target.closest("main table, .deck table");
+    if (clickedTable && !e.target.closest("a, button, input, textarea, select, .lb-overlay")) {
+      if (!String(window.getSelection ? window.getSelection() : "")) {
+        openTable(clickedTable, clickedTable.closest(".table-wrap").querySelector(".table-zoom"));
+      }
       return;
     }
-
     var img = e.target.closest("img");
-    if (img && isZoomableImg(img) && !e.target.closest("a")) {
-      e.preventDefault();
-      openImage(img);
-    }
+    if (isZoomableImg(img)) { e.preventDefault(); openImage(img); }
   });
 
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape") {
-      closeLightbox();
+    if (overlay && !overlay.hidden) {
+      if (e.key === "Escape") { e.preventDefault(); closeLightbox(); return; }
+      if (e.key === "Tab") {
+        var focusable = Array.prototype.filter.call(overlay.querySelectorAll("button, a[href], input, select, textarea, [tabindex]"), function (el) {
+          return !el.disabled && el.tabIndex >= 0 && el.getClientRects().length > 0;
+        });
+        var first = focusable[0], last = focusable[focusable.length - 1];
+        if (e.shiftKey && (document.activeElement === first || !overlay.contains(document.activeElement))) {
+          e.preventDefault(); last.focus();
+        } else if (!e.shiftKey && (document.activeElement === last || !overlay.contains(document.activeElement))) {
+          e.preventDefault(); first.focus();
+        }
+      }
       return;
     }
-    if (e.key !== "Enter" && e.key !== " ") return;
-    var img = e.target;
-    if (img && img.tagName === "IMG" && isZoomableImg(img)) {
-      e.preventDefault();
-      openImage(img);
+    if ((e.key === "Enter" || e.key === " ") && isZoomableImg(e.target)) {
+      e.preventDefault(); openImage(e.target);
     }
   });
-
+  // Prevent programmatic focus from escaping the modal as well as keyboard Tab.
+  document.addEventListener("focusin", function (e) {
+    if (overlay && !overlay.hidden && !overlay.contains(e.target)) closeBtn.focus();
+  });
+  Array.prototype.forEach.call(document.querySelectorAll("figure img, main img, .deck img"), function (img) {
+    if (!isZoomableImg(img)) return;
+    img.tabIndex = 0;
+    img.setAttribute("role", "button");
+    img.setAttribute("aria-haspopup", "dialog");
+    img.setAttribute("aria-label", "放大图片" + (img.alt ? "：" + img.alt : ""));
+  });
   wrapTables();
 })();

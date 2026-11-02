@@ -1,525 +1,15 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
+<!doctype html><html lang="zh-CN"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>用一天修好整个人生 · How to fix your entire life in 1 day</title>
-<link rel="icon" href="../favicon.ico" sizes="any">
-<link rel="icon" href="../logo.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="../apple-touch-icon.png">
-<style>
-:root {
-  --paper: #F4EFE6;
-  --card: #FBF7F0;
-  --ink: #191918;
-  --muted: #6B6459;
-  --rule: #E4D9C8;
-  --accent: #C96442;
-  --accent-soft: #D97757;
-  --wash: rgba(201, 100, 66, 0.14);
-  --wash-strong: rgba(201, 100, 66, 0.22);
-  --serif: "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", "Noto Serif SC", Georgia, "Times New Roman", serif;
-  --sans: "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
-  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Noto Sans Mono CJK SC", monospace;
-  --rail: 248px;
-}
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; scroll-padding-top: 32px; color-scheme: light; }
-body {
-  margin: 0;
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--sans);
-  font-size: 17px;
-  line-height: 1.75;
-}
-.skip {
-  position: absolute;
-  left: 16px;
-  top: 12px;
-  z-index: 10;
-  padding: 8px 12px;
-  background: var(--ink);
-  color: var(--paper);
-  text-decoration: none;
-  font-size: 13px;
-  transform: translateY(-160%);
-}
-.skip:focus,
-.skip:focus-visible { transform: none; }
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
-}
-h1, h2 { text-wrap: balance; }
-section[id], h1, h2, h3 { scroll-margin-top: 32px; }
 
-.rail {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: var(--rail);
-  height: 100vh;
-  overflow-y: auto;
-  padding: 28px 22px 36px;
-  background: #F5F0E8;
-  border-right: 1px solid var(--rule);
-  z-index: 4;
-}
-.rail-home {
-  display: inline-block;
-  margin: 0 0 16px;
-  font-size: 12px;
-  color: var(--muted);
-  text-decoration: none;
-  border-bottom: 1px solid transparent;
-}
-.rail-home:hover {
-  color: var(--ink);
-  border-bottom-color: var(--ink);
-}
-.rail-title {
-  font-family: var(--serif);
-  font-size: 15px;
-  line-height: 1.35;
-  margin: 0 0 18px;
-  color: var(--ink);
-  text-wrap: balance;
-}
-.rail summary {
-  display: none;
-  list-style: none;
-  cursor: pointer;
-  font-size: 13px;
-  color: var(--muted);
-  font-weight: 600;
-}
-.rail summary::-webkit-details-marker { display: none; }
-.rail nav ol {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  counter-reset: toc;
-}
-.rail nav li {
-  counter-increment: toc;
-  margin: 0;
-  border-top: 1px solid var(--rule);
-}
-.rail nav li:last-child { border-bottom: 1px solid var(--rule); }
-.rail nav a {
-  display: block;
-  position: relative;
-  padding: 9px 2px 9px 2.2em;
-  color: var(--muted);
-  text-decoration: none;
-  font-size: 13px;
-  line-height: 1.4;
-}
-.rail nav a::before {
-  content: counter(toc, decimal-leading-zero);
-  position: absolute;
-  left: 0;
-  top: 9px;
-  font-family: var(--serif);
-  font-size: 11px;
-  letter-spacing: 0.04em;
-  color: var(--rule);
-  font-variant-numeric: tabular-nums;
-}
-.rail nav a:hover,
-.rail nav a.is-active { color: var(--ink); }
-.rail nav a:hover::before,
-.rail nav a.is-active::before { color: var(--accent); }
-.rail nav a.is-active { font-weight: 600; }
 
-.deck {
-  width: min(760px, calc(100% - var(--rail) - 64px));
-  max-width: 760px;
-  padding: 56px 0 96px;
-  margin-right: auto;
-  margin-left: calc(var(--rail) + max(40px, (100% - var(--rail) - 760px) / 2));
-  counter-reset: slide;
-}
-header.hero { padding: 8px 0 8px; }
-h1 {
-  font-family: var(--serif);
-  font-weight: 700;
-  font-size: clamp(32px, 5vw, 46px);
-  line-height: 1.18;
-  margin: 0 0 12px;
-  letter-spacing: -0.02em;
-  color: var(--ink);
-}
-.subtitle {
-  font-family: var(--serif);
-  font-size: 22px;
-  color: var(--muted);
-  margin: 0 0 8px;
-  font-style: italic;
-}
-.facts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 20px;
-  margin: 22px 0 0;
-  padding: 12px 0;
-  border-top: 1px solid var(--rule);
-  border-bottom: 1px solid var(--rule);
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.45;
-}
-.facts .fact {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  min-width: 0;
-}
-.facts dt {
-  margin: 0;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  color: var(--muted);
-}
-.facts dd {
-  margin: 0;
-  color: var(--ink);
-  font-variant-numeric: tabular-nums;
-}
-.facts a {
-  color: var(--accent);
-  text-decoration: none;
-  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
-}
-.facts a:hover {
-  color: var(--ink);
-  border-bottom-color: var(--ink);
-}
 
-.card {
-  background: var(--card);
-  border: 1px solid var(--rule);
-  border-radius: 2px;
-  padding: 40px 42px 36px;
-  margin: 36px 0;
-  counter-increment: slide;
-}
-.card h2 {
-  font-family: var(--serif);
-  font-size: clamp(26px, 3.2vw, 32px);
-  line-height: 1.25;
-  margin: 0 0 8px;
-  letter-spacing: -0.015em;
-}
-.card h2::after {
-  content: "";
-  display: block;
-  width: 48px;
-  height: 1px;
-  background: var(--accent);
-  margin: 16px 0 22px;
-}
-.card h3 {
-  font-family: var(--serif);
-  font-size: 20px;
-  line-height: 1.35;
-  margin: 28px 0 10px;
-  letter-spacing: -0.01em;
-}
-.card a {
-  color: var(--accent);
-  text-decoration: none;
-  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
-}
-.card a:hover {
-  color: var(--ink);
-  border-bottom-color: var(--ink);
-}
-p { margin: 0 0 14px; }
-p:last-child { margin-bottom: 0; }
-ul, ol { margin: 0 0 14px; padding-left: 22px; }
-li { margin: 0 0 6px; }
 
-.byline {
-  margin: 22px 0 0;
-  color: var(--muted);
-  font-size: 15px;
-}
-.byline a {
-  color: var(--accent);
-  text-decoration: none;
-  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
-}
-.byline a:hover {
-  color: var(--ink);
-  border-bottom-color: var(--ink);
-}
 
-blockquote,
-blockquote.hl-quote {
-  margin: 22px 0;
-  padding: 18px 22px 18px 24px;
-  background: rgba(201, 100, 66, 0.08);
-  border-left: 2px solid var(--accent);
-  border-radius: 0;
-  font-family: var(--serif);
-  font-size: 19px;
-  line-height: 1.55;
-  color: var(--ink);
-}
-blockquote p { margin: 0; }
-blockquote .attr {
-  display: block;
-  margin-top: 10px;
-  font-family: var(--sans);
-  font-size: 14px;
-  color: var(--muted);
-  font-style: normal;
-}
 
-figure { margin: 22px 0 10px; }
-figure img {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 2px;
-  border: 1px solid var(--rule);
-  background: #EFE6D8;
-}
-figcaption {
-  font-size: 13px;
-  color: var(--muted);
-  margin-top: 10px;
-  line-height: 1.55;
-}
-figcaption a {
-  color: var(--accent);
-  text-decoration: none;
-  border-bottom: 1px solid rgba(201, 100, 66, 0.45);
-}
-figcaption a:hover {
-  color: var(--ink);
-  border-bottom-color: var(--ink);
-}
 
-.note {
-  font-size: 14px;
-  color: var(--ink);
-  background: rgba(201, 100, 66, 0.08);
-  border-radius: 0;
-  padding: 12px 14px;
-  margin: 16px 0 0;
-  border-left: 2px solid var(--accent);
-}
-
-code {
-  font-family: var(--mono);
-  font-size: 0.92em;
-}
-p code, li code, td code, dd code, figcaption code, .note code, .legend code {
-  font-size: 0.88em;
-  background: rgba(20, 20, 19, 0.07);
-  padding: 1px 5px;
-  border-radius: 3px;
-}
-
-footer {
-  margin-top: 48px;
-  padding-top: 18px;
-  border-top: 1px solid var(--rule);
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.7;
-}
-
-.tldr {
-  background: var(--card);
-  border: 1px solid var(--rule);
-  border-left: 2px solid var(--accent);
-  border-radius: 0;
-  padding: 36px 42px 32px;
-  margin: 24px 0 32px;
-}
-.tldr h2 {
-  font-family: var(--serif);
-  font-weight: 700;
-  font-size: clamp(26px, 3.2vw, 32px);
-  line-height: 1.25;
-  margin: 0 0 10px;
-  letter-spacing: -0.015em;
-  color: var(--ink);
-}
-.tldr-note {
-  font-size: 13px;
-  color: var(--muted);
-  margin: 0 0 16px;
-}
-.tldr ol {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  counter-reset: tldr;
-}
-.tldr li {
-  counter-increment: tldr;
-  display: block;
-  position: relative;
-  margin: 0;
-  padding: 16px 0 16px 2.6em;
-  border-top: 1px solid var(--rule);
-  line-height: 1.65;
-}
-.tldr li:last-child { padding-bottom: 0; }
-.tldr li::before {
-  content: counter(tldr, decimal-leading-zero);
-  position: absolute;
-  left: 0;
-  top: 16px;
-  font-family: var(--serif);
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: var(--accent);
-  font-variant-numeric: tabular-nums;
-}
-.tldr li strong {
-  font-family: var(--serif);
-  color: var(--ink);
-}
-
-@media (max-width: 980px) {
-  .rail {
-    position: relative;
-    width: 100%;
-    height: auto;
-    border-right: none;
-    border-bottom: 1px solid var(--rule);
-    padding: 16px 20px 14px;
-  }
-  .rail-title { display: none; }
-  .rail summary { display: block; padding: 6px 0; }
-  .rail details:not([open]) nav { display: none; }
-  .rail details[open] nav { display: block; margin-top: 8px; }
-  .rail nav ol {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0 12px;
-  }
-  .rail nav li:last-child { border-bottom: none; }
-  .deck {
-    width: calc(100% - 36px);
-    max-width: none;
-    margin: 0 auto;
-    padding: 32px 0 64px;
-  }
-  .card { padding: 26px 20px 22px; margin: 22px 0; }
-  .tldr { padding: 26px 20px 22px; }
-  body { font-size: 16px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-}
-
-.legend {
-  margin: 14px 0 0;
-  padding: 14px 16px;
-  background: rgba(201, 100, 66, 0.08);
-  border-left: 2px solid var(--accent);
-  font-size: 14px;
-  line-height: 1.65;
-  color: var(--ink);
-}
-.legend strong { font-family: var(--serif); }
-.legend ul { margin: 8px 0 0; padding-left: 18px; }
-.legend li { margin: 0 0 4px; }
-.hr-note {
-  margin: 28px 0;
-  padding: 14px 16px;
-  border: 1px dashed var(--rule);
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.6;
-}
-.course {
-  margin: 22px 0 10px;
-  padding: 28px 24px 22px;
-  background: #FBF7F0;
-  border: 1px solid var(--rule);
-  border-radius: 12px;
-}
-.course-svg {
-  display: block;
-  width: 100%;
-  height: auto;
-  max-width: 720px;
-  margin: 0 auto;
-}
-.course-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 18px;
-  margin: 14px 0 0;
-  padding: 0;
-  list-style: none;
-  font-size: 13px;
-  color: var(--muted);
-}
-.course-legend li {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-}
-.course-legend i {
-  display: inline-block;
-  width: 28px;
-  height: 3px;
-  border-radius: 2px;
-}
-.course-legend .ideal { border-top: 2px dashed #555; height: 0; width: 28px; background: none; }
-.course-legend .actual { background: #5a9a5a; }
-.course-legend .boat-swatch { width: 18px; height: 12px; border-radius: 999px; background: #8fbc8f; border: 1px solid #6a9a6a; }
-.course-legend .lh-swatch { width: 14px; height: 14px; border-radius: 50%; background: #f5c9a8; border: 2px solid #e08a4a; }
-details.orig-fig {
-  margin: 8px 0 18px;
-  font-size: 13px;
-  color: var(--muted);
-}
-details.orig-fig summary {
-  cursor: pointer;
-  color: var(--accent);
-  list-style: none;
-}
-details.orig-fig summary::-webkit-details-marker { display: none; }
-details.orig-fig summary:hover { color: var(--ink); }
-.lede { margin: 28px 0 8px; }
-.lede p:last-child { margin-bottom: 0; }
-details.orig-fig img {
-  margin-top: 10px;
-  width: 100%;
-  height: auto;
-  border-radius: 12px;
-  border: 1px solid var(--rule);
-}
-.signoff {
-  margin-top: 28px;
-  font-family: var(--serif);
-  font-size: 18px;
-  color: var(--muted);
-}
-
-</style>
-<link rel="stylesheet" href="../site.css">
-</head>
-<body>
-<a class="skip" href="#main">跳到正文</a>
-<aside class="rail">
-  <a class="rail-home" href="../">全部笔记</a>
-  <p class="rail-title" translate="no">How to fix your entire life in 1 day</p>
-  <details class="toc-wrap" open>
-    <summary>目录</summary>
-    <nav aria-label="目录">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png"><link rel="icon" href="../favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="../design.css"><link rel="stylesheet" href="article-components.css"><link rel="stylesheet" href="../reader.css"><link rel="stylesheet" href="../lightbox.css"></head><body class="article-page" id="top"><a class="skip" href="#main">跳到正文</a><div class="page"><header class="masthead"><a class="wordmark" href="../index.html" aria-label="Notes 阅读手记首页"><img src="../logo.svg" width="38" height="38" alt="">notes</a><div class="masthead-right"><span>HARVEY’S READING NOTES</span><a href="../index.html#catalog">阅读目录 ↗</a></div></header></div><div class="reader-layout"><aside class="reading-nav"><a class="back-link" href="../index.html#catalog">← 全部笔记</a><details class="reading-toc"><summary>本篇目录 <span aria-hidden="true">＋</span></summary><nav aria-label="目录">
       <ol>
         <li><a href="#highlights">Highlights</a></li>
         <li><a href="#i-identity">I 身份先于行动</a></li>
@@ -530,11 +20,8 @@ details.orig-fig img {
         <li><a href="#vi-protocol">VI 一天协议</a></li>
         <li><a href="#vii-game">VII 人生游戏化</a></li>
       </ol>
-    </nav>
-  </details>
-</aside>
-<main class="deck" id="main">
-<header class="hero">
+    </nav></details></aside><main class="reader-content" id="main">
+<header class="article-header">
   <h1 translate="no">How to fix your entire life in 1 day</h1>
   <p class="subtitle">用一天修好整个人生</p>
   <dl class="facts">
@@ -551,11 +38,11 @@ details.orig-fig img {
   <h2>先看这五句 / Highlights</h2>
   <p class="tldr-note">译者补充，不是原文。</p>
   <ol>
-    <li><strong>先换人，再换事。</strong>表面目标 + 两周自律几乎总会失败；你要先成为「那种人」，让行为自然跟上。</li>
-    <li><strong>行为全是目标导向的。</strong>拖延、赖在烂工作里，往往在保护你免于评判与失败感——真正要改的是目标与视角，不是口号式自律。</li>
-    <li><strong>身份像催眠。</strong>童年条件作用固化信念；身份受威胁时会战或逃。想要的人生落在特定心智层级（Maslow / Spiral Dynamics / AQAL / Human 3.0）。</li>
-    <li><strong>智力 = 从人生里拿到你想要的。</strong>赛博控制论：有目标 → 行动 → 感知 → 对照 → 再行动。低智力卡在问题上；高智力在足够长的时间尺度上迭代。</li>
-    <li><strong>一天协议 + 人生游戏化。</strong>早：心理挖掘与反愿景/愿景；日：打断自动驾驶；晚：综合成一年/一月/每日镜头。再把反愿景、愿景、项目、日常杠杆、约束写成你自己的「游戏」。</li>
+    <li><span class="tldr-title" role="heading" aria-level="3"><strong>先换人，再换事。</strong></span><div class="tldr-body">表面目标 + 两周自律几乎总会失败；你要先成为「那种人」，让行为自然跟上。</div></li>
+    <li><span class="tldr-title" role="heading" aria-level="3"><strong>行为全是目标导向的。</strong></span><div class="tldr-body">拖延、赖在烂工作里，往往在保护你免于评判与失败感——真正要改的是目标与视角，不是口号式自律。</div></li>
+    <li><span class="tldr-title" role="heading" aria-level="3"><strong>身份像催眠。</strong></span><div class="tldr-body">童年条件作用固化信念；身份受威胁时会战或逃。想要的人生落在特定心智层级（Maslow / Spiral Dynamics / AQAL / Human 3.0）。</div></li>
+    <li><span class="tldr-title" role="heading" aria-level="3"><strong>智力 = 从人生里拿到你想要的。</strong></span><div class="tldr-body">赛博控制论：有目标 → 行动 → 感知 → 对照 → 再行动。低智力卡在问题上；高智力在足够长的时间尺度上迭代。</div></li>
+    <li><span class="tldr-title" role="heading" aria-level="3"><strong>一天协议 + 人生游戏化。</strong></span><div class="tldr-body">早：心理挖掘与反愿景/愿景；日：打断自动驾驶；晚：综合成一年/一月/每日镜头。再把反愿景、愿景、项目、日常杠杆、约束写成你自己的「游戏」。</div></li>
   </ol>
 </section>
 
@@ -710,23 +197,23 @@ details.orig-fig img {
   </ul>
 
   <div class="course" role="img" aria-label="船驶向灯塔：虚线为理想航线，绿色箭头为实际之字修正">
-    <svg class="course-svg" viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <rect width="720" height="280" fill="#FBF7F0"/>
+    <svg class="course-svg" viewbox="0 0 720 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="720" height="280" fill="#FBF7F0">
       <!-- ideal dashed line -->
-      <line x1="90" y1="210" x2="600" y2="70" stroke="#555" stroke-width="2" stroke-dasharray="8 7"/>
+      <line x1="90" y1="210" x2="600" y2="70" stroke="#555" stroke-width="2" stroke-dasharray="8 7">
       <!-- zigzag path -->
-      <path d="M 95 205 L 250 95 L 400 195 L 560 85" fill="none" stroke="#5a9a5a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" marker-mid="url(#arrow)" marker-end="url(#arrow)"/>
+      <path d="M 95 205 L 250 95 L 400 195 L 560 85" fill="none" stroke="#5a9a5a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" marker-mid="url(#arrow)" marker-end="url(#arrow)">
       <defs>
-        <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-          <path d="M0,0 L6,3 L0,6 Z" fill="#5a9a5a"/>
+        <marker id="arrow" markerwidth="8" markerheight="8" refx="6" refy="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#5a9a5a">
         </marker>
       </defs>
       <!-- boat -->
-      <ellipse cx="78" cy="212" rx="42" ry="16" fill="#8fbc8f" stroke="#6a9a6a" stroke-width="1.5"/>
-      <circle cx="58" cy="212" r="5" fill="#c44"/>
+      <ellipse cx="78" cy="212" rx="42" ry="16" fill="#8fbc8f" stroke="#6a9a6a" stroke-width="1.5">
+      <circle cx="58" cy="212" r="5" fill="#c44">
       <text x="78" y="248" text-anchor="middle" fill="#3d6b3d" font-size="16" font-family="PingFang SC, sans-serif" font-weight="700">船</text>
       <!-- lighthouse -->
-      <circle cx="610" cy="68" r="28" fill="#f5c9a8" stroke="#e08a4a" stroke-width="3"/>
+      <circle cx="610" cy="68" r="28" fill="#f5c9a8" stroke="#e08a4a" stroke-width="3">
       <text x="610" y="38" text-anchor="middle" fill="#c45a20" font-size="16" font-family="PingFang SC, sans-serif" font-weight="700">灯塔</text>
       <!-- labels -->
       <text x="250" y="78" text-anchor="middle" fill="#191918" font-size="15" font-family="PingFang SC, sans-serif">向右操舵</text>
@@ -905,29 +392,4 @@ details.orig-fig img {
 <footer>
   全文翻译，未删减。原文版权归原作者及原平台。本页是个人阅读译本。
 </footer>
-</main>
-
-<script>
-(function () {
-  var links = Array.prototype.slice.call(document.querySelectorAll(".rail nav a"));
-  var sections = Array.prototype.slice.call(document.querySelectorAll("section.card, section.tldr"));
-  if (!links.length || !sections.length || !("IntersectionObserver" in window)) return;
-  var map = {};
-  links.forEach(function (a) {
-    var id = (a.getAttribute("href") || "").replace("#", "");
-    if (id) map[id] = a;
-  });
-  var io = new IntersectionObserver(function (entries) {
-    entries.forEach(function (entry) {
-      if (!entry.isIntersecting) return;
-      var id = entry.target.id;
-      links.forEach(function (a) { a.classList.remove("is-active"); });
-      if (map[id]) map[id].classList.add("is-active");
-    });
-  }, { rootMargin: "-18% 0px -64% 0px", threshold: 0.01 });
-  sections.forEach(function (s) { io.observe(s); });
-})();
-</script>
-<script src="../site.js" defer></script>
-</body>
-</html>
+</main></div><div class="page"><footer class="site-footer"><div><a class="wordmark" href="../index.html" aria-label="Notes 阅读手记首页"><img src="../logo.svg" width="38" height="38" alt="">notes</a><p>读过，想过，留下一点什么。</p></div><a href="#top">回到页首 ↑</a></footer></div><script src="../reading.js"></script><script src="../site.js"></script></body></html>

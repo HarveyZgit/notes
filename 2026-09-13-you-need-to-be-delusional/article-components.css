@@ -1,0 +1,15 @@
+/* Preserved article-specific diagrams and interactive components only. */
+blockquote .attr {
+  display: block;
+  margin-top: 10px;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--muted);
+  font-style: normal;
+}
+.signoff {
+  margin-top: 28px;
+  font-family: var(--serif);
+  font-size: 18px;
+  color: var(--muted);
+}

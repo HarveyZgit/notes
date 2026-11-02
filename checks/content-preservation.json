@@ -1,0 +1,250 @@
+{
+  "baseline": "962999b19cf1dbed2e6ad49046bf144a8304c760",
+  "articles": 30,
+  "images": 160,
+  "tables": 15,
+  "passed": true,
+  "errors": [],
+  "pages": [
+    {
+      "page": "2026-08-21-claude-code-agentic/index.html",
+      "main_text_sha256": "9dac448c912026c41ba3a6c98991c15d584f44ab3540aa406a5fd55f99520644",
+      "main_text_preserved": true,
+      "images": 16,
+      "tables": 1,
+      "links": 1
+    },
+    {
+      "page": "2026-08-21-exam-education-ai/index.html",
+      "main_text_sha256": "6e68ba700325488d5fa46339cfe3a3f4972232938ae61ecf65392dbbcd9dc705",
+      "main_text_preserved": true,
+      "images": 20,
+      "tables": 2,
+      "links": 1
+    },
+    {
+      "page": "2026-08-23-agent-principles-architecture/index.html",
+      "main_text_sha256": "96f915ae33cc640b7757f9926f9ada14eb5e05d55dbafbb38dda34fbd8d97653",
+      "main_text_preserved": true,
+      "images": 1,
+      "tables": 0,
+      "links": 2
+    },
+    {
+      "page": "2026-08-23-ai-engineering-skills-map/index.html",
+      "main_text_sha256": "8ee1829620ee78a3d4492864434c323f3ad4fa9af2122d7bf4312df1003998a8",
+      "main_text_preserved": true,
+      "images": 1,
+      "tables": 1,
+      "links": 2
+    },
+    {
+      "page": "2026-08-23-claude-code-architecture-governance/index.html",
+      "main_text_sha256": "fa5162546f96b6d9deeca1bfa59bf37c1caba34b92031911d76cf9f020fd714f",
+      "main_text_preserved": true,
+      "images": 1,
+      "tables": 1,
+      "links": 2
+    },
+    {
+      "page": "2026-08-23-claude-code-dynamic-workflows/index.html",
+      "main_text_sha256": "c380a87868ee5ade43043bae71faddbc734f4e66c080f3a2d3b890fe5483466e",
+      "main_text_preserved": true,
+      "images": 1,
+      "tables": 0,
+      "links": 2
+    },
+    {
+      "page": "2026-08-23-claude-code-loops/index.html",
+      "main_text_sha256": "39b18c1a718d3e442250998d88be49e54d45a91288d598fe3a7c18d9d276e7d4",
+      "main_text_preserved": true,
+      "images": 1,
+      "tables": 1,
+      "links": 2
+    },
+    {
+      "page": "2026-08-23-claude-code-skills/index.html",
+      "main_text_sha256": "f82a099a9bce23ed6fa07d4c2ec6fbc999fef43c0a66c343defad7d10193389d",
+      "main_text_preserved": true,
+      "images": 1,
+      "tables": 1,
+      "links": 2
+    },
+    {
+      "page": "2026-08-23-codex-multi-agent/index.html",
+      "main_text_sha256": "9103cef47419126fad65569f87fe9cd56577d9b87f0e06fe8debf16aa945b8c2",
+      "main_text_preserved": true,
+      "images": 1,
+      "tables": 1,
+      "links": 2
+    },
+    {
+      "page": "2026-08-23-context-engineering-claude-5/index.html",
+      "main_text_sha256": "d500485aee609775841f6a5d3d1fdf6d143ce303ca08269825f29ac049b11b7c",
+      "main_text_preserved": true,
+      "images": 1,
+      "tables": 1,
+      "links": 2
+    },
+    {
+      "page": "2026-08-23-dynamic-workflows-harness/index.html",
+      "main_text_sha256": "746cc6b5f02483fec637ff309d060f3a03b5e442a94dc86f78e7a9cae3b73531",
+      "main_text_preserved": true,
+      "images": 1,
+      "tables": 0,
+      "links": 2
+    },
+    {
+      "page": "2026-08-23-llm-training-post-training/index.html",
+      "main_text_sha256": "599414d7ec368053b8b947e84f80a10c2e5a0a65d4f8fad88267f26280f2c9e7",
+      "main_text_preserved": true,
+      "images": 1,
+      "tables": 0,
+      "links": 2
+    },
+    {
+      "page": "2026-08-27-codex-beginner-to-expert/index.html",
+      "main_text_sha256": "f815bdb9817bf5c36a42cfd0a1c80ac3bb6070a07bc1aa1c88e13cf58f829c72",
+      "main_text_preserved": true,
+      "images": 1,
+      "tables": 2,
+      "links": 2
+    },
+    {
+      "page": "2026-08-27-fde-not-models/index.html",
+      "main_text_sha256": "5a299dd707a2706f3784c86d6f03d880af0da3ee79bd05f846b7d3ebc4fec157",
+      "main_text_preserved": true,
+      "images": 5,
+      "tables": 1,
+      "links": 2
+    },
+    {
+      "page": "2026-08-28-ai-native-sdlc-playbook/index.html",
+      "main_text_sha256": "b3a3d9f48474a9846c46e26b684ee9131496e31ae2b8cd10e0a4a9ecafee579d",
+      "main_text_preserved": true,
+      "images": 4,
+      "tables": 1,
+      "links": 28
+    },
+    {
+      "page": "2026-08-31-ai-engineering-se-fundamentals/index.html",
+      "main_text_sha256": "c65a1ae5ee3fbfb8a32a730d6dfe417c61a8bc6dc2d52ca7750621c5a31bf96d",
+      "main_text_preserved": true,
+      "images": 1,
+      "tables": 0,
+      "links": 3
+    },
+    {
+      "page": "2026-08-31-uber-software-factory/index.html",
+      "main_text_sha256": "7cafb8acf74d6c66ec50100a5807f7a04b62a1e0634c213be72e1d1f12c296e2",
+      "main_text_preserved": true,
+      "images": 16,
+      "tables": 0,
+      "links": 7
+    },
+    {
+      "page": "2026-09-02-prompting-claude-fable-5-1/index.html",
+      "main_text_sha256": "f498fc2f916cb861e0258f38fe4e5d00848bf32eb8e288aa5401502dbee5a54f",
+      "main_text_preserved": true,
+      "images": 0,
+      "tables": 0,
+      "links": 31
+    },
+    {
+      "page": "2026-09-05-rethinking-skills-prompts-gpt-6-astra/index.html",
+      "main_text_sha256": "9f0a64229140fc1a3a3e2d8d6ef5a3fbb16c371d15f94bd3a4bf23d12d2d0a68",
+      "main_text_preserved": true,
+      "images": 3,
+      "tables": 0,
+      "links": 12
+    },
+    {
+      "page": "2026-09-06-grok-bot-for-engineering/index.html",
+      "main_text_sha256": "b5ffcbf8aea2895615ff7568c24d5c987d2adde0e641ec931224aad1fd48240b",
+      "main_text_preserved": true,
+      "images": 8,
+      "tables": 0,
+      "links": 14
+    },
+    {
+      "page": "2026-09-06-how-to-fix-your-entire-life-in-1-day/index.html",
+      "main_text_sha256": "95065d2e820a27a82006000c946c109954ecb296038131cd7a8e36ec1c9a4bfc",
+      "main_text_preserved": true,
+      "images": 3,
+      "tables": 0,
+      "links": 7
+    },
+    {
+      "page": "2026-09-10-sam-altman-stanford-cs153/index.html",
+      "main_text_sha256": "c3eaba1727f5d1de836e59c52bb040a95baba68e336779358ada3d8edd7ef702",
+      "main_text_preserved": true,
+      "images": 19,
+      "tables": 0,
+      "links": 3
+    },
+    {
+      "page": "2026-09-12-ai-engineering-shaping-the-build/index.html",
+      "main_text_sha256": "64301253228b18daec47959e02a59ab8be7cf761e799877cfc5b990a4ba0c976",
+      "main_text_preserved": true,
+      "images": 1,
+      "tables": 0,
+      "links": 7
+    },
+    {
+      "page": "2026-09-12-google-adk-graph-engineering/index.html",
+      "main_text_sha256": "bb8d1b590b475da8db3ea5845dd675e28738345cfc314342f3caf34c8c86537f",
+      "main_text_preserved": true,
+      "images": 21,
+      "tables": 0,
+      "links": 2
+    },
+    {
+      "page": "2026-09-13-we-must-pace-the-frontier/index.html",
+      "main_text_sha256": "e1f3f2340603a5082cc34aa6d1b6dc97916ca12c17681234d4027fb87d82af98",
+      "main_text_preserved": true,
+      "images": 1,
+      "tables": 0,
+      "links": 27
+    },
+    {
+      "page": "2026-09-13-you-need-to-be-delusional/index.html",
+      "main_text_sha256": "e5e3e55addc06a981a54191805a893fb57ae382070784db8a2b5e3c15a52c6c2",
+      "main_text_preserved": true,
+      "images": 1,
+      "tables": 0,
+      "links": 10
+    },
+    {
+      "page": "2026-09-26-claude-code-spending-your-effort/index.html",
+      "main_text_sha256": "ecc559053f3e3ef8920bfdb8673a120a42625c044a9e8f219aabd61e122c8d33",
+      "main_text_preserved": true,
+      "images": 8,
+      "tables": 0,
+      "links": 13
+    },
+    {
+      "page": "2026-10-27-claude-code-team-code-review/index.html",
+      "main_text_sha256": "f6b3046ed4b946b73d3f27f3ac9e1fb2f2354a4dc6146a9424e41a80f32737a6",
+      "main_text_preserved": true,
+      "images": 7,
+      "tables": 1,
+      "links": 14
+    },
+    {
+      "page": "2026-10-27-how-i-work-with-agents/index.html",
+      "main_text_sha256": "3a51e956a17054a6805a30c45c6762dc966072d4db840bfab71abd5ccc018de8",
+      "main_text_preserved": true,
+      "images": 1,
+      "tables": 0,
+      "links": 8
+    },
+    {
+      "page": "2026-11-02-super-agent-design/index.html",
+      "main_text_sha256": "9c892c00c84d009e6bba06ebfc63129deecc6dbc86acb41c90ef1388285174d2",
+      "main_text_preserved": true,
+      "images": 14,
+      "tables": 1,
+      "links": 10
+    }
+  ]
+}

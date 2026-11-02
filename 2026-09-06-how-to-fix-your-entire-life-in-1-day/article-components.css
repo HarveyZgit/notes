@@ -1,0 +1,102 @@
+/* Preserved article-specific diagrams and interactive components only. */
+blockquote .attr {
+  display: block;
+  margin-top: 10px;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--muted);
+  font-style: normal;
+}
+.legend code {
+  font-size: 0.88em;
+  background: rgba(20, 20, 19, 0.07);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.legend {
+  margin: 14px 0 0;
+  padding: 14px 16px;
+  background: rgba(201, 100, 66, 0.08);
+  border-left: 2px solid var(--accent);
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--ink);
+}
+.legend strong { font-family: var(--serif); }
+.legend ul { margin: 8px 0 0; padding-left: 18px; }
+.legend li { margin: 0 0 4px; }
+.hr-note {
+  margin: 28px 0;
+  padding: 14px 16px;
+  border: 1px dashed var(--rule);
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.course {
+  margin: 22px 0 10px;
+  padding: 28px 24px 22px;
+  background: #FBF7F0;
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+}
+.course-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.course-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  color: var(--muted);
+}
+.course-legend li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+.course-legend i {
+  display: inline-block;
+  width: 28px;
+  height: 3px;
+  border-radius: 2px;
+}
+.course-legend .ideal { border-top: 2px dashed #555; height: 0; width: 28px; background: none; }
+.course-legend .actual { background: #5a9a5a; }
+.course-legend .boat-swatch { width: 18px; height: 12px; border-radius: 999px; background: #8fbc8f; border: 1px solid #6a9a6a; }
+.course-legend .lh-swatch { width: 14px; height: 14px; border-radius: 50%; background: #f5c9a8; border: 2px solid #e08a4a; }
+details.orig-fig {
+  margin: 8px 0 18px;
+  font-size: 13px;
+  color: var(--muted);
+}
+details.orig-fig summary {
+  cursor: pointer;
+  color: var(--accent);
+  list-style: none;
+}
+details.orig-fig summary::-webkit-details-marker { display: none; }
+details.orig-fig summary:hover { color: var(--ink); }
+.lede { margin: 28px 0 8px; }
+.lede p:last-child { margin-bottom: 0; }
+details.orig-fig img {
+  margin-top: 10px;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid var(--rule);
+}
+.signoff {
+  margin-top: 28px;
+  font-family: var(--serif);
+  font-size: 18px;
+  color: var(--muted);
+}

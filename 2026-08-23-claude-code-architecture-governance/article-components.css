@@ -1,0 +1,15 @@
+/* Preserved article-specific diagrams and interactive components only. */
+.takeaways { display: grid; gap: 14px; margin-top: 12px; }
+.take {
+  background: linear-gradient(180deg, rgba(201, 100, 66, 0.16), rgba(201, 100, 66, 0.08));
+  border: 1px solid rgba(201, 100, 66, 0.35);
+  border-left: 3px solid var(--accent);
+  border-radius: 0;
+  padding: 16px 18px;
+  color: var(--ink);
+}
+.take strong {
+  color: var(--accent);
+  font-family: var(--serif);
+  font-size: 1.08em;
+}
